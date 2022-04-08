@@ -1,0 +1,54 @@
+baseURL = '/'
+languageCode = 'en-us'
+pygmentsCodeFences = true
+pygmentsCodefencesGuessSyntax = true
+pygmentsUseClasses = true
+theme = 'hugo-whisper-theme'
+title = 'Faculty Enrichment Program 2022'
+[menu]
+[[menu.main]]
+name = 'Home'
+url = '/'
+weight = 1
+[[menu.main]]
+name = 'Lessons'
+url = '/lessons/'
+weight = 2
+[[menu.main]]
+name = 'Modules'
+url = '/modules/'
+weight = 3
+[[menu.main]]
+name = 'Resources'
+url = '/resources/'
+weight = 4
+
+
+[module]
+[module.hugoVersion]
+extended = true
+min = '0.55.0'
+summaryLength = 30
+
+
+[params]
+google_analytics_id = ''
+homepage_image = '/images/rickroll.gif'
+homepage_intro = 'Lorem Ipsum'
+mainSections = ['lessons', 'modules', 'resources']
+
+
+[params.homepage_meta_tags]
+meta_description = 'Hugo Whisper is a documentation theme built with Hugo.'
+meta_og_description = 'Hugo Whisper is a documentation theme built with Hugo.'
+meta_og_image = 'https://raw.githubusercontent.com/JugglerX/hugo-whisper-theme/master/images/tn.png'
+meta_og_title = 'Hugo Whisper Theme'
+meta_og_type = 'website'
+meta_og_url = 'https://hugo-whisper.netlify.app'
+meta_twitter_card = 'summary'
+meta_twitter_creator = '@zerostaticio'
+meta_twitter_site = '@zerostaticio'
+
+[params.logo]
+mobile = '/images/logo-mobile.svg'
+standard = '/images/logo.svg'
