@@ -1,7 +1,7 @@
 ---
 date: "2019-02-11T19:27:37+10:00"
-title: Hugo Whisper
-weight: 6
+title: Week 5
+weight: 5
 ---
 
 Whisper is a minimal documentation theme built for Hugo. The design &amp; functionality is intentionally minimal.
