@@ -4,7 +4,7 @@ pygmentsCodeFences = true
 pygmentsCodefencesGuessSyntax = true
 pygmentsUseClasses = true
 theme = 'hugo-whisper-theme'
-title = 'Faculty Enrichment Program 2022'
+title = 'Malaria Modeling Faculty Enrichment Program 2022'
 [menu]
 [[menu.main]]
 name = 'Home'
@@ -33,7 +33,7 @@ summaryLength = 30
 
 [params]
 google_analytics_id = ''
-homepage_image = '/images/rickroll.gif'
+homepage_image = '/images/nigerianfaculty_adesina.jpeg'
 homepage_intro = 'Lorem Ipsum'
 mainSections = ['lessons', 'modules', 'resources']
 
