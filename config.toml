@@ -51,4 +51,4 @@ meta_twitter_site = '@zerostaticio'
 
 [params.logo]
 mobile = '/images/logo-mobile.svg'
-standard = '/images/logo.svg'
+standard = '/images/logo.png'
