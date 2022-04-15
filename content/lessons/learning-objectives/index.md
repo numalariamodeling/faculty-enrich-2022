@@ -1,7 +1,7 @@
 ---
 date: "2019-02-11T19:27:37+10:00"
 title: Learning objectives
-weight: 5
+weight: 1
 ---
 
 ### 1 Demonstrate understanding of applied malaria modeling   	
