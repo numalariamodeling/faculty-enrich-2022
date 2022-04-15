@@ -4,14 +4,23 @@ title: Week 1
 weight: 2
 ---
 
-<!--more-->
+### EMOD
 
-To use this theme you will need to have Hugo installed. If you don't already have Hugo installed please follow the official [installation guide](https://gohugo.io/getting-started/installing/)
+- Install dtk-tools and dtk-tools malaria (Obj X)
+- ...
 
-### Check Hugo Version
+### Presentations
 
-This theme uses [Hugo Pipes](https://gohugo.io/hugo-pipes/scss-sass/) to compile SCSS and minify assets. Please make sure you have the `Hugo Extended` version installed. If you are not using the extended version this theme will not not compile.
+Research talks by program participants on previous or ongoing projects.
 
-```
-hugo version
-```
+### Journal club
+
+Presenter: (add presenter name)
+
+Runge, M., Molteni, F., Mandike, R. et al. [Applied mathematical modelling to inform national malaria policies, 
+strategies and operations in Tanzania.](https://malariajournal.biomedcentral.com/articles/10.1186/s12936-020-03173-0) 
+Malar J 19, 101 (2020).
+
+### Evaluation
+
+Baseline participant survey and interviews.
