@@ -52,3 +52,10 @@ meta_twitter_site = '@zerostaticio'
 [params.logo]
 mobile = '/images/logo-mobile.svg'
 standard = '/images/lab_logo_v1_with_name.png'
+
+[outputFormats]
+  [outputFormats.html]
+    isPlainText = true
+
+[markup.goldmark.renderer]
+unsafe = true
