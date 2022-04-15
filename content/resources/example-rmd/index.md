@@ -1,5 +1,5 @@
 ---
-title: "abc123"
+title: "RMD example"
 output: html_document
 ---
 
