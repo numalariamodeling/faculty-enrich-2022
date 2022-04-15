@@ -3,6 +3,7 @@ title: "EMOD How-Tos"
 author: "Anne Stahlfeld"
 date: "4/14/2022"
 summary: "This module discusses general how-tos for EMOD. It primarily focuses on how to change various parameters using python."
+weight: 1
 #output: html_document
 ---
 
@@ -71,7 +72,7 @@ builder = ModBuilder.from_list([[ModFn(smc_intervention, day=start_days, cycles=
                                 ])
 ```
 
-### Set EIR 
+### Set Forced EIR 
 
 For simulations that don't use vector data to establish transmission, a forced EIR can be used as a proxy. These data are typically recreated from previous literature sources that provide monthly EIR levels, input here as a monthly_site_EIR list. This can then be converted to a daily EIR using the monthly_to_daily_EIR helper function and summed to calculate the annual EIR for the site. The add_InputEIR function is called and given the calculated daily EIR to apply to the simulations. It can be scaled using a scaling_factor in order to create the best fit to outcomes data.
 

@@ -33,7 +33,7 @@ summaryLength = 30
 
 [params]
 google_analytics_id = ''
-homepage_image = '/images/nigerianfaculty_adesina.jpeg'
+homepage_image = '/images/numm-logo.svg'
 homepage_intro = 'Lorem Ipsum'
 mainSections = ['lessons', 'modules', 'resources']
 
