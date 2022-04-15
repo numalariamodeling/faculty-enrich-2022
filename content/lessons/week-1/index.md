@@ -4,7 +4,7 @@ title: Week 1
 weight: 2
 ---
 
-### EMOD
+### Technical track (EMOD)
 
 - Install dtk-tools and dtk-tools malaria (Obj X)
 - ...

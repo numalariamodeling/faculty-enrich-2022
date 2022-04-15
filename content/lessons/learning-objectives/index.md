@@ -4,6 +4,8 @@ title: Learning objectives
 weight: 1
 ---
 
+<!--more-->
+
 ### 1 Demonstrate understanding of applied malaria modeling   	
 
 1a Define applied malaria modeling and describe key applied malaria modeling papers
