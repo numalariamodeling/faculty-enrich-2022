@@ -7,11 +7,11 @@
 <span class="overview">Overview</span>
 <h1 class="title">{{ .Title }}</h1>
 <div class="content">
-  {{ .Content }}
+  {{ .Content | safeHTML }}
 </div>
 
-{{ range.Pages }}
+<!-- {{ range.Pages }}
 {{ .Render "summary" }}
-{{ end }}
+{{ end }} -->
 
 {{ end }}

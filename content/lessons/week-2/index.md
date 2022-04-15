@@ -7,62 +7,15 @@ weight: 3
 
 <!--more-->
 
-## Create a new Hugo site
+### Technical track (EMOD)
 
-```
-hugo new site mynewsite
-```
+- ...
 
-This will create a fresh Hugo site in the folder `mynewsite`.
+### Journal club
 
-## Install theme
+Presenter: (add presenter name)
 
-Copy or git clone this theme into the sites themes folder `mynewsite/themes`
+Runge M, Snow RW, Molteni F, Thawer S, Mohamed A, Mandike R, Giorgi E, Macharia PM, Smith TA, Lengeler C, Pothin E. 
+[Simulating the council-specific impact of anti-malaria interventions: a tool to support malaria strategic planning in 
+Tanzania.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0228469) PloS one. 2020 Feb 19;15(2):e0228469.
 
-#### Install with Git
-
-```
-cd mynewsite
-cd themes
-git clone https://github.com/jugglerx/hugo-whisper-theme.git
-```
-
-#### Install from .zip file
-
-You can download the .zip file located here https://github.com/JugglerX/hugo-whisper-theme/archive/master.zip.
-
-Extract the downloaded .zip inside the `themes` folder. Rename the extracted folder from `hugo-whisper-theme-master` -> `hugo-whisper-theme`. You should end up with the following folder structure `mynewsite/themes/hugo-whisper-theme`
-
-## Add example content
-
-The fastest way to get started is to copy the example content and modify the included `config.toml`
-
-### Copy exampleSite contents
-
-Copy the entire contents of the `exampleSite` folder to the root folder of your Hugo site _(the folder with the README.md)_.
-
-### Update config.toml
-
-After you copy the `config.toml` into the root folder of your Hugo site you will need to update the `baseURL`, `themesDir` and `theme` values in the `config.toml`
-
-```
-baseURL = "/"
-themesDir = "themes"
-theme = "hugo-whisper-theme"
-```
-
-## Run Hugo
-
-After installing the theme for the first time, generate the Hugo site.
-
-```
-hugo
-```
-
-For local development run Hugo's built-in local server.
-
-```
-hugo server
-```
-
-Now enter [`localhost:1313`](http://localhost:1313) in the address bar of your browser.
