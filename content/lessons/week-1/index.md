@@ -9,7 +9,8 @@ weight: 2
 ### Technical track (EMOD)
 
 - Install dtk-tools and dtk-tools malaria (Obj X)
-- ...
+- EMOD history
+- parts of EMOD software ecosystem
 
 ### Presentations
 

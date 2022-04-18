@@ -9,13 +9,12 @@ weight: 3
 
 ### Technical track (EMOD)
 
-- ...
+- Run examples and visualize outputs
 
 ### Journal club
 
-Presenter: (add presenter name)
+No journal club this week.
 
-Runge M, Snow RW, Molteni F, Thawer S, Mohamed A, Mandike R, Giorgi E, Macharia PM, Smith TA, Lengeler C, Pothin E. 
-[Simulating the council-specific impact of anti-malaria interventions: a tool to support malaria strategic planning in 
-Tanzania.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0228469) PloS one. 2020 Feb 19;15(2):e0228469.
+### Proposal writing
 
+Structure of an Aims page and rhetorical patterns.
