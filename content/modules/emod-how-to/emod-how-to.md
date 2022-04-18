@@ -24,7 +24,7 @@ At least one demographics file is required for every simulation unless you set t
 
 #### Create CSV
 
-Create a file "my_nodes.csv" with the following columns:
+Create a file "my_node.csv" with the following columns:
 
 **Required**
 
@@ -35,6 +35,13 @@ Create a file "my_nodes.csv" with the following columns:
 
 - Village (clearer labels than nodeID)
 - Other node-specific variables (if any)
+
+Example "my_node.csv":
+
+| nodeid      | population  |  Village |
+| ----------- | ----------- | -------- |
+| 1      | 1400       | "Obom" |
+
 
 #### Run generate_demographics()
 
@@ -123,7 +130,7 @@ The resulting demographics file is a JSON file organized into 4 main sections:
           "NodeAttributes": {
             "BirthRate": 0.1190,
             "InitialPopulation": 1400,
-            "Village": "Village_A"
+            "Village": "Obom"
           },
           "IndividualAttributes": {...},
           "IndividualProperties": {...}
