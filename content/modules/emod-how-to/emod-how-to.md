@@ -7,14 +7,7 @@ output:
     toc: true
 ---
 
-### Set the number of seeds
-
-You will need to set the number of seeds to tell EMOD how many simulations you want to run. You can use this later to set a "Run_Number" parameter in the model builder setup that will force EMOD to iterate through the range of values to reach the length of numseeds, in this case 0-9.
-
-
-```python
-numseeds = 10 
-```
+{{< toc >}}
 
 ### Create a demographics file
 
@@ -275,21 +268,34 @@ We can see this reflected in the demographics file:
 
 #### Human Migration
 
-### Update config parameters
+### Set the number of seeds
 
-You may need to update a variety of configuration parameters for your simulations. These parameters can be explored more in depth in the [EMOD config documentation](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration.html). Broadly, configuration parameters can be used to set up certain things in these categories: drugs and treatments, enable/disable features, general disease, geography and the environment, immunity, incubation, infectivity and transmission, input files, larval habitat, migration, mortality and survival, output settings, parasite dynamics, population dynamics, sampling, scalars and multipliers, simulation setup, symptoms and diagnosis, vector control, and vector life cycle. Generally, we create a setup_simulation() function that contains the configuration update function for the config_builder (cb). For parameters that won't often change you can hard code them directly into this function, while it may be beneficial to call others as a variable, such as sim_years, that can be set when the function itself is called later. This can be done inline in the code or within the model builder.
+You will need to set the number of seeds to tell EMOD how many simulations you want to run. You can use this later to set a "Run_Number" parameter in the model builder setup that will force EMOD to iterate through the range of values to reach the length of numseeds, in this case 0-9.
 
 
 ```python
+numseeds = 10 
+```
+
+### Update config parameters
+
+You may need to update a variety of configuration parameters for your simulations. These parameters can be explored more in depth in the [EMOD config documentation](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration.html). Broadly, configuration parameters can be used to set up certain things in these categories: drugs and treatments, enable/disable features, general disease, geography and the environment, immunity, incubation, infectivity and transmission, input files, larval habitat, migration, mortality and survival, output settings, parasite dynamics, population dynamics, sampling, scalars and multipliers, simulation setup, symptoms and diagnosis, vector control, and vector life cycle. Generally, we create a setup_simulation() function that contains the configuration update function for the config_builder (cb). For parameters that won't often change you can hard code them directly into this function, while it may be beneficial to call others as a variable, such as sim_years, that can be set when the function itself is called later. This can be done inline in the code or within the model builder. 
+
+A number of key parameters are featured in the code block below. Of particular note are how to change the **demographics** (Demographics_Filenames) and **simulation duration** (Simulation_Duration).
+
+
+```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+
 def setup_simulation(cb, sim_years=2):
-    cb.update_params({'Demographics_Filenames': ['under_5_demographics_with_SMC_access_and_IIV_iiflag.json'],
+    cb.update_params({'Demographics_Filenames': ['my_demographics.json'],
                       'Vector_Species_Names': [],
                       'Enable_Vital_Dynamics': 1,
-                      'Enable_Births': 1,
+                      'Enable_Birth': 1,
                       'Disable_IP_Whitelist': 1,
                       'Simulation_Duration': sim_years*365,
                       'Maternal_Antibodies_Type': 'CONSTANT_INITIAL_IMMUNITY',
-                      "Incubation_Period_Distribution": "CONSTANT_DISTRIBUTION",
+                      'Incubation_Period_Distribution': 'CONSTANT_DISTRIBUTION'd,
                       'Birth_Rate_Dependence': 'FIXED_BIRTH_RATE',
                       'Climate_Model': 'CLIMATE_CONSTANT',
                       "Parasite_Smear_Sensitivity": 0.02,
@@ -298,6 +304,36 @@ def setup_simulation(cb, sim_years=2):
                       
 cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
 setup_simulation(cb,7)
+```
+
+#### Enable births and deaths
+
+Vital dynamics can be specified in the same way as general config parameters. They can be included within the same setup_simulation() function but are separated here for ease of access. In order to enable either births or deaths, **Enable_Vital_Dynamics** must be set to 1. Births and deaths can then be modified as needed ("enable" parameters set to 0 = false, 1 = true). Birth rates can be specified by **Birth_Rate_Dependence** to be dependent on a number of factors:  
+- "NONE"
+- "FIXED_BIRTH_RATE"
+- "POPULATION_DEP_RATE"
+- "DEMOGRAPHIC_DEP_RATE"
+- "INDIVIDUAL_PREGNANCIES"
+- "INDIVIDUAL_PREGNANCIES_BY_AGE_AND_YEAR"
+
+Likewise, **Death_Rate_Dependence** determines individuals likelihood of dying from natural, non-disease causes when **Enable_Natural_Mortality**=1, and can be set to 
+- "NOT_INITIALIZED" 
+- "NONDISEASE_MORTALITY_BY_AGE_AND_GENDER"
+- "NONDISEASE_MORTALITY_BY_YEAR_AND_AGE_FOR_EACH_GENDER"
+
+Detailed descriptions of dependencies can be found [here](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration-population.html).
+
+
+```python
+def setup_simulation(cb, sim_years=2):
+    cb.update_params({'Enable_Vital_Dynamics': 1,
+                      'Enable_Birth': 1,
+                      'Birth_Rate_Dependence' : 'FIXED_BIRTH_RATE'
+                      'Enable_Disease_Mortality': 1,
+                      'Enable_Natural_Mortality': 1,
+                      'Death_Rate_Dependence':'NOT_INITIALIZED',
+                      'Base_Mortality': 0.002
+                      })
 ```
 
 ### Create the model builder
@@ -407,10 +443,33 @@ from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
 def smc_intervention(cb, day, cycles, coverage_level):
     add_drug_campaign(cb, campaign_type='SMC',
                           coverage=coverage_level, start_days=[(sim_years - 1) * 365 + day],
-                          ind_property_restrictions=[{'SMCAccess': "Low"}],
+                          ind_property_restrictions=[{'Property_name': "Value"}],
                           repetitions=cycles, tsteps_btwn_repetitions=30,
                           adherent_drug_configs=[adherent_drug_configs],
                           target_group={'agemin': 0.25, 'agemax': 5},
                           receiving_drugs_event_name='Received_SMC')
+```
+
+### Setting up the experiment manager
+
+The experiment manager serves as a mechanism to actually run simulations using the model and config builders. The respective builders, "builder" and "cb", are set up earlier in this list.
+
+
+```python
+from simtools.SetupParser import SetupParser
+from simtools.ExperimentManager.ExperimentManagerFactory import ExperimentManagerFactory
+
+Exp_name = 'my_experiment_name'
+
+run_sim_args = {
+    'exp_name': Exp_name,
+    'config_builder': cb,
+    'exp_builder' : builder
+}
+
+if __name__ == "__main__":
+    SetupParser.init()
+    exp_manager = ExperimentManagerFactory.init()
+    exp_manager.run_simulations(**run_sim_args)
 ```
 
