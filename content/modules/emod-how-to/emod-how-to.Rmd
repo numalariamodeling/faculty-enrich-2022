@@ -15,7 +15,7 @@ You will need to set the number of seeds to tell EMOD how many simulations you w
 numseeds = 10 
 ```
 
-### Create a Demographics File
+### Create a demographics file
 
 The demographics file specifies characteristics of the population in a simulation. This includes things like the population size, distribution of age/gender, immunity, biting/mortality risks, and more.
 
@@ -80,7 +80,7 @@ def generate_demographics(demo_df, demo_fname, days_spread=1) :
 
     
     
-df = pd.read_csv(".../my_nodes.csv")    
+df = pd.read_csv(".../my_node.csv")    
 demo_fname = ".../FILENAME_demographics.json"
 
 generate_demographics(df, demo_fname)
@@ -134,6 +134,140 @@ The resulting demographics file is a JSON file organized into 4 main sections:
      }]
   }
 ```
+
+### Create a multi-node simulation
+
+#### Generate demographics
+
+To run simultaneous simulations in multiple nodes, create an input file "my_nodes.csv" with one row for each node.
+
+Ex. "my_nodes.csv"
+
+| nodeid | population | Village |
+|--------|------------|---------|
+| 1      | 1400       |"Obom"|
+| 2      | 2255       |"Kofi Kwei"|
+| 3      | 1800       |"Village 3"|
+
+Then, run 
+
+```{python,eval=F}
+generate_demographics(df="/my_nodes.csv")
+```
+
+#### Node-specific parameters
+
+Sometimes we want to vary properties between nodes based on prior knowledge. Imagine we know the proportion of "high-risk" individuals in each node and want to use this designation to target them for an intervention.
+
+First, we would add a column to our input file representing the high-risk proportion in each node.
+
+| nodeid | population | Village | high_risk |
+|--------|------------|---------|-----------|
+| 1 | 1400 | "Obom" | 0.05|
+| 2 | 2255 | "Kofi Kwei" | 0.10|
+| 3 | 1800 | "Village 3" | 0.50|
+
+Then, when we can assign the "high_risk" property to individuals in each node with the probability listed in the table, by adding the following code to the end of the generate_demographics() function definition, before writing the .json file.
+
+```{python, eval=F}
+...
+for n in list(range(current['Metadata']['NodeCount'])):
+   current['Nodes'][n]['IndividualProperties'] = [{"Property":"high_risk",
+   "Values": ['yes','no'],
+   "Initial_Distribution": [high_risk, (1-high_risk)]}]
+   
+
+with open(demo_fname, 'w') as fout :
+  json.dump(current, fout, sort_keys=True,indent=4, separators=(',', ': '))
+```
+
+We can see this reflected in the demographics file:
+
+```{python, eval=F}
+{
+     "Metadata": {
+          "DateCreated": "dateTime",
+          "Tool": "scriptUsedToGenerate",
+          "Author": "author",
+          "IdReference": "Gridded world grump2.5arcmin",
+          "NodeCount": "1"
+     },
+     "NodeProperties": [
+          {...}
+     ],
+     "Defaults": {
+         ...
+     },
+     "Nodes": [{
+          "NodeID": 1,
+          "NodeAttributes": {
+            "BirthRate": 0.1190,
+            "InitialPopulation": 1400,
+            "Village": "Obom"
+          },
+          "IndividualAttributes": {...},
+          "IndividualProperties": [
+                {
+                    "Initial_Distribution": [
+                        0.05,
+                        0.95
+                    ],
+                    "Property": "high_risk",
+                    "Values": [
+                        "yes",
+                        "no"
+                    ]
+                }]},
+                
+     {
+          "NodeID": 2,
+          "NodeAttributes": {
+            "BirthRate": 0.1690,
+            "InitialPopulation": 2255,
+            "Village": "Kofi Kwei"
+          },
+          "IndividualAttributes": {...},
+          "IndividualProperties": [
+                {
+                    "Initial_Distribution": [
+                        0.10,
+                        0.90
+                    ],
+                    "Property": "high_risk",
+                    "Values": [
+                        "yes",
+                        "no"
+                    ]
+                }]},
+     {
+          "NodeID": 3,
+          "NodeAttributes": {
+            "BirthRate": 0.2190,
+            "InitialPopulation": 1800,
+            "Village": "Village 3"
+          },
+          "IndividualAttributes": {...},
+          "IndividualProperties": [
+                {
+                    "Initial_Distribution": [
+                        0.50,
+                        0.50
+                    ],
+                    "Property": "high_risk",
+                    "Values": [
+                        "yes",
+                        "no"
+                    ]
+                }]}
+  }
+```
+
+
+### Set up migration between nodes
+
+#### Vector Migration
+
+#### Human Migration
 
 ### Update config parameters
 
