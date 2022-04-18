@@ -135,7 +135,7 @@ The resulting demographics file is a JSON file organized into 4 main sections:
   }
 ```
 
-### Create a multi-node simulation
+### Create multi-node simulations
 
 #### Generate demographics
 
