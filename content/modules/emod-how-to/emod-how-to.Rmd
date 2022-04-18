@@ -14,6 +14,118 @@ You will need to set the number of seeds to tell EMOD how many simulations you w
 ```{python}
 numseeds = 10 
 ```
+### Create a Demographics File
+
+The demographics file specifies characteristics of the population in a simulation. This includes things like the population size, distribution of age/gender, immunity, biting/mortality risks, and more.
+
+At least one demographics file is required for every simulation unless you set the parameter **Enable_Demographics_Builtin** to 1 (one) in the configuration file. This setting does not represent a real location and is generally only used for testing and validating code.
+
+#### Create CSV
+
+Create a file "my_nodes.csv" with the following columns:
+
+**Required**
+
+- nodeid (unique # 1-n, for n nodes)
+- population (starting population size)
+
+*Optional*
+
+- Village (clearer labels than nodeID)
+- Other node-specific variables (if any)
+
+#### Run generate_demographics()
+
+```{r,eval=F,echo=T}
+import json
+from dtk.tools.demographics.DemographicsGeneratorConcern import WorldBankBirthRateConcern, EquilibriumAgeDistributionConcern, DefaultIndividualAttributesConcern
+from dtk.tools.demographics.DemographicsGenerator import DemographicsGenerator
+
+##### Example for Ghana #####
+#############################
+
+
+def generate_demographics(demo_df, demo_fname, days_spread=1) :
+  # Get WorldBank birth rate estimate
+  # UPDATE country and birthrate_year
+  br_concern = WorldBankBirthRateConcern(country="Ghana", birthrate_year=2016)
+
+  chain = [
+        DefaultIndividualAttributesConcern(),
+        br_concern,
+        EquilibriumAgeDistributionConcern(default_birth_rate=br_concern.default_birth_rate),
+    ]
+
+    current: Dict[str, 
+                  Union[List[Dict[str,Union[Union[int, Dict[Any, Any]], Any]]], 
+                        Dict[Any, Any], 
+                        Dict[str, Union[str, int]]]] = DemographicsGenerator.from_dataframe(demo_df,
+                                                   population_column_name='population',
+                                                   nodeid_column_name='nodeid',
+                                                   node_id_from_lat_long=False,
+                                                   concerns=chain,
+                                                   load_other_columns_as_attributes=True,
+                                                   include_columns=['Village'])  # Add any "optional" columns
+
+    with open(demo_fname, 'w') as fout :
+      json.dump(current, fout, sort_keys=True,indent=4, separators=(',', ': '))
+
+    
+    
+df = pd.read_csv(".../my_nodes.csv")    
+demo_fname = ".../FILENAME_demographics.json"
+
+generate_demographics(df, demo_fname)
+```
+
+#### Reading a Demographics File
+
+The resulting demographics file is a JSON file organized into 4 main sections:
+
+1. Metadata
+2. NodeProperties
+3. Defaults
+    - Parameters applied to all nodes in the simulation
+4. Nodes
+    - Allows node-specific parameters
+    - Duplicated parameters override values in 'Defaults'
+
+```{r,eval=F,echo=T}
+# Structure of Demographics File for a simulation with 1 node
+  {
+     "Metadata": {
+          "DateCreated": "dateTime",
+          "Tool": "scriptUsedToGenerate",
+          "Author": "author",
+          "IdReference": "Gridded world grump2.5arcmin",
+          "NodeCount": "1"
+     },
+     "NodeProperties": [
+          {...}
+     ],
+     "Defaults": {
+          "NodeAttributes": {
+            ...
+            "BirthRateSource": "World Bank",
+            "CountryBirthRate": 31.047,
+            "World Bank Year": "2016",
+            ...
+          },
+          "IndividualAttributes": {...},
+          "IndividualProperties": {...}
+     },
+     "Nodes": [{
+          "NodeID": 1,
+          "NodeAttributes": {
+            "BirthRate": 0.1190,
+            "InitialPopulation": 1400,
+            "Village": "Village_A"
+          },
+          "IndividualAttributes": {...},
+          "IndividualProperties": {...}
+     }]
+  }
+```
 
 ### Update config parameters
 
@@ -148,3 +260,4 @@ def smc_intervention(cb, day, cycles, coverage_level):
                           target_group={'agemin': 0.25, 'agemax': 5},
                           receiving_drugs_event_name='Received_SMC')
 ```
+
