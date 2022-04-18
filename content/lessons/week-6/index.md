@@ -1,8 +1,8 @@
 ---
 date: "2019-02-11T19:30:08+10:00"
 draft: false
-title: Week 4
-weight: 5
+title: Week 6
+weight: 7
 ---
 
 <!--more-->
@@ -11,10 +11,14 @@ weight: 5
 
 - ...
 
+### Presentations
+
+EMOD research project in-progress presentations.
+
 ### Journal club
 
 No journal club this week.
 
 ### Proposal writing
 
-Continue feedback sessions on Aims page second drafts.
+Third drafts of Aims pages due Friday.

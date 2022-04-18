@@ -17,3 +17,7 @@ Presenter: (add presenter name)
 Runge M, Snow RW, Molteni F, Thawer S, Mohamed A, Mandike R, Giorgi E, Macharia PM, Smith TA, Lengeler C, Pothin E. 
 [Simulating the council-specific impact of anti-malaria interventions: a tool to support malaria strategic planning in 
 Tanzania.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0228469) PloS one. 2020 Feb 19;15(2):e0228469.
+
+### Proposal writing
+
+Second draft of Aims page due Wednesday. Feedback sessions on Aims pages.

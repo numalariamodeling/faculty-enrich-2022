@@ -11,9 +11,17 @@ weight: 6
 
 No technical instruction this week.
 
+### Presentations
+
+Prepare slide decks for EMOD research project in-progress presentations.
+
 ### Journal club
 
 Presenter: (add presenter name)
 
 Ozodiegwu ID, Ambrose M, Galatas B, Runge M, Nandi A, Okuneye K, Dhanoa NP, Maikore I, Uhomoibhi P, Bever C, Noor A, Gerardin J.
 [Application of mathematical modeling to inform national malaria intervention planning in Nigeria.](https://northwestern.box.com/s/1esdm0mwqmdqxrtu6ct1mduxyfef50x7)
+
+### Proposal writing
+
+Prepare third drafts of Aims pages.

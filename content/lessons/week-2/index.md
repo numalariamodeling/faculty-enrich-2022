@@ -14,3 +14,7 @@ weight: 3
 ### Journal club
 
 No journal club this week.
+
+### Proposal writing
+
+Structure of an Aims page and rhetorical patterns.
