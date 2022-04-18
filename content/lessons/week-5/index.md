@@ -1,16 +1,15 @@
 ---
 date: "2019-02-11T19:30:08+10:00"
 draft: false
-summary: Week 5 lesson.
 title: Week 5
-weight: 5
+weight: 6
 ---
 
 <!--more-->
 
 ### Technical track (EMOD)
 
-- ...
+No technical instruction this week.
 
 ### Journal club
 
