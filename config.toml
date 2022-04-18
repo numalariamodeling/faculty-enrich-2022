@@ -3,7 +3,7 @@ languageCode = 'en-us'
 pygmentsCodeFences = true
 pygmentsCodefencesGuessSyntax = true
 pygmentsUseClasses = true
-theme = 'hugo-whisper-theme'
+theme = "hugo-whisper-theme"
 title = 'Malaria Modeling Faculty Enrichment Program 2022'
 [menu]
 [[menu.main]]

@@ -1,17 +1,18 @@
 ---
-title: "EMOD How-Tos"
-author: "Anne Stahlfeld"
-date: "4/14/2022"
-summary: "This module discusses general how-tos for EMOD. It primarily focuses on how to change various parameters using python."
-weight: 1
-#output: html_document
+title: "EMOD How Tos"
+author: "Anne Stahlfeld & Tobias Holden"
+date: "4/18/2022"
+output: 
+  blogdown::html_page:
+    toc: true
 ---
 
 ### Set the number of seeds
 
 You will need to set the number of seeds to tell EMOD how many simulations you want to run. You can use this later to set a "Run_Number" parameter in the model builder setup that will force EMOD to iterate through the range of values to reach the length of numseeds, in this case 0-9.
 
-```{python}
+
+```python
 numseeds = 10 
 ```
 
@@ -19,7 +20,8 @@ numseeds = 10
 
 You may need to update a variety of configuration parameters for your simulations. These parameters can be explored more in depth in the [EMOD config documentation](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration.html). Broadly, configuration parameters can be used to set up certain things in these categories: drugs and treatments, enable/disable features, general disease, geography and the environment, immunity, incubation, infectivity and transmission, input files, larval habitat, migration, mortality and survival, output settings, parasite dynamics, population dynamics, sampling, scalars and multipliers, simulation setup, symptoms and diagnosis, vector control, and vector life cycle. Generally, we create a setup_simulation() function that contains the configuration update function for the config_builder (cb). For parameters that won't often change you can hard code them directly into this function, while it may be beneficial to call others as a variable, such as sim_years, that can be set when the function itself is called later. This can be done inline in the code or within the model builder.
 
-```{python}
+
+```python
 def setup_simulation(cb, sim_years=2):
     cb.update_params({'Demographics_Filenames': ['under_5_demographics_with_SMC_access_and_IIV_iiflag.json'],
                       'Vector_Species_Names': [],
@@ -43,7 +45,8 @@ setup_simulation(cb,7)
 
 The following model builder implements some of the changes discussed above as well as references other specific functions from the NU team's SMC work.
 
-```{python}
+
+```python
 from simtools.ModBuilder import ModBuilder, ModFn
 
 builder = ModBuilder.from_list([[ModFn(smc_intervention, day=start_days, cycles=smc_cycles, coverage_level=smc_coverage),
@@ -76,7 +79,8 @@ builder = ModBuilder.from_list([[ModFn(smc_intervention, day=start_days, cycles=
 
 For simulations that don't use vector data to establish transmission, a forced EIR can be used as a proxy. These data are typically recreated from previous literature sources that provide monthly EIR levels, input here as a monthly_site_EIR list. This can then be converted to a daily EIR using the monthly_to_daily_EIR helper function and summed to calculate the annual EIR for the site. The add_InputEIR function is called and given the calculated daily EIR to apply to the simulations. It can be scaled using a scaling_factor in order to create the best fit to outcomes data.
 
-```{python}
+
+```python
 from dtk.interventions.input_EIR import add_InputEIR
 from helper_scripts.monthly_to_daily_EIR import monthly_to_daily_EIR
 
@@ -96,7 +100,8 @@ def set_EIR(cb, EIRscale_factor):
 
 Adherence to drugs can be modified using configure_adherent_drug(). This allows you to detail doses (and drugs given), intervals between doses, actual adherence values, and more.
 
-```{python}
+
+```python
 from malaria.interventions.adherent_drug import configure_adherent_drug
 
 def smc_adherent_configuration(cb, adherence):
@@ -136,7 +141,8 @@ Using add_drug_campaign() you can set different drug campaigns including MDA, MS
 
 This example details a simple SMC intervention. Its coverage level, number of cycles, and start day are specified in the model builder as they may change more regularly based on the purpose of different analyses. Timesteps between repetitions (if more than one cycle given) is set to 30 days as SMC is given on a monthly basis during peak season. The target group is also specified here to limit the age group to 0.25-5 year old children. This example dictates that it only applies to children classified as having "low" SMC access per the demographics file and uses adherent drug configurations as previously shown.
 
-```{python}
+
+```python
 from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
 
 def smc_intervention(cb, day, cycles, coverage_level):
