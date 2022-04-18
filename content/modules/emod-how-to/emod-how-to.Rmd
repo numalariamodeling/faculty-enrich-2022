@@ -14,6 +14,7 @@ You will need to set the number of seeds to tell EMOD how many simulations you w
 ```{python}
 numseeds = 10 
 ```
+
 ### Create a Demographics File
 
 The demographics file specifies characteristics of the population in a simulation. This includes things like the population size, distribution of age/gender, immunity, biting/mortality risks, and more.
@@ -36,7 +37,7 @@ Create a file "my_nodes.csv" with the following columns:
 
 #### Run generate_demographics()
 
-```{r,eval=F,echo=T}
+```{python, eval=F}
 import json
 from dtk.tools.demographics.DemographicsGeneratorConcern import WorldBankBirthRateConcern, EquilibriumAgeDistributionConcern, DefaultIndividualAttributesConcern
 from dtk.tools.demographics.DemographicsGenerator import DemographicsGenerator
@@ -90,7 +91,7 @@ The resulting demographics file is a JSON file organized into 4 main sections:
     - Allows node-specific parameters
     - Duplicated parameters override values in 'Defaults'
 
-```{r,eval=F,echo=T}
+```{python, eval=F}
 # Structure of Demographics File for a simulation with 1 node
   {
      "Metadata": {
