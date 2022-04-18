@@ -9,13 +9,13 @@ output:
 
 {{< toc >}}
 
-### Create a demographics file
+## Create a demographics file 
 
 The demographics file specifies characteristics of the population in a simulation. This includes things like the population size, distribution of age/gender, immunity, biting/mortality risks, and more.
 
 At least one demographics file is required for every simulation unless you set the parameter **Enable_Demographics_Builtin** to 1 (one) in the configuration file. This setting does not represent a real location and is generally only used for testing and validating code.
 
-#### Create CSV
+### Create CSV
 
 Create a file "my_node.csv" with the following columns:
 
@@ -36,7 +36,7 @@ Example "my_node.csv":
 | 1      | 1400       | "Obom" |
 
 
-#### Run generate_demographics()
+### Run generate_demographics()
 
 ```{python, eval=F}
 import json
@@ -80,7 +80,7 @@ demo_fname = ".../FILENAME_demographics.json"
 generate_demographics(df, demo_fname)
 ```
 
-#### Reading a Demographics File
+### Reading a Demographics File
 
 The resulting demographics file is a JSON file organized into 4 main sections:
 
@@ -129,9 +129,9 @@ The resulting demographics file is a JSON file organized into 4 main sections:
   }
 ```
 
-### Create multi-node simulations
+## Create multi-node simulations
 
-#### Generate demographics
+### Generate demographics
 
 To run simultaneous simulations in multiple nodes, create an input file "my_nodes.csv" with one row for each node.
 
@@ -149,7 +149,7 @@ Then, run
 generate_demographics(df="/my_nodes.csv")
 ```
 
-#### Node-specific parameters
+### Node-specific parameters
 
 Sometimes we want to vary properties between nodes based on prior knowledge. Imagine we know the proportion of "high-risk" individuals in each node and want to use this designation to target them for an intervention.
 
@@ -257,13 +257,13 @@ We can see this reflected in the demographics file:
 ```
 
 
-### Set up migration between nodes
+## Set up migration between nodes
 
-#### Vector Migration
+### Vector Migration
 
-#### Human Migration
+### Human Migration
 
-### Set the number of seeds
+## Set the number of seeds
 
 You will need to set the number of seeds to tell EMOD how many simulations you want to run. You can use this later to set a "Run_Number" parameter in the model builder setup that will force EMOD to iterate through the range of values to reach the length of numseeds, in this case 0-9.
 
@@ -271,7 +271,7 @@ You will need to set the number of seeds to tell EMOD how many simulations you w
 numseeds = 10 
 ```
 
-### Update config parameters
+## Update config parameters
 
 You may need to update a variety of configuration parameters for your simulations. These parameters can be explored more in depth in the [EMOD config documentation](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration.html). Broadly, configuration parameters can be used to set up certain things in these categories: drugs and treatments, enable/disable features, general disease, geography and the environment, immunity, incubation, infectivity and transmission, input files, larval habitat, migration, mortality and survival, output settings, parasite dynamics, population dynamics, sampling, scalars and multipliers, simulation setup, symptoms and diagnosis, vector control, and vector life cycle. Generally, we create a setup_simulation() function that contains the configuration update function for the config_builder (cb). For parameters that won't often change you can hard code them directly into this function, while it may be beneficial to call others as a variable, such as sim_years, that can be set when the function itself is called later. This can be done inline in the code or within the model builder. 
 
@@ -299,7 +299,7 @@ cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
 setup_simulation(cb,7)
 ```
 
-#### Enable births and deaths
+### Enable births and deaths
 
 Vital dynamics can be specified in the same way as general config parameters. They can be included within the same setup_simulation() function but are separated here for ease of access. In order to enable either births or deaths, **Enable_Vital_Dynamics** must be set to 1. Births and deaths can then be modified as needed ("enable" parameters set to 0 = false, 1 = true). Birth rates can be specified by **Birth_Rate_Dependence** to be dependent on a number of factors:  
 - "NONE"
@@ -328,7 +328,7 @@ def setup_simulation(cb, sim_years=2):
                       })
 ```
 
-### Create the model builder
+## Create the model builder
 
 The following model builder implements some of the changes discussed above as well as references other specific functions from the NU team's SMC work.
 
@@ -361,7 +361,7 @@ builder = ModBuilder.from_list([[ModFn(smc_intervention, day=start_days, cycles=
                                 ])
 ```
 
-### Set Forced EIR 
+## Set Forced EIR 
 
 For simulations that don't use vector data to establish transmission, a forced EIR can be used as a proxy. These data are typically recreated from previous literature sources that provide monthly EIR levels, input here as a monthly_site_EIR list. This can then be converted to a daily EIR using the monthly_to_daily_EIR helper function and summed to calculate the annual EIR for the site. The add_InputEIR function is called and given the calculated daily EIR to apply to the simulations. It can be scaled using a scaling_factor in order to create the best fit to outcomes data.
 
@@ -381,7 +381,7 @@ def set_EIR(cb, EIRscale_factor):
     return {'EIR scale factor': EIRscale_factor}
 ```
 
-### Change drug adherence
+## Change drug adherence
 
 Adherence to drugs can be modified using configure_adherent_drug(). This allows you to detail doses (and drugs given), intervals between doses, actual adherence values, and more.
 
@@ -419,7 +419,7 @@ def smc_adherent_configuration(cb, adherence):
 adherent_drug_configs = smc_adherent_configuration(cb, adherence)
 ```
 
-### Adding drug campaigns
+## Adding drug campaigns
 
 Using add_drug_campaign() you can set different drug campaigns including MDA, MSAT, SMC, fMDA, MTAT, rfMSAT, and rfMDA. This function also includes the ability to set coverage levels, repetitions (such as SMC cycles) and the timesteps between them, diagnostics information for campaigns that include testing, target groups, and restrictions on who can receive drugs by node or individual properties. For more details on all possible specifications see [malaria_drug_campaigns.py](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/malaria_drug_campaigns.py) in dtk-tools-malaria. Node and individual properties are set in the demographics file and can be called upon here for things like low vs high access groups.
 
@@ -438,7 +438,7 @@ def smc_intervention(cb, day, cycles, coverage_level):
                           receiving_drugs_event_name='Received_SMC')
 ```
 
-### Setting up the experiment manager
+## Setting up the experiment manager
 
 The experiment manager serves as a mechanism to actually run simulations using the model and config builders. The respective builders, "builder" and "cb", are set up earlier in this list.
 
