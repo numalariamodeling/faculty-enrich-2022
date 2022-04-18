@@ -8,32 +8,35 @@ weight: 1
 
 **Week 1: Overview of EMOD**
 
-- Install pyCharm, dtk-tools, and dtk-tools malaria (Obj X)
-- EMOD history
-- parts of EMOD software ecosystem
+- Install PyCharm, `dtk-tools`, and `dtk-tools malaria` (Obj 2b)
+- Learn EMOD history (Obj 2a)
+- Learn each part of EMOD software ecosystem and how they interact (Obj 2a)
+- Learn basic EMOD simulation workflow (Obj 2c)
+- Run a barebone `ExampleSim`
 
-**Week 2: Basic simulation workflow**
+**Week 2: Basic building blocks of EMOD**
 
-- Run examples and visualize outputs
-- Tweak existing examples
+- Identify the three building blocks to run an EMOD simulation (Obj 2c)
+    + The basic inputs: Parameters, demographics and climates
+    + The reports/outputs: JSON/CSV outputs
+    + The interventions: (To be covered in following weeks)
+- Create demographics and climate files, incorporate into simulation (Obj 2d)
+- Specify and obtain specific outputs (Obj 2d)
 
-**Week 3: Basic building blocks of EMOD**
+**Week 3: Interventions in EMOD**
 
-- Create demographics and climate files
-- Vector and habitat parameters
+- Learn how major malaria interventions are implemented in EMOD
+- Run various interventions in the simulation and examine the output
 
-**Week 4: Interventions and outputs**
-
-- Run analyzers to grab outputs
-- read campaign.json example, output csv and json files
+**Week 4: Build and run experiments**
+- Learn how to run multiple simulations within an experiment
+- Learn how to run multi-factorial experiment
 
 **Week 5**
 
 *no technical curriculum, prepping Aims and slide decks*
 
-**Week 6: Showcase a comprehensive example**
-
-
+**Week 6: HBHI simulation??**
 
 **Week 7: Analyzers and plotters**
 
