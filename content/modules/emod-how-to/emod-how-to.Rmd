@@ -278,6 +278,8 @@ We can see this reflected in the demographics file:
 
 Multi-node simulations allow for the possibility that humans or vectors will move between nodes.
 
+**"Baseline" Migration**
+
 <details><summary><span style="color: blue";">Human Migration (Local)</span></summary>
 <p>
 
@@ -378,6 +380,74 @@ cb.update_params({
         'Vector_Migration_Stay_Put_Modifier': 0
     })
 ```
+</p>
+</details>
+
+<p>
+</p>
+
+**Forced Migration**
+
+You may want to incorporate migration that is different from the normal migration patterns described above.
+
+<details><summary><span style="color: blue";">Migration "Events"</span></summary>
+<p>
+
+Make sure the configuration parameters are set to allow migration:
+
+```{python, eval=F}
+cb.update_params({
+        # Migration
+        'Migration_Model': 'FIXED_RATE_MIGRATION',   
+        'Migration_Pattern': 'SINGLE_ROUND_TRIPS'
+  })
+```
+
+To add the migration events to the simulated campaign use add_migration_event(). 
+
+```{python,eval=F}
+from dtk.interventions.migrate_to import add_migration_event
+# When is migration "initialized"?
+start = 100
+# Origin
+node_from = 2
+# Destination
+node_to = 1
+# How long after the "start" date should people wait to begin the trip?
+duration_before_leaving = {"Duration_Before_Leaving_Distribution": "UNIFORM_DISTRIBUTION",
+                           "Duration_Before_Leaving_Min": 1,
+                           "Duration_Before_Leaving_Max": 7}
+                           # Trips are staggered evenly over 7 days.
+# How long should the trip last?
+at_node = 30
+duration_at_node = {"Duration_At_Node_Distribution": "CONSTANT_DISTRIBUTION",
+                    "Duration_At_Node_Constant": at_node}
+                    # Each trip lasts exactly 30 days.
+
+
+add_migration_event(cb,
+                    start_day=100,
+                    nodesfrom=[2],
+                    nodeto=node_to,
+                    coverage=1.0,
+                    duration_at_node= # time to spend at destination node,
+                    duration_before_leaving=duration_before_leaving # time to remain home before trip,
+                    ## [optional] targeting to subset of node population
+                    ind_property_restrictions=[{"Property": property_value}], 
+                    repetitions=1 # For a single event)
+```
+
+More detail on specifying distributions for waiting/away times can be found in the [EMOD documentation - here](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-campaign-individual-migrateindividuals.html).
+
+For routine or seasonal migration events that repeat during a simulation, specify the number of repetitions and time-interval within add_migration_event()
+
+```{python, eval=F}
+add_migration_event(cb,
+                    ...
+                    repititions=4,
+                    tsteps_btwn=365 # annual event)
+```
+
 </p>
 </details>
 
