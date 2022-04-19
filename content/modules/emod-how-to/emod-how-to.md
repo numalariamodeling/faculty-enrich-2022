@@ -143,7 +143,7 @@ The resulting demographics file is a JSON file organized into 4 main sections:
 
 ## Create multi-node simulations
 
-<details><summary><span style="color: blue";">1. Generating demographics</span></summary>
+<details><summary><span style="color: blue;">1. Generating demographics</span></summary>
 <p>
 
 To run simultaneous simulations in multiple nodes, create an input file "my_nodes.csv" with one row for each node.
@@ -166,7 +166,7 @@ generate_demographics(df="/my_nodes.csv")
 </p>
 </details>
 
-<details><summary><span style="color: blue";">2. Setting Node-Specific Inputs</span></summary>
+<details><summary><span style="color: blue;">2. Setting Node-Specific Inputs</span></summary>
 <p>
 
 Sometimes we want to vary properties between nodes based on prior knowledge. Imagine we know the proportion of "high-risk" individuals in each node and want to use this designation to target them for an intervention.
@@ -285,7 +285,7 @@ Multi-node simulations allow for the possibility that humans or vectors will mov
 
 **"Baseline" Migration**
 
-<details><summary><span style="color: blue";">Human Migration (Local)</span></summary>
+<details><summary><span style="color: blue;">Human Migration (Local)</span></summary>
 <p>
 
 **Local** migration represents the movement of people in/out of nodes on foot. To specify migration rates, create a file "local_migration.csv" with columns specifying the origin node, destination node, and migration rate (1/trip duration). In the example below, people from Node 1 visit node 2 for 5 days (or vice versa), and people from Node 3 visit node 2 for 3 days (or vice versa). There is no local human movement between between Node 1 and Node 3.
@@ -331,7 +331,7 @@ cb.update_params({
 </p>
 </details>
 
-<details><summary><span style="color: blue";">Human Migration (Regional)</span></summary>
+<details><summary><span style="color: blue;">Human Migration (Regional)</span></summary>
 <p>
 
 **Regional** migration represents the movement of people in/out of nodes by road or rail networks. However, this is not explicitly modeled, and you do not need to include these routes in your model to specify regional migration separately from local. The process is the same as for local migration, with different configuration parameter names. 
@@ -358,7 +358,7 @@ cb.update_params({
 </p>
 </details>
 
-<details><summary><span style="color: blue";">Vector Migration (Local)</span></summary>
+<details><summary><span style="color: blue;">Vector Migration (Local)</span></summary>
 <p>
 
 The setup for vector movement between nodes is very similar to that for humans, but with different parameters. The table below is an example of a .csv file that can be used to generate a "vector_migration_local.bin" specifying equivalent vector migration between 2 adjacent nodes.
@@ -398,7 +398,7 @@ cb.update_params({
 
 You may want to incorporate migration that is different from the normal migration patterns described above.
 
-<details><summary><span style="color: blue";">Migration "Events"</span></summary>
+<details><summary><span style="color: blue;">Forcing a Single Migration Event</span></summary>
 <p>
 
 Make sure the configuration parameters are set to allow migration:
@@ -444,10 +444,17 @@ add_migration_event(cb,
                     duration_before_leaving=duration_before_leaving # time to remain home before trip,
                     ## [optional] targeting to subset of node population
                     ind_property_restrictions=[{"Property": property_value}], 
-                    repetitions=1 # For a single event)
+                    repetitions=1 # For a single event
+                    )
 ```
 
 More detail on specifying distributions for waiting/away times can be found in the [EMOD documentation - here](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-campaign-individual-migrateindividuals.html).
+
+</p>
+</details>
+
+<details><summary><span style="color: blue;">Simulating Periodic Migration</span></summary>
+<p>
 
 For routine or seasonal migration events that repeat during a simulation, specify the number of repetitions and time-interval within add_migration_event()
 
@@ -456,8 +463,28 @@ For routine or seasonal migration events that repeat during a simulation, specif
 add_migration_event(cb,
                     ...
                     repititions=4,
-                    tsteps_btwn=365 # annual event)
+                    tsteps_btwn=365 # annual event
+                    )
 ```
+
+</p>
+</details>
+
+<details><summary><span style="color: blue;">Simulating Permanent Moves</span></summary>
+<p>
+
+EMOD also has a few other parameters built-in to the migrate_individuals campaign class:
+
+- *DontAllowDuplicates* (default is False)
+    - TRUE = While waiting to leave or during a trip, another migration event can't be initialized for a given individual. 
+- *IsMoving* (default is False)
+    - TRUE = a migration event changes individuals "home node" that they are considered a resident of (for other node-based interventions) **nodefrom** --> **nodeto**, even if they are on a short round-trip.
+
+<span style="color: red;">**Note:**</span> the *IsMoving* parameter doesn't have anything to do with trip duration or a permanent relocation. These migration events are all round-trips. If you want to simulate a permanent move:
+
+- set duration_at_node in add_migration_event() to a length of time that extends past the end of your simulation.
+- Make sure *DontAllowDuplicates* in MigrateIndividuals() is FALSE if you want them to be eligible for future migration events after they change residence. 
+- Set *IsMoving* in MigrateIndividuals() to True.
 
 </p>
 </details>
