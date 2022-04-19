@@ -9,13 +9,14 @@ output:
 
 {{< toc >}}
 
-## Create a demographics file 
+## Create a demographics file
 
 The demographics file specifies characteristics of the population in a simulation. This includes things like the population size, distribution of age/gender, immunity, biting/mortality risks, and more.
 
 At least one demographics file is required for every simulation unless you set the parameter **Enable_Demographics_Builtin** to 1 (one) in the configuration file. This setting does not represent a real location and is generally only used for testing and validating code.
 
-### Create CSV
+<details><summary><span style="color: blue";">1. Create CSV</span></summary>
+<p>
 
 Create a file "my_node.csv" with the following columns:
 
@@ -35,8 +36,11 @@ Example "my_node.csv":
 | ----------- | ----------- | -------- |
 | 1      | 1400       | "Obom" |
 
+</p>
+</details>
 
-### Run generate_demographics()
+<details><summary><span style="color: blue";">2. Run generate_demographics()</span></summary>
+<p>
 
 ```{python, eval=F}
 import json
@@ -79,8 +83,11 @@ demo_fname = ".../FILENAME_demographics.json"
 
 generate_demographics(df, demo_fname)
 ```
+</p>
+</details>
 
-### Reading a Demographics File
+<details><summary><span style="color: blue";">3. Reading your Demographics File</span></summary>
+<p>
 
 The resulting demographics file is a JSON file organized into 4 main sections:
 
@@ -129,9 +136,13 @@ The resulting demographics file is a JSON file organized into 4 main sections:
   }
 ```
 
+</p>
+</details>
+
 ## Create multi-node simulations
 
-### Generate demographics
+<details><summary><span style="color: blue";">1. Generating demographics</span></summary>
+<p>
 
 To run simultaneous simulations in multiple nodes, create an input file "my_nodes.csv" with one row for each node.
 
@@ -149,7 +160,11 @@ Then, run
 generate_demographics(df="/my_nodes.csv")
 ```
 
-### Node-specific parameters
+</p>
+</details>
+
+<details><summary><span style="color: blue";">2. Setting Node-Specific Inputs</span></summary>
+<p>
 
 Sometimes we want to vary properties between nodes based on prior knowledge. Imagine we know the proportion of "high-risk" individuals in each node and want to use this designation to target them for an intervention.
 
@@ -256,12 +271,115 @@ We can see this reflected in the demographics file:
   }
 ```
 
+</p>
+</details>
 
 ## Set up migration between nodes
 
-### Vector Migration
+Multi-node simulations allow for the possibility that humans or vectors will move between nodes.
 
-### Human Migration
+<details><summary><span style="color: blue";">Human Migration (Local)</span></summary>
+<p>
+
+**Local** migration represents the movement of people in/out of nodes on foot. To specify migration rates, create a file "local_migration.csv" with columns specifying the origin node, destination node, and migration rate (1/trip duration). In the example below, people from Node 1 visit node 2 for 5 days (or vice versa), and people from Node 3 visit node 2 for 3 days (or vice versa). There is no local human movement between between Node 1 and Node 3.
+
+|      |      |    |
+|------|------|----|
+|Node 1|Node 2| 0.2|
+|Node 2|Node 1| 0.2|
+|Node 2|Node 3| 0.33|
+|Node 3|Node 2| 0.33|
+
+Then, we have to convert the .csv to a .bin file EMOD can understand.
+
+```{python,eval=F}
+
+demo_fname = "inputs_path/my_demographics_file.json"
+with open(demo_fname) as fin:
+    demo = json.loads(fin.read())
+id_reference = demo['Metadata']['IdReference']
+
+convert_txt_to_bin('local_migration.csv',
+                   'local_migration.bin',
+                    id_reference=id_reference)
+```
+
+To connect that migration file a simulation, we need to change some configuration parameters. 
+
+```{python, eval=F}
+cb.update_params({
+        # Migration
+        'Migration_Model': 'FIXED_RATE_MIGRATION',   
+        'Migration_Pattern': 'SINGLE_ROUND_TRIPS',
+
+        'Enable_Local_Migration': 1,
+        'Local_Migration_Roundtrip_Duration': 5,
+        'Local_Migration_Roundtrip_Probability': 1,
+        'x_Local_Migration': 0.02,  # Scale factor used to fix the average # of trips per person, per year.
+        'Local_Migration_Filename': 'local_migration.bin'
+    })
+```
+
+</p>
+</details>
+
+<details><summary><span style="color: blue";">Human Migration (Regional)</span></summary>
+<p>
+
+**Regional** migration represents the movement of people in/out of nodes by road or rail networks. However, this is not explicitly modeled, and you do not need to include these routes in your model to specify regional migration separately from local. The process is the same as for local migration, with different configuration parameter names. 
+
+1. Create CSV
+2. Convert to BIN
+3. Update Configuration Parameters
+
+```{python, eval=F}
+cb.update_params({
+        # Migration
+        'Migration_Model': 'FIXED_RATE_MIGRATION',   
+        'Migration_Pattern': 'SINGLE_ROUND_TRIPS',
+
+        'Enable_Regional_Migration': 1,
+        'Regional_Migration_Roundtrip_Duration': 30,
+        'Regional_Migration_Roundtrip_Probability': 1,
+        'x_Regional_Migration': 0.1,  # Scale factor used to fix the average # of trips per person, per year.
+        'Regional_Migration_Filename': 'regional_migration.bin'
+    })
+```
+
+</p>
+</details>
+
+<details><summary><span style="color: blue";">Vector Migration (Local)</span></summary>
+<p>
+
+The setup for vector movement between nodes is very similar to that for humans, but with different parameters. The table below is an example of a .csv file that can be used to generate a "vector_migration_local.bin" specifying equivalent vector migration between 2 adjacent nodes.
+
+|      |      |      |
+|------|------|------|
+|Node 1|Node 2| 1.0  |
+|Node 2|Node 1| 1.0  |
+
+With the following updates to configuration parameters:
+
+```{python, eval=F}
+cb.update_params({
+        'Enable_Vector_Migration': 1,
+        'Enable_Vector_Migration_Local': 1,        
+        'x_Vector_Migration_Local': 0.01,  # scale factor to fix average # of trips per vector, per day
+        'Vector_Migration_Filename_Local': 'Vector_Local_Migration.bin',
+        #"Vector_Migration_Base_Rate": 0.15,   (possibly redundant parameter, Tobias is looking into this 4/19/22)
+        
+        ### Modifying Equation parameters
+        #   These must be specified, even if not used. 
+        #   The default (no modification) parameters are below
+        'Vector_Migration_Modifier_Equation': 'LINEAR',
+        'Vector_Migration_Food_Modifier': 0, 
+        'Vector_Migration_Habitat_Modifier': 0,
+        'Vector_Migration_Stay_Put_Modifier': 0
+    })
+```
+</p>
+</details>
 
 ## Set the number of seeds
 
