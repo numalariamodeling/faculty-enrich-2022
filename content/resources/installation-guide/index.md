@@ -1,12 +1,12 @@
 ---
 date: "2019-02-11T19:27:37+10:00"
-title: Week 1
+title: EMOD and dtk installation guide
 weight: 2
 ---
 
 <!--more-->
 
-### EMOD Install dtk-tools and dtk-tools malaria 
+### Install EMOD, dtk-tools and dtk-tools malaria 
 
 #### Installation steps for `NUCLUSTER`
 

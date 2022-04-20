@@ -11,8 +11,7 @@ weight: 1
 - Install PyCharm, `dtk-tools`, and `dtk-tools malaria` (Obj 2b)
 - Learn EMOD history (Obj 2a)
 - Learn each part of EMOD software ecosystem and how they interact (Obj 2a)
-- Learn basic EMOD simulation workflow (Obj 2c)
-- Run a barebone `ExampleSim`
+- Learn basic EMOD simulation workflow and run a barebon `ExampleSim` (Obj 2c)
 
 **Week 2: Basic building blocks of EMOD**
 
@@ -25,36 +24,68 @@ weight: 1
 
 **Week 3: Interventions in EMOD**
 
-- Learn how major malaria interventions are implemented in EMOD
-- Run various interventions in the simulation and examine the output
+- Learn how major malaria interventions are implemented in EMOD (Obj 2a, 2c)
+- Run various interventions in the simulation and examine the output (Obj 2c, 2e)
 
 **Week 4: Build and run experiments**
-- Learn how to run multiple simulations within an experiment
-- Learn how to run multi-factorial experiment
+
+- Learn how to run multiple simulations within an experiment (Obj 2a, 2c)
+- Learn how to run factorial experiment (Obj 2c)
 
 **Week 5**
 
 *no technical curriculum, prepping Aims and slide decks*
 
-**Week 6: HBHI simulation??**
+**Week 6: HBHI simulation**
+
+- Run HBHI "historical" simulations *independently* (Obj 2c, Obj 2d)
+- Learn more about HBHI analysis via interaction with HBHI-Nigeria Shiny app (Obj 3a, 3b)
+- Roundtable: Working with DHS
 
 **Week 7: Analyzers and plotters**
 
+- Walkthrough examples of analyzers (based on "historical" simulations) (Obj 2a, 2c)
+- Write an analyzer to extract data from "historical simulation" (Obj 2d, 2g)
+- Plot analyzers' output using R or Python (Obj 2d, 2e, 2g)
+
 **Week 8: Serialization**
 
+- Understand the concept and rationale of burn-in and serialization (Obj 2a, 2c)
+- Perform the following (Obj 2c):
+    + Serialization of simulation ("Historical" HBHI)
+    + Picking up a serialized population and run it forward (HBHI 2010 to 2019) 
+
 **Week 9: Sweeping and calibration**
+
+- Understand the concept and needs for sweeping and calibration (Obj 2f)
+- Perform the following (Obj 2f):
+    + Sweep through a range of habitat multipliers
+    + Determine the best habitat multiplier by calculating likelihood over observed data
 
 **Week 10**
 
 *no technical curriculum, prepping Aims and slide decks*
 
-**Week 11: In-depth interventions**
+**Week 11: Full HBHI workflow**
 
-**Week 12: Putting everything together**
+- Run the full HBHI workflow and display results (Obj 2d, 3a, 3b)
+- Compare two projection scenario with different interventions (Obj 2e)
+- Roundtable: Challenge and limitation of current HBHI analysis (Obj 4a, 4b, 4c)
 
-**Week 13: Individual properties**
+**Week 12: Individual properties**
 
-**Week 14: Showcase other EMOD applications**
+- Demonstrate the use of individual properties in EMOD (Obj 2a)
+    + RTS,S scenarios
+
+**Week 13: Other EMOD application**
+
+- Demonstrate the use of EMOD in generic and nxtek setting (Obj 2a)
+
+**Week 14: Wildcard topic (based on feedback)**
+
+- Roundtable: Technical difficulty and challenge to run EMOD experiments in home institute (Obj None)
+    + What can NUMM help? Before or after return?
+
 
 **Week 15**
 

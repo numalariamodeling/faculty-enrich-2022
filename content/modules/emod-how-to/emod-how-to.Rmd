@@ -478,12 +478,29 @@ EMOD also has a few other parameters built-in to the migrate_individuals campaig
 </p>
 </details>
 
-## Set the number of seeds
+## Set the number of stochastic realizations (replicates) to run
 
-You will need to set the number of seeds to tell EMOD how many simulations you want to run. You can use this later to set a "Run_Number" parameter in the model builder setup that will force EMOD to iterate through the range of values to reach the length of numseeds, in this case 0-9.
+The **Run_Number** config parameter sets the simulation's random seed. 
+To run multiple stochastic realizations of the same simulation, vary **Run_Number* in the builder.
+In this example, the builder creates 10 identical simulations except for the value of **Run_Number**, which ranges from 0-9.
 
 ```{python}
+from simtools.ModBuilder import ModBuilder, ModFn
+
+expt_name = 'multi_seed_experiment'
 numseeds = 10 
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+builder = ModBuilder.from_list([[ModFn(DTKConfigBuilder.set_param, 'Run_Number', x)
+                                 ]
+                                for x in range(numseeds)
+                                ])
+
+run_sim_args = {
+    'exp_name': expt_name,
+    'config_builder': cb,
+    'exp_builder' : builder
+}
 ```
 
 ## Update config parameters
