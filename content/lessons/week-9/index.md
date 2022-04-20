@@ -13,7 +13,9 @@ weight: 10
 
 ### Journal club
 
-TBD
+Presenter: (add presenter name)
+
+Slater HC, Ross A, Ouédraogo AL, White LJ, Nguon C, Walker PG, Ngor P, Aguas R, Silal SP, Dondorp AM, La Barre P. [Assessing the impact of next-generation rapid diagnostic tests on Plasmodium falciparum malaria elimination strategies.](https://www.nature.com/articles/nature16040) Nature. 2015 Dec;528(7580):S94-101.
 
 ### Proposal writing
 

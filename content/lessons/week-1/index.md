@@ -8,9 +8,10 @@ weight: 2
 
 ### Technical track (EMOD)
 
-- Install dtk-tools and dtk-tools malaria by following the [installation guide](https://faculty-enrich-2022.netlify.app/resources/installation-guide/) (Obj 2b) 
-- EMOD history ([suggested readings](https://faculty-enrich-2022.netlify.app/resources/emod-papers/))
-- Parts of EMOD software ecosystem
+- Install PyCharm, `dtk-tools`, and `dtk-tools malaria` by following the [installation guide](https://faculty-enrich-2022.netlify.app/resources/installation-guide/) (Obj 2b) 
+- Learn EMOD history ([suggested readings](https://faculty-enrich-2022.netlify.app/resources/emod-papers/)) (Obj 2a)
+- Learn each part of EMOD software ecosystem and how they interact (Obj 2a)
+- Learn basic EMOD simulation workflow and run a barebones `ExampleSim` (Obj 2c)
 
 ### Presentations
 
