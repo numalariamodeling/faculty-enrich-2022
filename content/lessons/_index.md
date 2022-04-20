@@ -20,7 +20,9 @@ weight: 1
     + The reports/outputs: JSON/CSV outputs
     + The interventions: (To be covered in following weeks)
 - Create demographics and climate files, incorporate into simulation (Obj 2d)
-- Specify and obtain specific outputs (Obj 2d)
+- Grab and plot outputs (Obj 2d)
+    + InsetChart
+    + MalariaSummaryReport
 
 **Week 3: Interventions in EMOD**
 
@@ -28,6 +30,7 @@ weight: 1
     + Case management for symptomatic malaria
     + Vector control: ITNs, IRS, and larvicides
     + Drug campaigns
+- Event reporting (Obj 2d)
 - Run various interventions in the simulation and examine the output (Obj 2c, 2e)
 
 **Week 4: Build and run experiments**
