@@ -9,6 +9,9 @@ output:
 
 {{< toc >}}
 
+<!--test upload-->
+![figure](https://github.com/numalariamodeling/faculty-enrich-2022/blob/main/static/images/01_highlighted.png)
+
 ## Create a demographics file
 
 The demographics file specifies characteristics of the population in a simulation. This includes things like the population size, distribution of age/gender, immunity, biting/mortality risks, and more.
