@@ -388,6 +388,7 @@ cb.update_params({
         'Vector_Migration_Stay_Put_Modifier': 0
     })
 ```
+
 </p>
 </details>
 
@@ -489,20 +490,37 @@ EMOD also has a few other parameters built-in to the migrate_individuals campaig
 </p>
 </details>
 
-## Set the number of seeds
+## Set the number of stochastic realizations (replicates) to run
 
-You will need to set the number of seeds to tell EMOD how many simulations you want to run. You can use this later to set a "Run_Number" parameter in the model builder setup that will force EMOD to iterate through the range of values to reach the length of numseeds, in this case 0-9.
+The **Run_Number** config parameter sets the simulation's random seed. 
+To run multiple stochastic realizations of the same simulation, vary **Run_Number* in the builder.
+In this example, the builder creates 10 identical simulations except for the value of **Run_Number**, which ranges from 0-9.
 
 
 ```python
+from simtools.ModBuilder import ModBuilder, ModFn
+
+expt_name = 'multi_seed_experiment'
 numseeds = 10 
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+builder = ModBuilder.from_list([[ModFn(DTKConfigBuilder.set_param, 'Run_Number', x)
+                                 ]
+                                for x in range(numseeds)
+                                ])
+
+run_sim_args = {
+    'exp_name': expt_name,
+    'config_builder': cb,
+    'exp_builder' : builder
+}
 ```
 
 ## Update config parameters
 
 You may need to update a variety of configuration parameters for your simulations. These parameters can be explored more in depth in the [EMOD config documentation](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration.html). Broadly, configuration parameters can be used to set up certain things in these categories: drugs and treatments, enable/disable features, general disease, geography and the environment, immunity, incubation, infectivity and transmission, input files, larval habitat, migration, mortality and survival, output settings, parasite dynamics, population dynamics, sampling, scalars and multipliers, simulation setup, symptoms and diagnosis, vector control, and vector life cycle. Generally, we create a setup_simulation() function that contains the configuration update function for the config_builder (cb). For parameters that won't often change you can hard code them directly into this function, while it may be beneficial to call others as a variable, such as sim_years, that can be set when the function itself is called later. This can be done inline in the code or within the model builder. 
 
-A number of key parameters are featured in the code block below. Of particular note are how to change the **demographics** (Demographics_Filenames) and **simulation duration** (Simulation_Duration).
+A number of key parameters are featured in the code block below. Of particular note are how to change the **demographics** (Demographics_Filenames) and **simulation duration** (Simulation_Duration). Simulation duration is set in days, and in this example is set to last 7 years (7 yrs * 365 days/yr) rather than the setup_simulation() default of 2 years.
 
 
 ```python
@@ -555,6 +573,27 @@ def setup_simulation(cb, sim_years=2):
                       'Death_Rate_Dependence':'NOT_INITIALIZED',
                       'Base_Mortality': 0.002
                       })
+```
+
+### Configure log-levels
+
+Log levels dictate which logging messages will be included in the standard output for simulations. It can be set for all files in the Eradication executable using **logLevel_default** or for specific files where more information is desired with **logLevel_<file_name>**. There are five logging levels:
+
+    1. ERROR: only errors logged
+    2. WARNING: warning and errors logged
+    3. INFO: default; informational messages, warnings, and errors logged
+    4. DEBUG: debug information, informational messages, warnings, and errors logged. May require a special version of the executable (--TestSugar enabled)
+    5. VALID: validation information, debug information, informational messages, warnings, and errors logged. Requires special build.
+
+Lower levels (DEBUG and VALID) should be used sparingly but can be useful to understand if certain things, such as immunity variation, are working as expected.
+
+
+```python
+def setup_simulation(cb, sim_years=2):
+    cb.update_params({'logLevel_default' : 'WARNING',
+                      'logLevel_<file_name>' : 'ERROR',
+                      'logLevel_SusceptibilityMalaria': 'DEBUG' #file-specific example
+    })
 ```
 
 ## Create the model builder
@@ -610,6 +649,38 @@ def set_EIR(cb, EIRscale_factor):
     annual_eir = sum([x for x in daily_EIR])
   
     return {'EIR scale factor': EIRscale_factor}
+```
+
+## Add case management
+
+Case management is controlled in EMOD by an [add_health_seeking()](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/health_seeking.py) function within dtk-tools-malaria. This function is a node level intervention that allows you to target individuals on the node for malaria treatment through health seeking behavior. In this example, treatment is triggered by a new clinical case and codes for differences in case management coverage between individuals of age 0-5 yrs and 5-100yrs as set by the two trigger dictionaries' respective 'agemin' and 'agemax'. 'Seek' dictates the proportion of people who will seek care with a new clinical case - it is often set to 1 such that 'coverage' is the true case management coverage level. 'Rate' represents the number of people a community health working can see, on average, each day. It is used to create an exponential distribution of the delay period until treatment. You can also specify which drugs are used for case management - the default is a combination of artemether and lumefantrine. 
+
+Additional parameters can be added to restrict case management to certain nodes, node properties, or individual properties. See link to source code for more information. The case_management() function created here is typically called in the model builder.
+
+
+
+```python
+from malaria.interventions.health_seeking import add_health_seeking
+
+def case_management(cb, cm_cov_U5=0.5, cm_cov_adults=0.5):
+    add_health_seeking(cb, start_day=0,
+                       targets=[{'trigger': 'NewClinicalCase', 
+                                 'coverage': cm_cov_U5, 
+                                 'agemin': 0, 
+                                 'agemax': 5,
+                                 'seek': 1, 
+                                 'rate': 0.3},
+                                {'trigger': 'NewClinicalCase', 
+                                 'coverage': cm_cov_adults, 
+                                 'agemin': 5, 
+                                 'agemax': 100,
+                                 'seek': 1, 
+                                 'rate': 0.3}],
+                       drug=['Artemether', 'Lumefantrine'])
+    
+
+    return {'cm_cov_U5': cm_cov_U5,
+            'cm_cov_adults': cm_cov_adults}
 ```
 
 ## Change drug adherence
@@ -692,5 +763,43 @@ if __name__ == "__main__":
     SetupParser.init()
     exp_manager = ExperimentManagerFactory.init()
     exp_manager.run_simulations(**run_sim_args)
+```
+
+## Add summary reports
+
+Add description here
+
+
+```python
+from malaria.reports.MalariaReport import add_summary_report
+
+add_summary_report(cb, start=report_start, interval = interval,
+                       age_bins=[0.25,5,100], ipfilter='SMCAccess:High',
+                       description='Monthly_HAG_from_%d' % report_start)
+```
+
+## Add diagnostic surveys
+
+Add description here
+
+
+```python
+from malaria.interventions.malaria_drug_campaigns import add_drug_campaign, add_diagnostic_survey
+                              
+def diagnostic_survey(cb, sim_day, thresh=10, dose=1):
+    # day 0 positivity
+    add_diagnostic_survey(cb, start_day=sim_day,
+                          diagnostic_threshold=thresh,
+                          trigger_condition_list=[f'Received_IPTi_{dose}'],
+                          positive_diagnosis_configs=[{'class': 'BroadcastEvent',
+                                                       'Broadcast_Event': 'Day_0_positive'}],
+                          negative_diagnosis_configs=[{'class': 'BroadcastEvent',
+                                                       'Broadcast_Event': 'Day_0_negative'}],
+                          triggered_campaign_delay=0)
+                              #additional arguments
+                              #repetitions=2, #2, 73
+                              #tsteps_btwn_repetitions=365, #365, 7
+                              #target={'agemin': val[0], 'agemax': val[1]},
+                              #diagnostic_type='PF_HRP2',
 ```
 

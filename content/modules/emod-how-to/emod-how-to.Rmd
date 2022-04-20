@@ -380,6 +380,7 @@ cb.update_params({
         'Vector_Migration_Stay_Put_Modifier': 0
     })
 ```
+
 </p>
 </details>
 
@@ -484,7 +485,7 @@ The **Run_Number** config parameter sets the simulation's random seed.
 To run multiple stochastic realizations of the same simulation, vary **Run_Number* in the builder.
 In this example, the builder creates 10 identical simulations except for the value of **Run_Number**, which ranges from 0-9.
 
-```{python}
+```{python, eval=F}
 from simtools.ModBuilder import ModBuilder, ModFn
 
 expt_name = 'multi_seed_experiment'
@@ -560,6 +561,26 @@ def setup_simulation(cb, sim_years=2):
                       })
 ```
 
+### Configure log-levels
+
+Log levels dictate which logging messages will be included in the standard output for simulations. It can be set for all files in the Eradication executable using **logLevel_default** or for specific files where more information is desired with **logLevel_<file_name>**. There are five logging levels:
+
+    1. ERROR: only errors logged
+    2. WARNING: warning and errors logged
+    3. INFO: default; informational messages, warnings, and errors logged
+    4. DEBUG: debug information, informational messages, warnings, and errors logged. May require a special version of the executable (--TestSugar enabled)
+    5. VALID: validation information, debug information, informational messages, warnings, and errors logged. Requires special build.
+
+Lower levels (DEBUG and VALID) should be used sparingly but can be useful to understand if certain things, such as immunity variation, are working as expected.
+
+```{python, eval=F}
+def setup_simulation(cb, sim_years=2):
+    cb.update_params({'logLevel_default' : 'WARNING',
+                      'logLevel_<file_name>' : 'ERROR',
+                      'logLevel_SusceptibilityMalaria': 'DEBUG' #file-specific example
+    })
+```
+
 ## Create the model builder
 
 The following model builder implements some of the changes discussed above as well as references other specific functions from the NU team's SMC work.
@@ -620,7 +641,7 @@ Case management is controlled in EMOD by an [add_health_seeking()](https://githu
 Additional parameters can be added to restrict case management to certain nodes, node properties, or individual properties. See link to source code for more information. The case_management() function created here is typically called in the model builder.
 
 
-```{python}
+```{python,eval=F}
 from malaria.interventions.health_seeking import add_health_seeking
 
 def case_management(cb, cm_cov_U5=0.5, cm_cov_adults=0.5):
@@ -644,7 +665,6 @@ def case_management(cb, cm_cov_U5=0.5, cm_cov_adults=0.5):
             'cm_cov_adults': cm_cov_adults}
 
 ```
-
 
 ## Change drug adherence
 
@@ -725,10 +745,11 @@ if __name__ == "__main__":
     exp_manager.run_simulations(**run_sim_args)
 ```
 
-
 ## Add summary reports
 
-```{python}
+Add description here
+
+```{python,eval=F}
 from malaria.reports.MalariaReport import add_summary_report
 
 add_summary_report(cb, start=report_start, interval = interval,
@@ -736,81 +757,27 @@ add_summary_report(cb, start=report_start, interval = interval,
                        description='Monthly_HAG_from_%d' % report_start)
 ```
 
-
 ## Add diagnostic surveys
 
-```{python}
+Add description here
+
+```{python,eval=F}
 from malaria.interventions.malaria_drug_campaigns import add_drug_campaign, add_diagnostic_survey
-
-def diagnostic_survey(cb):
-    '''
-    implement HRP2 diagnostic by age using diagnostic_survey
-    :param cb: model builder
-    :type cb: builder
-    '''
-
-    # create master dictionary of agebins
-    agebins = { '%d_to_%d' % (x, x+1) : [x, x+1] for x in range(1, 5)}
-    agebins['0_to_1'] = [0.25, 1]
-
-    # iterate through agebins
-    for key, val in agebins.items() :
-        add_diagnostic_survey(cb, start_day=hrp2_report_start,
-                              repetitions=2, #2, 73
-                              tsteps_btwn_repetitions=365, #365, 7
-                              target={'agemin': val[0], 'agemax': val[1]},
-                              diagnostic_type='PF_HRP2',
-                              diagnostic_threshold=5,
-                              positive_diagnosis_configs=[{'class': 'BroadcastEvent',
-                                                           'Broadcast_Event': 'Tested_Pos_Age_%s' % key}],
-                              received_test_event='Received_Test_Age_%s' % key
-                              )
                               
-def diagnostic_survey(cb, sim_day, thresh=5000, dose=1):
-    '''
-    defines diagnostic surveys to be reported
-    :param cb: model builder
-    :type cb: builder
-    '''
-    add_diagnostic_survey(cb, start_day=sim_day,
-                          diagnostic_threshold=thresh,
-                          trigger_condition_list=[f'Received_IPTi_{dose}'],
-                          positive_diagnosis_configs=[{'class': 'BroadcastEvent',
-                                                       'Broadcast_Event': f'Day_0_greater_than_{thresh}'}],
-                          negative_diagnosis_configs=[{'class': 'BroadcastEvent',
-                                                       'Broadcast_Event': f'Day_0_less_than_{thresh}'}]
-                          ),
-    # upper threshold diagnostic
-    add_diagnostic_survey(cb, start_day=sim_day,
-                          diagnostic_threshold=200000,
-                          trigger_condition_list=[f'Received_IPTi_{dose}'],  # 'Received_IPTi'],
-                          positive_diagnosis_configs=[{'class': 'BroadcastEvent',
-                                                       'Broadcast_Event': 'Day_0_greater_than_200000'}],
-                          negative_diagnosis_configs=[{'class': 'BroadcastEvent',
-                                                       'Broadcast_Event': 'Day_0_less_than_200000'}]
-                          ),
+def diagnostic_survey(cb, sim_day, thresh=10, dose=1):
     # day 0 positivity
     add_diagnostic_survey(cb, start_day=sim_day,
-                          diagnostic_threshold=10,
+                          diagnostic_threshold=thresh,
                           trigger_condition_list=[f'Received_IPTi_{dose}'],
                           positive_diagnosis_configs=[{'class': 'BroadcastEvent',
                                                        'Broadcast_Event': 'Day_0_positive'}],
                           negative_diagnosis_configs=[{'class': 'BroadcastEvent',
                                                        'Broadcast_Event': 'Day_0_negative'}],
                           triggered_campaign_delay=0)
-
-    # day 14 positivity
-    add_diagnostic_survey(cb, start_day=sim_day,
-                          diagnostic_threshold=10,
-                          trigger_condition_list=[f'Received_IPTi_{dose}'],
-                          positive_diagnosis_configs=[{'class': 'BroadcastEvent',
-                                                       'Broadcast_Event': 'Day_14_positive'}],
-                          negative_diagnosis_configs=[{'class': 'BroadcastEvent',
-                                                       'Broadcast_Event': 'Day_14_negative'}],
-                          triggered_campaign_delay=14)
+                              #additional arguments
+                              #repetitions=2, #2, 73
+                              #tsteps_btwn_repetitions=365, #365, 7
+                              #target={'agemin': val[0], 'agemax': val[1]},
+                              #diagnostic_type='PF_HRP2',
 ```
-
-
-## Configure log levels
-
 
