@@ -482,7 +482,7 @@ EMOD also has a few other parameters built-in to the migrate_individuals campaig
 ## Set the number of stochastic realizations (replicates) to run
 
 The **Run_Number** config parameter sets the simulation's random seed. 
-To run multiple stochastic realizations of the same simulation, vary **Run_Number* in the builder.
+To run multiple stochastic realizations of the same simulation, vary **Run_Number** in the builder.
 In this example, the builder creates 10 identical simulations except for the value of **Run_Number**, which ranges from 0-9.
 
 ```{python, eval=F}
