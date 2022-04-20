@@ -13,7 +13,9 @@ weight: 14
 
 ### Journal club
 
-TBD
+Presenter: (add presenter name)
+
+Gerardin J, Bertozzi-Villa A, Eckhoff PA, Wenger EA. [Impact of mass drug administration campaigns depends on interaction with seasonal human movement.](https://academic.oup.com/inthealth/article/10/4/252/4965024?login=true) International health. 2018 Jul 1;10(4):252-7.
 
 ### Proposal writing
 

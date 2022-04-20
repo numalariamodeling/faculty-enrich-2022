@@ -13,7 +13,9 @@ weight: 8
 
 ### Journal club
 
-TBD
+Presenter: (add presenter name)
+
+Walker PG, Griffin JT, Ferguson NM, Ghani AC. [Estimating the most efficient allocation of interventions to achieve reductions in Plasmodium falciparum malaria burden and transmission in Africa: a modelling study.](https://www.sciencedirect.com/science/article/pii/S2214109X16300730) The Lancet Global Health. 2016 Jul 1;4(7):e474-84.
 
 ### Proposal writing
 

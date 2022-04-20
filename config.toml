@@ -8,19 +8,19 @@ title = 'Malaria Modeling Faculty Enrichment Program 2022'
 [menu]
 [[menu.main]]
 name = 'Home'
-url = '/'
+pageref = '/'
 weight = 1
 [[menu.main]]
 name = 'Lessons'
-url = '/lessons/'
+pageref = '/lessons/'
 weight = 2
 [[menu.main]]
 name = 'Modules'
-url = '/modules/'
+pageref = '/modules/'
 weight = 3
 [[menu.main]]
 name = 'Resources'
-url = '/resources/'
+pageref = '/resources/'
 weight = 4
 
 
@@ -39,18 +39,18 @@ mainSections = ['lessons', 'modules', 'resources']
 
 
 [params.homepage_meta_tags]
-meta_description = 'Hugo Whisper is a documentation theme built with Hugo.'
-meta_og_description = 'Hugo Whisper is a documentation theme built with Hugo.'
-meta_og_image = 'https://raw.githubusercontent.com/JugglerX/hugo-whisper-theme/master/images/tn.png'
-meta_og_title = 'Hugo Whisper Theme'
+meta_description = 'Materials for Malaria Modeling Faculty Enrichment Program 2022'
+meta_og_description = 'Materials for Malaria Modeling Faculty Enrichment Program 2022'
+meta_og_image = '/images/numm-logo.svg'
+meta_og_title = 'Malaria Modeling Faculty Enrichment Program 2022'
 meta_og_type = 'website'
-meta_og_url = 'https://hugo-whisper.netlify.app'
+meta_og_url = 'https://faculty-enrich-2022.netlify.app'
 meta_twitter_card = 'summary'
-meta_twitter_creator = '@zerostaticio'
-meta_twitter_site = '@zerostaticio'
+meta_twitter_creator = '@nu_modeling'
+meta_twitter_site = '@nu_modeling'
 
 [params.logo]
-mobile = '/images/logo-mobile.svg'
+mobile = 'favicon.png'
 standard = '/images/numm-logo.svg'
 
 [outputFormats]

@@ -11,7 +11,7 @@ weight: 1
 - Install PyCharm, `dtk-tools`, and `dtk-tools malaria` (Obj 2b)
 - Learn EMOD history (Obj 2a)
 - Learn each part of EMOD software ecosystem and how they interact (Obj 2a)
-- Learn basic EMOD simulation workflow and run a barebon `ExampleSim` (Obj 2c)
+- Learn basic EMOD simulation workflow and run a barebones `ExampleSim` (Obj 2c)
 
 **Week 2: Basic building blocks of EMOD**
 
@@ -25,6 +25,9 @@ weight: 1
 **Week 3: Interventions in EMOD**
 
 - Learn how major malaria interventions are implemented in EMOD (Obj 2a, 2c)
+    + Case management for symptomatic malaria
+    + Vector control: ITNs, IRS, and larvicides
+    + Drug campaigns
 - Run various interventions in the simulation and examine the output (Obj 2c, 2e)
 
 **Week 4: Build and run experiments**

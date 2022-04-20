@@ -7297,7 +7297,7 @@ p {
   position: static; }
 
 .footer {
-  background: #eaeaea;
+  background: #B4DDF1;
   padding-top: 20px;
   padding-bottom: 20px; }
   .footer .footer-inner {
@@ -7362,7 +7362,7 @@ p {
             padding: 10px 8px 10px 8px;
             font-weight: 300; } }
 .sub-footer {
-  background: #f4f5fb;
+  background: #B4DDF1;
   padding-top: 20px;
   padding-bottom: 20px; }
   @media (min-width: 768px) {
