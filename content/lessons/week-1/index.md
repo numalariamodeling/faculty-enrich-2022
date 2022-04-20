@@ -8,7 +8,7 @@ weight: 2
 
 ### Technical track (EMOD)
 
-- Install dtk-tools and dtk-tools malaria by following the [installation guide](https://faculty-enrich-2022.netlify.app/lessons/installation-guide/) (Obj 2b) 
+- Install dtk-tools and dtk-tools malaria by following the [installation guide](https://faculty-enrich-2022.netlify.app/resources/installation-guide/) (Obj 2b) 
 - EMOD history ([suggested readings](https://faculty-enrich-2022.netlify.app/resources/emod-papers/))
 - Parts of EMOD software ecosystem
 
