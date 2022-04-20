@@ -9,6 +9,6 @@ weight: 1
 List of modules that supports the weekly lessons something something.
 
 
-![figure](https://github.com/numalariamodeling/faculty-enrich-2022/blob/main/static/images/emod_dtk_overview_figure.png)
+![figure](/images/emod_dtk_overview_figure.png)
 
 
