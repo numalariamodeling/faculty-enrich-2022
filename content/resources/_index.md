@@ -4,6 +4,7 @@ title: Overview
 weight: 1
 ---
 
-## Curriculum
+## Overview of resources
 
-Table of topics covered by each week can go here...
+This section provides additional resources accompanying the course material in `Lessons` and `Modules`.
+
