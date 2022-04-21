@@ -12,7 +12,6 @@ output:
 
 {{< toc >}}
 
-
 ## Create a demographics file
 
 ![figure](/images/01_highlighted.png)
@@ -615,7 +614,8 @@ cb.update_params({'Demographics_Filenames': ['my_demographics.json'],
                   })
 ```
 
-### Enable births and deaths
+<details><summary><span style="color: blue";">Enable Births and Deaths</span></summary>
+<p>
 
 Vital dynamics can be specified in the same way as general config parameters. To enable either births or deaths, 
 **Enable_Vital_Dynamics** must be set to 1. Births and deaths can then be modified as needed ("enable" parameters set 
@@ -651,10 +651,13 @@ cb.update_params({'Enable_Vital_Dynamics': 1,
                   'Enable_Disease_Mortality': 0,
                   })
 ```
+</p>
+</details>
 
-### Configure log-levels
+<details><summary><span style="color: blue";">Configure Log-Levels</span></summary>
+<p>
 
-Log levels dictate which logging messages will be included in the standard output for simulations. It can be set for all 
+Log-levels dictate which logging messages will be included in the standard output for simulations. It can be set for all 
 files in the Eradication executable using **logLevel_default** or for specific files where more information is desired 
 with **logLevel_<file_name>**. There are five logging levels:
 
@@ -674,6 +677,8 @@ cb.update_params({'logLevel_default' : 'WARNING',
                   'logLevel_SusceptibilityMalaria': 'DEBUG' #file-specific example
 })
 ```
+</p>
+</details>
 
 ## Create the model builder
 
