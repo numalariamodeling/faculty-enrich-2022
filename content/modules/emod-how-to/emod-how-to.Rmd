@@ -526,8 +526,8 @@ The [ReportVectorMigration](https://docs.idmod.org/projects/emod-malaria/en/late
 custom report is available to report on vector migration. Note that while EMOD can model vector migration using either 
 individual vectors or the vector cohort model, the ReportVectorMigration only outputs interpretable values when using the 
 individual vector model. Modeling migration with cohort or individual vectors is equivalent, so we sometimes debug and 
-verify migration using the individual model (*TRACK_ALL_VECTORS*), then go back to using the (faster) cohort model 
-(*VECTOR_COMPARTMENTS_NUMBER*).
+verify migration using the individual model (**TRACK_ALL_VECTORS**), then go back to using the (faster) cohort model 
+(**VECTOR_COMPARTMENTS_NUMBER**).
 
 ```{python, eval=F}
 from dtk.utils.reports.VectorReport import add_vector_migration_report
@@ -546,7 +546,7 @@ add_vector_migration_report(cb)
 
 ![figure](/images/02_highlighted.png)
 
-EMOD configuration scripts begin by creating a configbuilder object (the *cb*), then adding and changing it. The *cb* is 
+EMOD configuration scripts begin by creating a configbuilder object (the **cb**), then adding and changing it. The *cb* is 
 created by loading default parameters:
 
 ```{python, eval=F}
@@ -556,7 +556,7 @@ from simtools.ModBuilder import ModBuilder, ModFn
 cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
 ```
 
-One can also specify different simulation types such as *VECTOR_SIM* to simulate just the vector model without the 
+One can also specify different simulation types such as **VECTOR_SIM** to simulate just the vector model without the 
 malaria within-host model, or other simulation types listed [here](https://docs.idmod.org/projects/emod-malaria/en/latest/glossary.html?highlight=Sim_Type#term-simulation-type).
 
 ## Set the number of stochastic realizations (replicates) to run
@@ -591,35 +591,36 @@ run_sim_args = {
 
 ![figure](/images/02_highlighted.png)
 
-You may need to update a variety of configuration parameters for your simulations. These parameters can be explored more in depth in the [EMOD config documentation](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration.html). Broadly, configuration parameters can be used to set up certain things in these categories: drugs and treatments, enable/disable features, general disease, geography and the environment, immunity, incubation, infectivity and transmission, input files, larval habitat, migration, mortality and survival, output settings, parasite dynamics, population dynamics, sampling, scalars and multipliers, simulation setup, symptoms and diagnosis, vector control, and vector life cycle. Generally, we create a setup_simulation() function that contains the configuration update function for the config_builder (cb). For parameters that won't often change you can hard code them directly into this function, while it may be beneficial to call others as a variable, such as sim_years, that can be set when the function itself is called later. This can be done inline in the code or within the model builder. 
+You may need to update a variety of configuration parameters for your simulations. These parameters can be explored more 
+in depth in the [EMOD config documentation](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration.html). 
+Broadly, configuration parameters can be used to set up certain things in these categories: drugs and treatments, 
+enable/disable features, general disease, geography and the environment, immunity, incubation, infectivity and 
+transmission, input files, larval habitat, migration, mortality and survival, output settings, parasite dynamics, 
+population dynamics, sampling, scalars and multipliers, simulation setup, symptoms and diagnosis, vector control, and 
+vector life cycle. Generally, we create a setup_simulation() function that contains the configuration update function 
+for the config_builder (cb). For parameters that won't often change you can hard code them directly into this function, 
+while it may be beneficial to call others as a variable, such as sim_years, that can be set when the function itself is 
+called later. This can be done inline in the code or within the model builder. 
 
-A number of key parameters are featured in the code block below. Of particular note are how to change the **demographics** (Demographics_Filenames) and **simulation duration** (Simulation_Duration). Simulation duration is set in days, and in this example is set to last 7 years (7 yrs * 365 days/yr) rather than the setup_simulation() default of 2 years.
+In this example, we show how to change the **demographics** (Demographics_Filenames) and **simulation duration** 
+(Simulation_Duration) parameters. Simulation duration is set in days, and in this example is set to last 7 years 
+(7 yrs * 365 days/yr).
 
 ```{python,eval=F}
 from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
-
-def setup_simulation(cb, sim_years=2):
-    cb.update_params({'Demographics_Filenames': ['my_demographics.json'],
-                      'Vector_Species_Names': [],
-                      'Enable_Vital_Dynamics': 1,
-                      'Enable_Birth': 1,
-                      'Disable_IP_Whitelist': 1,
-                      'Simulation_Duration': sim_years*365,
-                      'Maternal_Antibodies_Type': 'CONSTANT_INITIAL_IMMUNITY',
-                      'Incubation_Period_Distribution': 'CONSTANT_DISTRIBUTION'd,
-                      'Birth_Rate_Dependence': 'FIXED_BIRTH_RATE',
-                      'Climate_Model': 'CLIMATE_CONSTANT',
-                      "Parasite_Smear_Sensitivity": 0.02,
-                      'logLevel_JsonConfigurable': 'ERROR',
-                      })
                       
 cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
-setup_simulation(cb,7)
+cb.update_params({'Demographics_Filenames': ['my_demographics.json'],
+                  'Simulation_Duration': 7*365,
+                  })
 ```
 
 ### Enable births and deaths
 
-Vital dynamics can be specified in the same way as general config parameters. They can be included within the same setup_simulation() function but are separated here for ease of access. In order to enable either births or deaths, **Enable_Vital_Dynamics** must be set to 1. Births and deaths can then be modified as needed ("enable" parameters set to 0 = false, 1 = true). Birth rates can be specified by **Birth_Rate_Dependence** to be dependent on a number of factors:  
+Vital dynamics can be specified in the same way as general config parameters. To enable either births or deaths, 
+**Enable_Vital_Dynamics** must be set to 1. Births and deaths can then be modified as needed ("enable" parameters set 
+to 0 = false, 1 = true). Birth rates can be specified by **Birth_Rate_Dependence** to be dependent on a number of 
+factors:  
 - "NONE"
 - "FIXED_BIRTH_RATE"
 - "POPULATION_DEP_RATE"
@@ -627,28 +628,35 @@ Vital dynamics can be specified in the same way as general config parameters. Th
 - "INDIVIDUAL_PREGNANCIES"
 - "INDIVIDUAL_PREGNANCIES_BY_AGE_AND_YEAR"
 
-Likewise, **Death_Rate_Dependence** determines individuals likelihood of dying from natural, non-disease causes when **Enable_Natural_Mortality**=1, and can be set to 
+Likewise, **Death_Rate_Dependence** determines individuals likelihood of dying from natural, non-disease causes 
+when **Enable_Natural_Mortality**=1, and can be set to 
 - "NOT_INITIALIZED" 
 - "NONDISEASE_MORTALITY_BY_AGE_AND_GENDER"
 - "NONDISEASE_MORTALITY_BY_YEAR_AND_AGE_FOR_EACH_GENDER"
 
 Detailed descriptions of dependencies can be found [here](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration-population.html).
 
+In this example, we have a fixed birth rate (number of infants born each year is independent of modeled population), age- 
+and gender-specific overall mortality rates (defined in demographics file), and no malaria mortality.
+
 ```{python,eval=F}
-def setup_simulation(cb, sim_years=2):
-    cb.update_params({'Enable_Vital_Dynamics': 1,
-                      'Enable_Birth': 1,
-                      'Birth_Rate_Dependence' : 'FIXED_BIRTH_RATE'
-                      'Enable_Disease_Mortality': 1,
-                      'Enable_Natural_Mortality': 1,
-                      'Death_Rate_Dependence':'NOT_INITIALIZED',
-                      'Base_Mortality': 0.002
-                      })
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+                      
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+cb.update_params({'Enable_Vital_Dynamics': 1,
+                  'Enable_Birth': 1,
+                  'Birth_Rate_Dependence' : 'FIXED_BIRTH_RATE'
+                  'Enable_Natural_Mortality': 1,
+                  'Death_Rate_Dependence': 'NONDISEASE_MORTALITY_BY_AGE_AND_GENDER',
+                  'Enable_Disease_Mortality': 0,
+                  })
 ```
 
 ### Configure log-levels
 
-Log levels dictate which logging messages will be included in the standard output for simulations. It can be set for all files in the Eradication executable using **logLevel_default** or for specific files where more information is desired with **logLevel_<file_name>**. There are five logging levels:
+Log levels dictate which logging messages will be included in the standard output for simulations. It can be set for all 
+files in the Eradication executable using **logLevel_default** or for specific files where more information is desired 
+with **logLevel_<file_name>**. There are five logging levels:
 
     1. ERROR: only errors logged
     2. WARNING: warning and errors logged
@@ -656,14 +664,15 @@ Log levels dictate which logging messages will be included in the standard outpu
     4. DEBUG: debug information, informational messages, warnings, and errors logged. May require a special version of the executable (--TestSugar enabled)
     5. VALID: validation information, debug information, informational messages, warnings, and errors logged. Requires special build.
 
-Lower levels (DEBUG and VALID) should be used sparingly but can be useful to understand if certain things, such as immunity variation, are working as expected.
+Lower levels (DEBUG and VALID) should be used sparingly but can be useful to understand if certain things, such as 
+immunity variation, are working as expected.
 
+In this example, we set the default reporting level of all modules to **WARNING**, then set the 
+logLevel_SusceptibilityMalaria module to **DEBUG**.
 ```{python, eval=F}
-def setup_simulation(cb, sim_years=2):
-    cb.update_params({'logLevel_default' : 'WARNING',
-                      'logLevel_<file_name>' : 'ERROR',
-                      'logLevel_SusceptibilityMalaria': 'DEBUG' #file-specific example
-    })
+cb.update_params({'logLevel_default' : 'WARNING',
+                  'logLevel_SusceptibilityMalaria': 'DEBUG' #file-specific example
+})
 ```
 
 ## Create the model builder
@@ -705,56 +714,75 @@ builder = ModBuilder.from_list([[ModFn(smc_intervention, day=start_days, cycles=
 
 ![figure](/images/04_highlighted.png)
 
-For simulations that don't use vector data to establish transmission, a forced EIR can be used as a proxy. These data are typically recreated from previous literature sources that provide monthly EIR levels, input here as a monthly_site_EIR list. This can then be converted to a daily EIR using the monthly_to_daily_EIR helper function and summed to calculate the annual EIR for the site. The add_InputEIR function is called and given the calculated daily EIR to apply to the simulations. It can be scaled using a scaling_factor in order to create the best fit to outcomes data.
+For simulations that don't use vector data to establish transmission, a forced EIR can be used as a proxy. These data are 
+typically recreated from previous literature sources that provide monthly EIR levels, input here as a monthly_site_EIR 
+list. This can then be converted to a daily EIR using the monthly_to_daily_EIR helper function and summed to calculate 
+the annual EIR for the site. The [add_InputEIR](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/interventions/input_EIR.py)
+ function is called and given the calculated daily EIR to apply to the simulations. It can be scaled using a 
+ scaling_factor to apply the same scale factor to all EIR timepoints.
 
 ```{python,eval=F}
-from dtk.interventions.input_EIR import add_InputEIR
-from helper_scripts.monthly_to_daily_EIR import monthly_to_daily_EIR
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from dtk.interventions.input_EIR import add_InputEIR, monthly_to_daily_EIR
 
-def set_EIR(cb, EIRscale_factor):
-    monthly_site_EIR = [15.99, 5.41, 2.23, 10.33, 7.44, 11.77, 79.40, 85.80, 118.59, 82.97, 46.62, 33.49]
-    
-    daily_EIR = monthly_to_daily_EIR(monthly_site_EIR)
-   
-    add_InputEIR(cb, start_day=0, EIR_type='DAILY', dailyEIRs=daily_EIR, scaling_factor=EIRscale_factor)
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
 
-    annual_eir = sum([x for x in daily_EIR])
-  
-    return {'EIR scale factor': EIRscale_factor}
+monthly_site_EIR = [15.99, 5.41, 2.23, 10.33, 7.44, 11.77, 79.40, 85.80, 118.59, 82.97, 46.62, 33.49]
+daily_EIR = monthly_to_daily_EIR(monthly_site_EIR)
+EIRscale_factor = 1
+
+add_InputEIR(cb, start_day=0, EIR_type='DAILY', dailyEIRs=daily_EIR, scaling_factor=EIRscale_factor)
 ```
 
 ## Add case management
 
 ![figure](/images/04_highlighted.png)
 
-Case management is controlled in EMOD by an [add_health_seeking()](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/health_seeking.py) function within dtk-tools-malaria. This function is a node level intervention that allows you to target individuals on the node for malaria treatment through health seeking behavior. In this example, treatment is triggered by a new clinical case and codes for differences in case management coverage between individuals of age 0-5 yrs and 5-100yrs as set by the two trigger dictionaries' respective 'agemin' and 'agemax'. 'Seek' dictates the proportion of people who will seek care with a new clinical case - it is often set to 1 such that 'coverage' is the true case management coverage level. 'Rate' represents the number of people a community health working can see, on average, each day. It is used to create an exponential distribution of the delay period until treatment. You can also specify which drugs are used for case management - the default is a combination of artemether and lumefantrine. 
+Case management is controlled in EMOD by an 
+[add_health_seeking()](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/health_seeking.py) 
+function within dtk-tools-malaria. This function is a node level intervention that allows you to target individuals on 
+the node for malaria treatment through health seeking behavior. 
 
-Additional parameters can be added to restrict case management to certain nodes, node properties, or individual properties. See link to source code for more information. The case_management() function created here is typically called in the model builder.
+In this example, treatment is triggered by a new clinical case and codes for differences in case management coverage 
+between individuals of age 0-5 yrs and 5-100yrs as set by the two trigger dictionaries' respective 'agemin' and 'agemax'. 
+'Seek' dictates the proportion of people who will seek care with a new clinical case - it is usually set to 1 such that 
+'coverage' is the true case management coverage level. 'Rate' represents how quickly the case will receive treatment. 
+It is used to create an exponential distribution of the delay period. We usually set `rate = 1/3.` for clinical cases and 
+`rate = 1/2.` for severe cases.
+
+You can also specify which drugs are used for case management. The default is Artemether-Lumefantrine with age-based dosing. 
+
+Additional parameters can be added to restrict case management to certain nodes, node properties, or individual 
+properties. See [here](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/health_seeking.py) for more information.
 
 
 ```{python,eval=F}
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
 from malaria.interventions.health_seeking import add_health_seeking
 
-def case_management(cb, cm_cov_U5=0.5, cm_cov_adults=0.5):
-    add_health_seeking(cb, start_day=0,
-                       targets=[{'trigger': 'NewClinicalCase', 
-                                 'coverage': cm_cov_U5, 
-                                 'agemin': 0, 
-                                 'agemax': 5,
-                                 'seek': 1, 
-                                 'rate': 0.3},
-                                {'trigger': 'NewClinicalCase', 
-                                 'coverage': cm_cov_adults, 
-                                 'agemin': 5, 
-                                 'agemax': 100,
-                                 'seek': 1, 
-                                 'rate': 0.3}],
-                       drug=['Artemether', 'Lumefantrine'])
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+
+add_health_seeking(cb, start_day=0,
+                   targets=[{'trigger': 'NewClinicalCase', 
+                              'coverage': 0.7, 
+                              'agemin': 0, 
+                              'agemax': 5,
+                              'seek': 1, 
+                              'rate': 0.3},
+                            {'trigger': 'NewClinicalCase', 
+                               'coverage': 0.5, 
+                               'agemin': 5, 
+                               'agemax': 100,
+                               'seek': 1, 
+                               'rate': 0.3},
+                            {'trigger': 'NewSevereCase', 
+                               'coverage': 0.85, 
+                               'agemin': 0, 
+                               'agemax': 100,
+                               'seek': 1, 
+                               'rate': 0.5}],
+                   drug=['Artemether', 'Lumefantrine'])
     
-
-    return {'cm_cov_U5': cm_cov_U5,
-            'cm_cov_adults': cm_cov_adults}
-
 ```
 
 ## Change drug adherence
@@ -846,14 +874,22 @@ if __name__ == "__main__":
 
 ![figure](/images/03_highlighted.png)
 
-Add description here
+The [MalariaSummaryReport](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-malaria-summary.html) 
+is a useful output that reports infection data (prevalence, clinical incidence, parasitemia, infectivity) by age group 
+and aggregated over a user-defined time interval such as years or months.
+
+In this example, simulation data is reported starting at day 365, with a monthly aggregation, in 3 age bins, and only for 
+individuals with the IndividualProperty of SMCAccess with value High.
 
 ```{python,eval=F}
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
 from malaria.reports.MalariaReport import add_summary_report
 
-add_summary_report(cb, start=report_start, interval = interval,
-                       age_bins=[0.25,5,100], ipfilter='SMCAccess:High',
-                       description='Monthly_HAG_from_%d' % report_start)
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+
+add_summary_report(cb, start=365, interval=30,
+                   age_bins=[0.25,5,100], ipfilter='SMCAccess:High',
+                   description='Monthly_HighAccess')
 ```
 
 ## Add diagnostic surveys
