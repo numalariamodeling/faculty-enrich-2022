@@ -9,9 +9,9 @@ weight: 1
 **Week 1: Overview of EMOD**
 
 - Install PyCharm, `dtk-tools`, and `dtk-tools malaria` (Obj 2b)
-- Learn EMOD history (Obj 2a)
+- Learn development history of EMOD (Obj 2a)
 - Learn each part of EMOD software ecosystem and how they interact (Obj 2a)
-- Learn basic EMOD simulation workflow and run a barebones `ExampleSim` (Obj 2c)
+- Learn basic EMOD simulation workflow and run a barebones `ExampleSim` (Obj 2a, 2c)
 
 **Week 2: Basic building blocks of EMOD**
 
@@ -31,12 +31,12 @@ weight: 1
     + Vector control: ITNs, IRS, and larvicides
     + Drug campaigns
 - Event reporting (Obj 2d)
-- Run various interventions in the simulation and examine the output (Obj 2c, 2e)
+- Run various interventions in the simulation and examine the output (Obj 2d, 2e)
 
 **Week 4: Build and run experiments**
 
-- Learn how to run multiple simulations within an experiment (Obj 2a, 2c)
-- Learn how to run factorial experiment (Obj 2c)
+- Learn how to run simulations with multiple seeds within an experiment (Obj 2c, 2d, 2g)
+- Learn how to run factorial experiment (Obj 2c, 2d, 2g)
 
 **Week 5**
 
@@ -44,7 +44,7 @@ weight: 1
 
 **Week 6: HBHI simulation**
 
-- Run HBHI "historical" simulations *independently* (Obj 2c, Obj 2d)
+- Run HBHI "historical" simulations *independently* (Obj 2c, 2d, 2g)
 - Learn more about HBHI analysis via interaction with HBHI-Nigeria Shiny app (Obj 3a, 3b)
 - Roundtable: Working with DHS
 
@@ -74,13 +74,13 @@ weight: 1
 
 **Week 11: Full HBHI workflow**
 
-- Run the full HBHI workflow and display results (Obj 2d, 3a, 3b)
-- Compare two projection scenario with different interventions (Obj 2e)
+- Run the full HBHI workflow and display results (Obj 2d, 2g, 3a, 3b)
+- Compare two projection scenario with different interventions (Obj 2e, 2g)
 - Roundtable: Challenge and limitation of current HBHI analysis (Obj 4a, 4b, 4c)
 
 **Week 12: Individual properties**
 
-- Demonstrate the use of individual properties in EMOD (Obj 2a)
+- Demonstrate the use of individual properties in EMOD (Obj 2a, 2c)
     + RTS,S scenarios
 
 **Week 13: Other EMOD application**
