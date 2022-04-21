@@ -12,7 +12,7 @@ output:
 
 {{< toc >}}
 
-## Create a demographics file
+## Create a demographics file 
 
 ![figure](/images/01_highlighted.png)
 

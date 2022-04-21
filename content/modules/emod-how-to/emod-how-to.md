@@ -12,7 +12,7 @@ output:
 
 {{< toc >}}
 
-## Create a demographics file
+## Create a demographics file 
 
 ![figure](/images/01_highlighted.png)
 
@@ -301,7 +301,7 @@ Multiple migration modes can be used for each agent type (human or vector) simul
 can set up a simulation using Local, Sea, and campaign migration for humans and Local and Regional migration 
 for vectors.
 
-**Ongoing Migration**
+### Ongoing Migration
 
 See [EMOD documentation on migration parameters](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration-migration.html) 
 for full parameter list and specifications.
@@ -413,7 +413,7 @@ or stay in their current location.
 <p>
 </p>
 
-**Forced Migration**
+### Forced Migration
 
 ![figure](/images/04_highlighted.png)
 
@@ -507,7 +507,7 @@ EMOD also has a few other parameters built-in to the migrate_individuals campaig
 <p>
 </p>
 
-**Monitoring migration**
+### Monitoring migration
 
 ![figure](/images/03_highlighted.png)
 
@@ -571,34 +571,6 @@ cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
 One can also specify different simulation types such as **VECTOR_SIM** to simulate just the vector model without the 
 malaria within-host model, or other simulation types listed [here](https://docs.idmod.org/projects/emod-malaria/en/latest/glossary.html?highlight=Sim_Type#term-simulation-type).
 
-## Set the number of stochastic realizations (replicates) to run
-
-![figure](/images/05_highlighted.png)
-
-The **Run_Number** config parameter sets the simulation's random seed. 
-To run multiple stochastic realizations of the same simulation, vary **Run_Number** in the builder.
-In this example, the builder creates 10 identical simulations except for the value of **Run_Number**, which ranges from 0-9.
-
-
-```python
-from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
-from simtools.ModBuilder import ModBuilder, ModFn
-
-expt_name = 'multi_seed_experiment'
-numseeds = 10 
-
-cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
-builder = ModBuilder.from_list([[ModFn(DTKConfigBuilder.set_param, 'Run_Number', x)
-                                 ]
-                                for x in range(numseeds)
-                                ])
-
-run_sim_args = {
-    'exp_name': expt_name,
-    'config_builder': cb,
-    'exp_builder' : builder
-}
-```
 
 ## Update config parameters
 
@@ -697,49 +669,37 @@ cb.update_params({'logLevel_default' : 'WARNING',
 </p>
 </details>
 
-## Create the model builder
+## Add summary reports
 
-![figure](/images/05_highlighted.png)
+![figure](/images/03_highlighted.png)
 
-The following model builder implements some of the changes discussed above as well as references other specific functions from the NU team's SMC work.
+The [MalariaSummaryReport](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-malaria-summary.html) 
+is a useful output that reports infection data (prevalence, clinical incidence, parasitemia, infectivity) by age group 
+and aggregated over a user-defined time interval such as years or months.
+
+In this example, simulation data is reported starting at day 365, with a monthly aggregation, in 3 age bins, and only for 
+individuals with the IndividualProperty of SMCAccess with value High.
 
 
 ```python
-from simtools.ModBuilder import ModBuilder, ModFn
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from malaria.reports.MalariaReport import add_summary_report
 
-builder = ModBuilder.from_list([[ModFn(smc_intervention, day=start_days, cycles=smc_cycles, coverage_level=smc_coverage),
-                                 ModFn(set_EIR, EIRscale_factor=eir_scale_factor),
-                                 ModFn(scale_cmax, cmax_scale_factor=cmax_scale_factor),
-                                 ModFn(scale_krate, krate_scale_factor_AQ=krate_scale_factor_AQ,
-                                 krate_sp=kmaxSP,num_groups = 100),
-                                 ModFn(scale_c50, c50_AQ=1, c50_SP=c50SP, num_groups=100),
-                                 ModFn(DTKConfigBuilder.set_param, 'Run_Number', x),
-                                 ModFn(DTKConfigBuilder.set_param, 'Sample_Number', r),
-                                 ModFn(sim_expl,pyr=pyr)
-                                 ]
-                                #for r, row in top_param_df[:num_params_to_run].iterrows()
-                                for r in [1] 
-                                for kmaxSP in [1.579]
-                                for c50SP in [10.826]
-                                for eir_scale_factor in [2]
-                                for cmax_scale_factor in [1]
-                                for smc_cycles in [1]
-                                for krate_scale_factor_AQ in [1]
-                                for smc_coverage in [0.9]
-                                for start_days in [213]
-                                for x in range(numseeds)
-                                #for pyro in np.linspace(0.1,20000,10)
-                                for pyr in [15000]
-                                ])
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+
+add_summary_report(cb, start=365, interval=30,
+                   age_bins=[0.25,5,100], ipfilter='SMCAccess:High',
+                   description='Monthly_HighAccess')
 ```
 
-## Set Forced EIR 
+
+## Set forced EIR 
 
 ![figure](/images/04_highlighted.png)
 
-For simulations that don't use vector data to establish transmission, a forced EIR can be used as a proxy. These data are 
+For simulations without mosquitoes, a forced EIR can be used to impose infectious bites. EIR timeseries data are 
 typically recreated from previous literature sources that provide monthly EIR levels, input here as a monthly_site_EIR 
-list. This can then be converted to a daily EIR using the monthly_to_daily_EIR helper function and summed to calculate 
+list. This can then be converted to a daily EIR using the `monthly_to_daily_EIR` helper function and summed to calculate 
 the annual EIR for the site. The [add_InputEIR](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/interventions/input_EIR.py)
  function is called and given the calculated daily EIR to apply to the simulations. It can be scaled using a 
  scaling_factor to apply the same scale factor to all EIR timepoints.
@@ -813,11 +773,20 @@ add_health_seeking(cb, start_day=0,
 
 ![figure](/images/04_highlighted.png)
 
-Adherence to drugs can be modified using configure_adherent_drug(). This allows you to detail doses (and drugs given), intervals between doses, actual adherence values, and more.
+Adherence to drugs can be modified using [configure_adherent_drug()](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/adherent_drug.py). 
+This allows you to detail doses (and drugs given), 
+intervals between doses, actual adherence values, and more. More documentation on how to configure adherent drugs is 
+[here](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-campaign-individual-adherentdrug.html).
+
+Configuring adherence is not required. In the absence of specific configuration, adherence to the full treatment course 
+is assumed to be 100%.
 
 
 ```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
 from malaria.interventions.adherent_drug import configure_adherent_drug
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
 
 def smc_adherent_configuration(cb, adherence):
 
@@ -847,7 +816,7 @@ def smc_adherent_configuration(cb, adherence):
     )
     return smc_adherent_config
     
-adherent_drug_configs = smc_adherent_configuration(cb, adherence)
+adherent_drug_configs = smc_adherent_configuration(cb, adherence=0.7)
 ```
 
 ## Adding drug campaigns
@@ -872,53 +841,6 @@ def smc_intervention(cb, day, cycles, coverage_level):
                           receiving_drugs_event_name='Received_SMC')
 ```
 
-## Setting up the experiment manager
-
-![figure](/images/06_highlighted.png)
-
-The experiment manager serves as a mechanism to actually run simulations using the model and config builders. The respective builders, "builder" and "cb", are set up earlier in this list.
-
-
-```python
-from simtools.SetupParser import SetupParser
-from simtools.ExperimentManager.ExperimentManagerFactory import ExperimentManagerFactory
-
-Exp_name = 'my_experiment_name'
-
-run_sim_args = {
-    'exp_name': Exp_name,
-    'config_builder': cb,
-    'exp_builder' : builder
-}
-
-if __name__ == "__main__":
-    SetupParser.init()
-    exp_manager = ExperimentManagerFactory.init()
-    exp_manager.run_simulations(**run_sim_args)
-```
-
-## Add summary reports
-
-![figure](/images/03_highlighted.png)
-
-The [MalariaSummaryReport](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-malaria-summary.html) 
-is a useful output that reports infection data (prevalence, clinical incidence, parasitemia, infectivity) by age group 
-and aggregated over a user-defined time interval such as years or months.
-
-In this example, simulation data is reported starting at day 365, with a monthly aggregation, in 3 age bins, and only for 
-individuals with the IndividualProperty of SMCAccess with value High.
-
-
-```python
-from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
-from malaria.reports.MalariaReport import add_summary_report
-
-cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
-
-add_summary_report(cb, start=365, interval=30,
-                   age_bins=[0.25,5,100], ipfilter='SMCAccess:High',
-                   description='Monthly_HighAccess')
-```
 
 ## Add diagnostic surveys
 
@@ -947,3 +869,150 @@ def diagnostic_survey(cb, sim_day, thresh=10, dose=1):
                               #diagnostic_type='PF_HRP2',
 ```
 
+## Setting up the experiment manager
+
+![figure](/images/06_highlighted.png)
+
+The experiment manager serves as a mechanism to actually run simulations using the model and config builders. The respective builders, "builder" and "cb", are set up earlier in this list.
+
+
+```python
+from simtools.SetupParser import SetupParser
+from simtools.ExperimentManager.ExperimentManagerFactory import ExperimentManagerFactory
+
+Exp_name = 'my_experiment_name'
+
+run_sim_args = {
+    'exp_name': Exp_name,
+    'config_builder': cb,
+    'exp_builder' : builder
+}
+
+if __name__ == "__main__":
+    SetupParser.init()
+    exp_manager = ExperimentManagerFactory.init()
+    exp_manager.run_simulations(**run_sim_args)
+```
+
+
+## Using the model builder to set up multi-simulation experiments
+
+![figure](/images/05_highlighted.png)
+
+We often want to run a series of simulations where most parameters are held constant but one or more are varied. To set 
+this up in a `dtk-tools` script, we use a `builder` and the `ModBuilder` function with associated `ModFn`s.
+
+All model parameters can be varied ("swept through") with the `ModBuilder`: config, campaign, and even custom report output 
+parameters. A few example uses are shown below.
+
+### Set the number of stochastic realizations (replicates) to run
+
+The **Run_Number** config parameter sets the simulation's random seed. 
+To run multiple stochastic realizations of the same simulation, vary **Run_Number** in the builder.
+In this example, the builder creates 10 identical simulations except for the value of **Run_Number**, which ranges 
+from 0-9.
+
+
+```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from simtools.ModBuilder import ModBuilder, ModFn
+
+expt_name = 'multi_seed_experiment'
+numseeds = 10 
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+builder = ModBuilder.from_list([[ModFn(DTKConfigBuilder.set_param, 'Run_Number', x)
+                                 ]
+                                for x in range(numseeds)
+                                ])
+
+run_sim_args = {
+    'exp_name': expt_name,
+    'config_builder': cb,
+    'exp_builder' : builder
+}
+```
+
+### Sweeping through multiple config parameters
+
+In this example, we sweep through 20 values of **x_Temporary_Larval_Habitat** and 10 **Run_Number**s for each habitat 
+value, creating 200 simulations.
+
+
+```python
+import numpy as np
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from simtools.ModBuilder import ModBuilder, ModFn
+
+expt_name = 'multi_habitat_and_seed_experiment'
+numseeds = 10 
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+builder = ModBuilder.from_list([[ModFn(DTKConfigBuilder.set_param, 'Run_Number', x),
+                                 ModFn(DTKConfigBuilder.set_param, 'x_Temporary_Larval_Habitat, hab)
+                                 ]
+                                for x in range(numseeds)
+                                for hab in np.logspace(-2, 2, 20)
+                                ])
+
+run_sim_args = {
+    'exp_name': expt_name,
+    'config_builder': cb,
+    'exp_builder' : builder
+}
+```
+
+### Setting up complex sweeps
+
+The following model builder implements specific functions from the NU team's SMC work. Two wrapper functions, 
+`smc_intervention` and `set_EIR`, have been defined since this user doesn't need to vary over every argument in 
+`add_drug_campaign` or `add_InputEIR`. Note that these wrapper functions *must* return a dictionary for the `ModBuilder` 
+to function correctly.
+
+
+```python
+import numpy as np
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from simtools.ModBuilder import ModBuilder, ModFn
+from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
+from dtk.interventions.input_EIR import add_InputEIR, monthly_to_daily_EIR
+
+expt_name = 'SMC_EIR_sweep'
+numseeds = 10 
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+
+def smc_intervention(cb, day, cycles, coverage_level) :
+
+    add_drug_campaign(cb, campaign_type='SMC',
+                      coverage=coverage_level, start_days=[365 + day],
+                      repetitions=cycles, 
+                      tsteps_btwn_repetitions=30,
+                      target_group={'agemin': 0.25, 'agemax': 5},
+                      receiving_drugs_event_name='Received_SMC')
+
+    return { 'SMC_coverage' : coverage_level}
+
+def set_EIR(cb, EIRscale_factor) :
+
+    monthly_site_EIR = [15.99, 5.41, 2.23, 10.33, 7.44, 11.77, 79.40, 85.80, 118.59, 82.97, 46.62, 33.49]
+    daily_EIR = monthly_to_daily_EIR(monthly_site_EIR)
+    add_InputEIR(cb, start_day=0, EIR_type='DAILY', dailyEIRs=daily_EIR, scaling_factor=EIRscale_factor)
+
+    return { 'EIR_scale_factor' : EIRscale_factor}
+
+builder = ModBuilder.from_list([[ModFn(smc_intervention, day=213, cycles=4, coverage_level=smc_coverage),
+                                 ModFn(set_EIR, EIRscale_factor=eir_scale_factor),
+                                 ModFn(DTKConfigBuilder.set_param, 'Run_Number', x),
+                                 ]
+                                for smc_coverage in [0.5, 0.9]
+                                for eir_scale_factor in [0.2, 2]
+                                for x in range(numseeds)
+                                ])
+
+run_sim_args = {
+    'exp_name': expt_name,
+    'config_builder': cb,
+    'exp_builder' : builder
+}
+```
