@@ -495,7 +495,12 @@ EMOD also has a few other parameters built-in to the migrate_individuals campaig
 </p>
 </details>
 
+<p>
+</p>
+
 **Monitoring migration**
+
+![figure](/images/03_highlighted.png)
 
 <details><summary><span style="color: blue;">Tracking and counting human migrations</span></summary>
 <p>
