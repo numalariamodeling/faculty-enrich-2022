@@ -296,7 +296,7 @@ Multiple migration modes can be used for each agent type (human or vector) simul
 can set up a simulation using Local, Sea, and campaign migration for humans and Local and Regional migration 
 for vectors.
 
-**Ongoing Migration**
+### Ongoing Migration
 
 See [EMOD documentation on migration parameters](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration-migration.html) 
 for full parameter list and specifications.
@@ -406,7 +406,7 @@ or stay in their current location.
 <p>
 </p>
 
-**Forced Migration**
+### Forced Migration
 
 ![figure](/images/04_highlighted.png)
 
@@ -497,7 +497,7 @@ EMOD also has a few other parameters built-in to the migrate_individuals campaig
 <p>
 </p>
 
-**Monitoring migration**
+### Monitoring migration
 
 ![figure](/images/03_highlighted.png)
 
