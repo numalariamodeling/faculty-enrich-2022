@@ -495,6 +495,8 @@ EMOD also has a few other parameters built-in to the migrate_individuals campaig
 </p>
 </details>
 
+**Monitoring migration**
+
 <details><summary><span style="color: blue;">Tracking and counting human migrations</span></summary>
 <p>
 
@@ -534,6 +536,24 @@ add_vector_migration_report(cb)
 </p>
 </details>
 
+
+## Create a model
+
+![figure](/images/02_highlighted.png)
+
+EMOD configuration scripts begin by creating a configbuilder object (the *cb*), then adding and changing it. The *cb* is 
+created by loading default parameters:
+
+```{python, eval=F}
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from simtools.ModBuilder import ModBuilder, ModFn
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+```
+
+One can also specify different simulation types such as *VECTOR_SIM* to simulate just the vector model without the 
+malaria within-host model, or other simulation types listed [here](https://docs.idmod.org/projects/emod-malaria/en/latest/glossary.html?highlight=Sim_Type#term-simulation-type).
+
 ## Set the number of stochastic realizations (replicates) to run
 
 ![figure](/images/05_highlighted.png)
@@ -543,6 +563,7 @@ To run multiple stochastic realizations of the same simulation, vary **Run_Numbe
 In this example, the builder creates 10 identical simulations except for the value of **Run_Number**, which ranges from 0-9.
 
 ```{python, eval=F}
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
 from simtools.ModBuilder import ModBuilder, ModFn
 
 expt_name = 'multi_seed_experiment'
