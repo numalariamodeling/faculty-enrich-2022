@@ -12,7 +12,10 @@ output:
 
 {{< toc >}}
 
+
 ## Create a demographics file
+
+![figure](/images/01_highlighted.png)
 
 The demographics file specifies characteristics of the population in a simulation. This includes things like the population size, distribution of age/gender, immunity, biting/mortality risks, and more.
 
@@ -145,6 +148,8 @@ The resulting demographics file is a JSON file organized into 4 main sections:
 </details>
 
 ## Create multi-node simulations
+
+![figure](/images/01_highlighted.png)
 
 <details><summary><span style="color: blue;">1. Generating demographics</span></summary>
 <p>
@@ -284,14 +289,45 @@ We can see this reflected in the demographics file:
 
 ## Set up migration between nodes
 
+![figure](/images/01_highlighted.png)
+
 Multi-node simulations allow for the possibility that humans or vectors will move between nodes.
+EMOD allows 6 migration types for humans (Local, Regional, Sea, Air, Family, and campaign) and two 
+for vectors (Local and Regional). Other than the campaign type, all other migration types are set via 
+input files and scaling factors in config.json, and these migration rates will remain the same throughout
+the simulation: we will call these "ongoing migration" to distinguish from the "forced migration" that is 
+set via campaigns.
 
-**"Baseline" Migration**
+Multiple migration modes can be used for each agent type (human or vector) simultaneously. For example, we 
+can set up a simulation using Local, Sea, and campaign migration for humans and Local and Regional migration 
+for vectors.
 
-<details><summary><span style="color: blue;">Human Migration (Local)</span></summary>
+**Ongoing Migration**
+
+See [EMOD documentation on migration parameters](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration-migration.html) 
+for full parameter list and specifications.
+
+In ongoing migration, heterogeneity in migration can be specified by setting *Enable_Migration_Heterogeneity* to 1 in
+config.json and setting migration rate distribution parameters in demographics.json. However, this heterogeneity 
+is age-independent, and ongoing migration does not allow the user to specify age-dependent migration patterns.
+
+Local, Regional, Sea, and Air migration types are not implemented differently in EMOD. Their names are
+for human-readability and interpretation. We often use Local migration to model short-distance, short-duration 
+trips and Regional to model longer-distance, longer-duration trips, but this is not required.
+
+To set up ongoing migration:
+
+1. Create CSV
+2. Convert to BIN
+3. Update Configuration Parameters
+
+<details><summary><span style="color: blue;">Human Migration example: Local migration</span></summary>
 <p>
 
-**Local** migration represents the movement of people in/out of nodes on foot. To specify migration rates, create a file "local_migration.csv" with columns specifying the origin node, destination node, and migration rate (1/trip duration). In the example below, people from Node 1 visit node 2 for 5 days (or vice versa), and people from Node 3 visit node 2 for 3 days (or vice versa). There is no local human movement between between Node 1 and Node 3.
+To specify migration rates, create a file "local_migration.csv" with columns specifying the origin node, destination 
+node, and migration rate (1/trip duration). In the example below, people from Node 1 visit node 2 for 5 days (or vice 
+versa), and people from Node 3 visit node 2 for 3 days (or vice versa). There is no local human movement between between 
+Node 1 and Node 3.
 
 |      |      |    |
 |------|------|----|
@@ -300,7 +336,7 @@ Multi-node simulations allow for the possibility that humans or vectors will mov
 |Node 2|Node 3| 0.33|
 |Node 3|Node 2| 0.33|
 
-Then, we have to convert the .csv to a .bin file EMOD can understand.
+To convert the .csv to a .bin file EMOD can understand, we also require the demographics file:
 
 
 ```python
@@ -320,51 +356,29 @@ To connect that migration file a simulation, we need to change some configuratio
 ```python
 cb.update_params({
         # Migration
-        'Migration_Model': 'FIXED_RATE_MIGRATION',   
-        'Migration_Pattern': 'SINGLE_ROUND_TRIPS',
+        'Migration_Model': 'FIXED_RATE_MIGRATION', # turn on human migration
+        'Migration_Pattern': 'SINGLE_ROUND_TRIPS', # human trips are round trips (see documentation for other options)
 
-        'Enable_Local_Migration': 1,
-        'Local_Migration_Roundtrip_Duration': 5,
-        'Local_Migration_Roundtrip_Probability': 1,
-        'x_Local_Migration': 0.02,  # Scale factor used to fix the average # of trips per person, per year.
-        'Local_Migration_Filename': 'local_migration.bin'
+        'Enable_Local_Migration': 1,               # turn on Local human migration
+        'Local_Migration_Roundtrip_Duration': 5,   # Local trips last 5 days
+        'Local_Migration_Roundtrip_Probability': 1,# traveler returns home in 100% of Local trips 
+        'x_Local_Migration': 0.02,                 # Scale factor used to fix the average # of trips per person, per year.
+        'Local_Migration_Filename': 'local_migration.bin' # path to migration file
     })
 ```
+
+Setting up Regional, Sea, and Air migration is analogous, using Regional, Sea, and Air parameters and creating a 
+corresponding .bin file.
 
 </p>
 </details>
 
-<details><summary><span style="color: blue;">Human Migration (Regional)</span></summary>
+<details><summary><span style="color: blue;">Vector Migration: Local example</span></summary>
 <p>
 
-**Regional** migration represents the movement of people in/out of nodes by road or rail networks. However, this is not explicitly modeled, and you do not need to include these routes in your model to specify regional migration separately from local. The process is the same as for local migration, with different configuration parameter names. 
-
-1. Create CSV
-2. Convert to BIN
-3. Update Configuration Parameters
-
-
-```python
-cb.update_params({
-        # Migration
-        'Migration_Model': 'FIXED_RATE_MIGRATION',   
-        'Migration_Pattern': 'SINGLE_ROUND_TRIPS',
-
-        'Enable_Regional_Migration': 1,
-        'Regional_Migration_Roundtrip_Duration': 30,
-        'Regional_Migration_Roundtrip_Probability': 1,
-        'x_Regional_Migration': 0.1,  # Scale factor used to fix the average # of trips per person, per year.
-        'Regional_Migration_Filename': 'regional_migration.bin'
-    })
-```
-
-</p>
-</details>
-
-<details><summary><span style="color: blue;">Vector Migration (Local)</span></summary>
-<p>
-
-The setup for vector movement between nodes is very similar to that for humans, but with different parameters. The table below is an example of a .csv file that can be used to generate a "vector_migration_local.bin" specifying equivalent vector migration between 2 adjacent nodes.
+The setup for vector movement between nodes is very similar to that for humans, but with different parameters. 
+The table below is an example of a .csv file that can be used to generate a "vector_migration_local.bin" 
+specifying equivalent vector migration between 2 adjacent nodes.
 
 |      |      |      |
 |------|------|------|
@@ -380,7 +394,6 @@ cb.update_params({
         'Enable_Vector_Migration_Local': 1,        
         'x_Vector_Migration_Local': 0.01,  # scale factor to fix average # of trips per vector, per day
         'Vector_Migration_Filename_Local': 'Vector_Local_Migration.bin',
-        #"Vector_Migration_Base_Rate": 0.15,   (possibly redundant parameter, Tobias is looking into this 4/19/22)
         
         ### Modifying Equation parameters
         #   These must be specified, even if not used. 
@@ -392,6 +405,9 @@ cb.update_params({
     })
 ```
 
+The Modifier parameters allow the user to force vectors to fly preferentially toward blood meals, toward brreding sites, 
+or stay in their current location.
+
 </p>
 </details>
 
@@ -400,7 +416,10 @@ cb.update_params({
 
 **Forced Migration**
 
-You may want to incorporate migration that is different from the normal migration patterns described above.
+![figure](/images/04_highlighted.png)
+
+You may want to incorporate migration that is different from the normal migration patterns described above: for example, 
+to specify a certain demographic group to move at a certain time of year.
 
 <details><summary><span style="color: blue;">Forcing a Single Migration Event</span></summary>
 <p>
@@ -421,34 +440,26 @@ To add the migration events to the simulated campaign use add_migration_event().
 
 ```python
 from dtk.interventions.migrate_to import add_migration_event
-# When is migration "initialized"?
-start = 100
-# Origin
-node_from = 2
-# Destination
-node_to = 1
-# How long after the "start" date should people wait to begin the trip?
+
+# How long after the "start" date should people wait to begin the trip? 
+# Here: Trips are staggered evenly over 7 days.
 duration_before_leaving = {"Duration_Before_Leaving_Distribution": "UNIFORM_DISTRIBUTION",
                            "Duration_Before_Leaving_Min": 1,
                            "Duration_Before_Leaving_Max": 7}
-                           # Trips are staggered evenly over 7 days.
-# How long should the trip last?
-at_node = 30
-duration_at_node = {"Duration_At_Node_Distribution": "CONSTANT_DISTRIBUTION",
-                    "Duration_At_Node_Constant": at_node}
-                    # Each trip lasts exactly 30 days.
 
+# How long should the trip last? 
+# Here: Each trip lasts exactly 30 days.
+duration_at_node = {"Duration_At_Node_Distribution": "CONSTANT_DISTRIBUTION",
+                    "Duration_At_Node_Constant": 30}
 
 add_migration_event(cb,
-                    start_day=100,
-                    nodesfrom=[2],
-                    nodeto=node_to,
-                    coverage=1.0,
-                    duration_at_node= # time to spend at destination node,
-                    duration_before_leaving=duration_before_leaving # time to remain home before trip,
-                    ## [optional] targeting to subset of node population
-                    ind_property_restrictions=[{"Property": property_value}], 
-                    repetitions=1 # For a single event
+                    start_day=100,    # simulation day on which to start this migration
+                    nodesfrom=[2],    # list of node IDs for origin(s)
+                    nodeto=1,         # destination node
+                    coverage=0.6,     # probability a targeted individual will migrate
+                    duration_before_leaving=duration_before_leaving   # time to remain home before trip,
+                    duration_at_node=duration_at_node,                # time to spend at destination node,
+                    repetitions=1     # For a single event, set repetitions=1
                     )
 ```
 
@@ -460,7 +471,8 @@ More detail on specifying distributions for waiting/away times can be found in t
 <details><summary><span style="color: blue;">Simulating Periodic Migration</span></summary>
 <p>
 
-For routine or seasonal migration events that repeat during a simulation, specify the number of repetitions and time-interval within add_migration_event()
+For routine or seasonal migration events that repeat during a simulation, specify the number of repetitions and 
+time-interval within add_migration_event():
 
 
 ```python
@@ -493,14 +505,79 @@ EMOD also has a few other parameters built-in to the migrate_individuals campaig
 </p>
 </details>
 
+**Monitoring migration**
+
+<details><summary><span style="color: blue;">Tracking and counting human migrations</span></summary>
+<p>
+
+The [ReportHumanMigrationTracking](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-human-migration.html) 
+custom report is available to report all human migration events, including time of migration, individual ID, origin node 
+ID, destination node ID, individual's home node ID, age, infection status, and the type of migration. This report is 
+very useful for counting the number of migration events to ensure the desired flux of movement is correctly specified.
+
+
+```python
+from dtk.utils.reports.CustomReport import add_human_migration_tracking_report
+
+add_human_migration_tracking_report(cb)
+```
+
+</p>
+</details>
+
+<details><summary><span style="color: blue;">Tracking vector migrations</span></summary>
+<p>
+
+The [ReportVectorMigration](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-vector-migration.html) 
+custom report is available to report on vector migration. Note that while EMOD can model vector migration using either 
+individual vectors or the vector cohort model, the ReportVectorMigration only outputs interpretable values when using the 
+individual vector model. Modeling migration with cohort or individual vectors is equivalent, so we sometimes debug and 
+verify migration using the individual model (*TRACK_ALL_VECTORS*), then go back to using the (faster) cohort model 
+(*VECTOR_COMPARTMENTS_NUMBER*).
+
+
+```python
+from dtk.utils.reports.VectorReport import add_vector_migration_report
+
+cb.update_params({'Vector_Sampling_Type': 'TRACK_ALL_VECTORS',   # tell EMOD to use individual vectors
+                  })
+
+add_vector_migration_report(cb)
+```
+
+</p>
+</details>
+
+
+## Create a model
+
+![figure](/images/02_highlighted.png)
+
+EMOD configuration scripts begin by creating a configbuilder object (the *cb*), then adding and changing it. The *cb* is 
+created by loading default parameters:
+
+
+```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from simtools.ModBuilder import ModBuilder, ModFn
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+```
+
+One can also specify different simulation types such as *VECTOR_SIM* to simulate just the vector model without the 
+malaria within-host model, or other simulation types listed [here](https://docs.idmod.org/projects/emod-malaria/en/latest/glossary.html?highlight=Sim_Type#term-simulation-type).
+
 ## Set the number of stochastic realizations (replicates) to run
 
+![figure](/images/05_highlighted.png)
+
 The **Run_Number** config parameter sets the simulation's random seed. 
-To run multiple stochastic realizations of the same simulation, vary **Run_Number* in the builder.
+To run multiple stochastic realizations of the same simulation, vary **Run_Number** in the builder.
 In this example, the builder creates 10 identical simulations except for the value of **Run_Number**, which ranges from 0-9.
 
 
 ```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
 from simtools.ModBuilder import ModBuilder, ModFn
 
 expt_name = 'multi_seed_experiment'
@@ -520,6 +597,8 @@ run_sim_args = {
 ```
 
 ## Update config parameters
+
+![figure](/images/02_highlighted.png)
 
 You may need to update a variety of configuration parameters for your simulations. These parameters can be explored more in depth in the [EMOD config documentation](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration.html). Broadly, configuration parameters can be used to set up certain things in these categories: drugs and treatments, enable/disable features, general disease, geography and the environment, immunity, incubation, infectivity and transmission, input files, larval habitat, migration, mortality and survival, output settings, parasite dynamics, population dynamics, sampling, scalars and multipliers, simulation setup, symptoms and diagnosis, vector control, and vector life cycle. Generally, we create a setup_simulation() function that contains the configuration update function for the config_builder (cb). For parameters that won't often change you can hard code them directly into this function, while it may be beneficial to call others as a variable, such as sim_years, that can be set when the function itself is called later. This can be done inline in the code or within the model builder. 
 
@@ -601,6 +680,8 @@ def setup_simulation(cb, sim_years=2):
 
 ## Create the model builder
 
+![figure](/images/05_highlighted.png)
+
 The following model builder implements some of the changes discussed above as well as references other specific functions from the NU team's SMC work.
 
 
@@ -635,6 +716,8 @@ builder = ModBuilder.from_list([[ModFn(smc_intervention, day=start_days, cycles=
 
 ## Set Forced EIR 
 
+![figure](/images/04_highlighted.png)
+
 For simulations that don't use vector data to establish transmission, a forced EIR can be used as a proxy. These data are typically recreated from previous literature sources that provide monthly EIR levels, input here as a monthly_site_EIR list. This can then be converted to a daily EIR using the monthly_to_daily_EIR helper function and summed to calculate the annual EIR for the site. The add_InputEIR function is called and given the calculated daily EIR to apply to the simulations. It can be scaled using a scaling_factor in order to create the best fit to outcomes data.
 
 
@@ -655,6 +738,8 @@ def set_EIR(cb, EIRscale_factor):
 ```
 
 ## Add case management
+
+![figure](/images/04_highlighted.png)
 
 Case management is controlled in EMOD by an [add_health_seeking()](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/health_seeking.py) function within dtk-tools-malaria. This function is a node level intervention that allows you to target individuals on the node for malaria treatment through health seeking behavior. In this example, treatment is triggered by a new clinical case and codes for differences in case management coverage between individuals of age 0-5 yrs and 5-100yrs as set by the two trigger dictionaries' respective 'agemin' and 'agemax'. 'Seek' dictates the proportion of people who will seek care with a new clinical case - it is often set to 1 such that 'coverage' is the true case management coverage level. 'Rate' represents the number of people a community health working can see, on average, each day. It is used to create an exponential distribution of the delay period until treatment. You can also specify which drugs are used for case management - the default is a combination of artemether and lumefantrine. 
 
@@ -687,6 +772,8 @@ def case_management(cb, cm_cov_U5=0.5, cm_cov_adults=0.5):
 ```
 
 ## Change drug adherence
+
+![figure](/images/04_highlighted.png)
 
 Adherence to drugs can be modified using configure_adherent_drug(). This allows you to detail doses (and drugs given), intervals between doses, actual adherence values, and more.
 
@@ -727,6 +814,8 @@ adherent_drug_configs = smc_adherent_configuration(cb, adherence)
 
 ## Adding drug campaigns
 
+![figure](/images/04_highlighted.png)
+
 Using add_drug_campaign() you can set different drug campaigns including MDA, MSAT, SMC, fMDA, MTAT, rfMSAT, and rfMDA. This function also includes the ability to set coverage levels, repetitions (such as SMC cycles) and the timesteps between them, diagnostics information for campaigns that include testing, target groups, and restrictions on who can receive drugs by node or individual properties. For more details on all possible specifications see [malaria_drug_campaigns.py](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/malaria_drug_campaigns.py) in dtk-tools-malaria. Node and individual properties are set in the demographics file and can be called upon here for things like low vs high access groups.
 
 This example details a simple SMC intervention. Its coverage level, number of cycles, and start day are specified in the model builder as they may change more regularly based on the purpose of different analyses. Timesteps between repetitions (if more than one cycle given) is set to 30 days as SMC is given on a monthly basis during peak season. The target group is also specified here to limit the age group to 0.25-5 year old children. This example dictates that it only applies to children classified as having "low" SMC access per the demographics file and uses adherent drug configurations as previously shown.
@@ -746,6 +835,8 @@ def smc_intervention(cb, day, cycles, coverage_level):
 ```
 
 ## Setting up the experiment manager
+
+![figure](/images/06_highlighted.png)
 
 The experiment manager serves as a mechanism to actually run simulations using the model and config builders. The respective builders, "builder" and "cb", are set up earlier in this list.
 
@@ -770,6 +861,8 @@ if __name__ == "__main__":
 
 ## Add summary reports
 
+![figure](/images/03_highlighted.png)
+
 Add description here
 
 
@@ -782,6 +875,8 @@ add_summary_report(cb, start=report_start, interval = interval,
 ```
 
 ## Add diagnostic surveys
+
+![figure](/images/04_highlighted.png)
 
 Add description here
 
