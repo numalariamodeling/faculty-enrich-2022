@@ -1,5 +1,5 @@
 ---
-date: "2018-11-28T15:14:39+10:00"
+date: "2022-04-21T15:09:23-05:00"
 title: Overview
 weight: 1
 ---
@@ -19,7 +19,8 @@ weight: 1
     + The basic inputs: Parameters, demographics and climates
     + The reports/outputs: JSON/CSV outputs
     + The interventions: (To be covered in following weeks)
-- Create demographics and climate files, incorporate into simulation (Obj 2d)
+- Create demographics and climate files, and incorporate into simulations (Obj 2d)
+    +  Repeat this in own research projects
 - Grab and plot outputs (Obj 2d)
     + InsetChart
     + MalariaSummaryReport
@@ -30,68 +31,69 @@ weight: 1
     + Case management for symptomatic malaria
     + Vector control: ITNs, IRS, and larvicides
     + Drug campaigns
-- Event reporting (Obj 2d)
+- Learn about how EMOD can report specific event occurs in the simulation (Obj 2d)
+- Learn about `ModBuilder` (Obj ??)
 - Run various interventions in the simulation and examine the output (Obj 2d, 2e)
+    + Repeat this in own research projects
 
-**Week 4: Build and run experiments**
+**Week 4: Analyzers and plotters**
 
-- Learn how to run simulations with multiple seeds within an experiment (Obj 2c, 2d, 2g)
-- Learn how to run factorial experiment (Obj 2c, 2d, 2g)
+- Walkthrough examples of analyzers (Obj 2a, 2c)
+- Write a customized analyzer to extract data from own research project (Obj 2d, 2g)
+- Plot analyzers' output using R or Python (Obj 2d, 2e, 2g)
 
 **Week 5**
 
 *no technical curriculum, prepping Aims and slide decks*
 
-**Week 6: HBHI simulation**
-
-- Run HBHI "historical" simulations *independently* (Obj 2c, 2d, 2g)
-- Learn more about HBHI analysis via interaction with HBHI-Nigeria Shiny app (Obj 3a, 3b)
-- Roundtable: Working with DHS
-
-**Week 7: Analyzers and plotters**
-
-- Walkthrough examples of analyzers (based on "historical" simulations) (Obj 2a, 2c)
-- Write an analyzer to extract data from "historical simulation" (Obj 2d, 2g)
-- Plot analyzers' output using R or Python (Obj 2d, 2e, 2g)
-
-**Week 8: Serialization**
+**Week 6: Serialization**
 
 - Understand the concept and rationale of burn-in and serialization (Obj 2a, 2c)
-- Perform the following (Obj 2c):
+- Perform the following for own research project or based on (Obj 2c):
     + Serialization of simulation ("Historical" HBHI)
     + Picking up a serialized population and run it forward (HBHI 2010 to 2019) 
 
-**Week 9: Sweeping and calibration**
+**Week 7: Sweeping and calibration**
 
 - Understand the concept and needs for sweeping and calibration (Obj 2f)
-- Perform the following (Obj 2f):
-    + Sweep through a range of habitat multipliers
-    + Determine the best habitat multiplier by calculating likelihood over observed data
+- Perform the following for own research project or based on an example (Obj 2f):
+    + Sweep through a range of values for a parameter
+    + Determine the best value for the parameter by calculating likelihood over observed data
+
+**Week 8: Individual properties**
+
+- Understand the concept and use case for individual properties (Obj 2a)
+- Perform the following for own research project or based on an example (Optional; Obj 2c)
+    + Enable individual properties
+    + Implement an intervention based on individual properties
+
+**Week 9: HBHI simulation**
+
+- Code walkthrough of HBHI analysis process
+- Learn more about HBHI analysis via interaction with HBHI-Nigeria Shiny app (Obj 3a, 3b)
 
 **Week 10**
 
 *no technical curriculum, prepping Aims and slide decks*
 
-**Week 11: Full HBHI workflow**
+**Week 11: Infusing simulations with real data**
 
-- Run the full HBHI workflow and display results (Obj 2d, 2g, 3a, 3b)
-- Compare two projection scenario with different interventions (Obj 2e, 2g)
-- Roundtable: Challenge and limitation of current HBHI analysis (Obj 4a, 4b, 4c)
+- Learn how `MALARIA_SIM` and interventions are parameterized, and understand the limitations of the parameterization process
+- Roundtable: Working with DHS
 
-**Week 12: Individual properties**
+**Week 12: Other EMOD applications**
 
-- Demonstrate the use of individual properties in EMOD (Obj 2a, 2c)
-    + RTS,S scenarios
+- Demonstrate the use of EMOD in generic and spatial setting (Obj 2a)
 
-**Week 13: Other EMOD application**
+**Week 13: Wildcard topic (based on feedback)**
 
-- Demonstrate the use of EMOD in generic and nxtek setting (Obj 2a)
+- Roundtable: Current limitations and future of EMOD and agent-based modeling of malaria
 
 **Week 14: Wildcard topic (based on feedback)**
 
-- Roundtable: Technical difficulty and challenge to run EMOD experiments in home institute (Obj None)
+- (Can potentially be about discussion on computing infrastructures, e.g., "public" super computer, EMOD on Linux)
+- Roundtable: Technical difficulty and challenge to run EMOD experiments in home institute
     + What can NUMM help? Before or after return?
-
 
 **Week 15**
 
