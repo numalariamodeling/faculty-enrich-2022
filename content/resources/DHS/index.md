@@ -1,10 +1,11 @@
 ---
 date: "2019-02-11T19:27:37+10:00"
-title: Hugo Whisper
+title: DHS
 weight: 6
 ---
 
-Whisper is a minimal documentation theme built for Hugo. The design &amp; functionality is intentionally minimal.
+Here could go some of the collected DHS resources and references?
+
 
 <!--more-->
 

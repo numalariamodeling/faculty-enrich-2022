@@ -7,6 +7,9 @@ output:
     toc: true
 ---
 
+
+![figure](/images/07_full_process.png)
+
 {{< toc >}}
 
 ## Create a demographics file

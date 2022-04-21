@@ -7,10 +7,11 @@ output:
     toc: true
 ---
 
+
+![figure](/images/07_full_process.png)
+
 {{< toc >}}
 
-<!--test upload-->
-![figure](https://github.com/numalariamodeling/faculty-enrich-2022/blob/main/static/images/01_highlighted.png)
 
 ## Create a demographics file
 
