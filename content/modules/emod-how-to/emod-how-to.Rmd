@@ -558,33 +558,6 @@ cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
 One can also specify different simulation types such as **VECTOR_SIM** to simulate just the vector model without the 
 malaria within-host model, or other simulation types listed [here](https://docs.idmod.org/projects/emod-malaria/en/latest/glossary.html?highlight=Sim_Type#term-simulation-type).
 
-## Set the number of stochastic realizations (replicates) to run
-
-![figure](/images/05_highlighted.png)
-
-The **Run_Number** config parameter sets the simulation's random seed. 
-To run multiple stochastic realizations of the same simulation, vary **Run_Number** in the builder.
-In this example, the builder creates 10 identical simulations except for the value of **Run_Number**, which ranges from 0-9.
-
-```{python, eval=F}
-from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
-from simtools.ModBuilder import ModBuilder, ModFn
-
-expt_name = 'multi_seed_experiment'
-numseeds = 10 
-
-cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
-builder = ModBuilder.from_list([[ModFn(DTKConfigBuilder.set_param, 'Run_Number', x)
-                                 ]
-                                for x in range(numseeds)
-                                ])
-
-run_sim_args = {
-    'exp_name': expt_name,
-    'config_builder': cb,
-    'exp_builder' : builder
-}
-```
 
 ## Update config parameters
 
@@ -679,41 +652,6 @@ cb.update_params({'logLevel_default' : 'WARNING',
 ```
 </p>
 </details>
-
-## Create the model builder
-
-![figure](/images/05_highlighted.png)
-
-The following model builder implements some of the changes discussed above as well as references other specific functions from the NU team's SMC work.
-
-```{python,eval=F}
-from simtools.ModBuilder import ModBuilder, ModFn
-
-builder = ModBuilder.from_list([[ModFn(smc_intervention, day=start_days, cycles=smc_cycles, coverage_level=smc_coverage),
-                                 ModFn(set_EIR, EIRscale_factor=eir_scale_factor),
-                                 ModFn(scale_cmax, cmax_scale_factor=cmax_scale_factor),
-                                 ModFn(scale_krate, krate_scale_factor_AQ=krate_scale_factor_AQ,
-                                 krate_sp=kmaxSP,num_groups = 100),
-                                 ModFn(scale_c50, c50_AQ=1, c50_SP=c50SP, num_groups=100),
-                                 ModFn(DTKConfigBuilder.set_param, 'Run_Number', x),
-                                 ModFn(DTKConfigBuilder.set_param, 'Sample_Number', r),
-                                 ModFn(sim_expl,pyr=pyr)
-                                 ]
-                                #for r, row in top_param_df[:num_params_to_run].iterrows()
-                                for r in [1] 
-                                for kmaxSP in [1.579]
-                                for c50SP in [10.826]
-                                for eir_scale_factor in [2]
-                                for cmax_scale_factor in [1]
-                                for smc_cycles in [1]
-                                for krate_scale_factor_AQ in [1]
-                                for smc_coverage in [0.9]
-                                for start_days in [213]
-                                for x in range(numseeds)
-                                #for pyro in np.linspace(0.1,20000,10)
-                                for pyr in [15000]
-                                ])
-```
 
 ## Set Forced EIR 
 
@@ -923,3 +861,122 @@ def diagnostic_survey(cb, sim_day, thresh=10, dose=1):
                               #diagnostic_type='PF_HRP2',
 ```
 
+
+## Using the model builder to set up multi-simulation experiments
+
+![figure](/images/05_highlighted.png)
+
+We often want to run a series of simulations where most parameters are held constant but one or more are varied. To set 
+this up in a `dtk-tools` script, we use a `builder` and the `ModBuilder` function with associated `ModFn`s.
+
+All model parameters can be varied ("swept through") with the `ModBuilder`: config, campaign, and even custom report output 
+parameters. A few example uses are shown below.
+
+### Set the number of stochastic realizations (replicates) to run
+
+The **Run_Number** config parameter sets the simulation's random seed. 
+To run multiple stochastic realizations of the same simulation, vary **Run_Number** in the builder.
+In this example, the builder creates 10 identical simulations except for the value of **Run_Number**, which ranges 
+from 0-9.
+
+```{python, eval=F}
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from simtools.ModBuilder import ModBuilder, ModFn
+
+expt_name = 'multi_seed_experiment'
+numseeds = 10 
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+builder = ModBuilder.from_list([[ModFn(DTKConfigBuilder.set_param, 'Run_Number', x)
+                                 ]
+                                for x in range(numseeds)
+                                ])
+
+run_sim_args = {
+    'exp_name': expt_name,
+    'config_builder': cb,
+    'exp_builder' : builder
+}
+```
+
+### Sweeping through multiple config parameters
+
+In this example, we sweep through 20 values of **x_Temporary_Larval_Habitat** and 10 **Run_Number**s for each habitat 
+value, creating 200 simulations.
+
+```{python, eval=F}
+import numpy as np
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from simtools.ModBuilder import ModBuilder, ModFn
+
+expt_name = 'multi_habitat_and_seed_experiment'
+numseeds = 10 
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+builder = ModBuilder.from_list([[ModFn(DTKConfigBuilder.set_param, 'Run_Number', x),
+                                 ModFn(DTKConfigBuilder.set_param, 'x_Temporary_Larval_Habitat, hab)
+                                 ]
+                                for x in range(numseeds)
+                                for hab in np.logspace(-2, 2, 20)
+                                ])
+
+run_sim_args = {
+    'exp_name': expt_name,
+    'config_builder': cb,
+    'exp_builder' : builder
+}
+```
+
+### Setting up complex sweeps
+
+The following model builder implements specific functions from the NU team's SMC work. Two wrapper functions, 
+`smc_intervention` and `set_EIR`, have been defined since this user doesn't need to vary over every argument in 
+`add_drug_campaign` or `add_InputEIR`. Note that these wrapper functions *must* return a dictionary for the `ModBuilder` 
+to function correctly.
+
+```{python,eval=F}
+import numpy as np
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from simtools.ModBuilder import ModBuilder, ModFn
+from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
+from dtk.interventions.input_EIR import add_InputEIR, monthly_to_daily_EIR
+
+expt_name = 'SMC_EIR_sweep'
+numseeds = 10 
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+
+def smc_intervention(cb, day, cycles, coverage_level) :
+
+    add_drug_campaign(cb, campaign_type='SMC',
+                      coverage=coverage_level, start_days=[365 + day],
+                      repetitions=cycles, 
+                      tsteps_btwn_repetitions=30,
+                      target_group={'agemin': 0.25, 'agemax': 5},
+                      receiving_drugs_event_name='Received_SMC')
+
+    return { 'SMC_coverage' : coverage_level}
+
+def set_EIR(cb, EIRscale_factor) :
+
+    monthly_site_EIR = [15.99, 5.41, 2.23, 10.33, 7.44, 11.77, 79.40, 85.80, 118.59, 82.97, 46.62, 33.49]
+    daily_EIR = monthly_to_daily_EIR(monthly_site_EIR)
+    add_InputEIR(cb, start_day=0, EIR_type='DAILY', dailyEIRs=daily_EIR, scaling_factor=EIRscale_factor)
+
+    return { 'EIR_scale_factor' : EIRscale_factor}
+
+builder = ModBuilder.from_list([[ModFn(smc_intervention, day=213, cycles=4, coverage_level=smc_coverage),
+                                 ModFn(set_EIR, EIRscale_factor=eir_scale_factor),
+                                 ModFn(DTKConfigBuilder.set_param, 'Run_Number', x),
+                                 ]
+                                for smc_coverage in [0.5, 0.9]
+                                for eir_scale_factor in [0.2, 2]
+                                for x in range(numseeds)
+                                ])
+
+run_sim_args = {
+    'exp_name': expt_name,
+    'config_builder': cb,
+    'exp_builder' : builder
+}
+```
