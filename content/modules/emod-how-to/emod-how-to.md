@@ -920,6 +920,74 @@ add_summary_report(cb, start=365, interval=30,
                    description='Monthly_HighAccess')
 ```
 
+## Add malaria
+
+![figure](/images/02_highlighted.png)
+
+There are 4 ways to add malaria into a simulation. Ways #1, 2, and 3 are used for idealized situations while #4 is the 
+standard method to use when modeling a specific geography.
+
+### 1. Challenge bite
+
+Give everyone in the simulation an infectious bite on a specified date. Definition 
+[here](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/malaria_challenge.py).
+
+
+```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from malaria.interventions.malaria_challenge import add_challenge_trial
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+
+add_challenge_trial(cb, start_day=0)
+```
+
+### 2. Outbreaks
+
+Force a given % of the simulated population to experience a new infection on a specified date or dates. Definition 
+[here](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/interventions/outbreakindividual.py).
+
+This example infects 5% of the population every year for 5 years, beginning on day 0:
+
+```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from dtk.interventions.outbreak_individual import recurring_outbreak
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+
+recurring_outbreak(cb,
+                   outbreak_fraction=0.05,
+                   start_day=0,
+                   repetitions=5,
+                   tsteps_btwn=365
+                   )
+```
+
+### 3. Forced EIR
+
+See next section on [forced EIR](/modules/emod-how-to/emod-how-to/#set-forced-eir).
+
+### 4. Setting initial prevalence
+
+Initial prevalence is set in the demographics file, in the `['Defaults']['IndividualAttributes']` block. See 
+[documentation on the demographics file](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-demographics.html) for more information.
+
+In this example, initial prevalence is drawn from a uniform distribution between 0.13 and 0.15:
+
+```python
+{
+    "Defaults": {
+        "IndividualAttributes": {
+            ...
+            "PrevalenceDistribution1": 0.13,
+            "PrevalenceDistribution2": 0.15,
+            "PrevalenceDistributionFlag": 1,
+            ...
+        }
+    },
+    ...
+}
+```
 
 ## Set forced EIR 
 
@@ -979,7 +1047,7 @@ Modeling insecticide resistance involves 3 steps:
 2. Relate genotypes to phenotype: define insecticide response of resistance genotypes
 3. Add intervention that distributes insecticide (vector control)
 
-**Setting up vector genetics**
+### Set up vector genetics
 
 
 ```python
@@ -1021,7 +1089,7 @@ cb.add_reports(BaseVectorGeneticsReport(type='ReportVectorGenetics',
                                         stratify_by='ALLELE_FREQ'))
 ```
 
-**Relating genotype to phenotype**
+### Relate genotype to phenotype
 
 The `Insecticides` config param is a list of dictionaries, one per insecticide. For each insecticide, genotype-specific 
 modifications of killing, blocking, repelling, and larval killing can be set.
@@ -1088,12 +1156,14 @@ cb.update_params({
 })
 ```
 
-**Add vector control***
+### Add vector control with specific insecticide
 
 Specify the insecticide when adding vector control:
 
 
 ```python
+from dtk.interventions.itn import add_ITN
+
 add_ITN(cb, start=0, coverage_by_ages=[{'min': 0, 'max': 100, 'coverage': 0.6}],
         insecticide='pyrethroid')
 add_ITN(cb, start=100, coverage_by_ages=[{'min': 0, 'max': 100, 'coverage': 0.6}],
