@@ -12,6 +12,7 @@ weight: 1
 - Learn development history of EMOD (Obj 2a)
 - Learn each part of EMOD software ecosystem and how they interact (Obj 2a)
 - Learn basic EMOD simulation workflow and run a barebones `ExampleSim` (Obj 2a, 2c)
+- Basic git
 
 **Week 2: Basic building blocks of EMOD**
 
