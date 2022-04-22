@@ -543,6 +543,53 @@ add_vector_migration_report(cb)
 </details>
 
 
+
+## Create climate files
+
+![figure](/images/01_highlighted.png)
+
+Once we have generated a demographics file describing the nodes for a simulation, you can also construct climate files 
+
+```{python, eval=F}
+from dtk.tools.climate.ClimateGenerator import ClimateGenerator
+
+def generate_climate(demo_fname, input_file_name) :
+
+    if not SetupParser.initialized:
+        SetupParser.init('HPC')
+
+    cg = ClimateGenerator(demographics_file_path=demo_fname, work_order_path='./wo.json',
+                          climate_files_output_path=os.path.join(inputs_path, input_file_name),
+                          climate_project='IDM-<COUNTRY>', # Modify COUNTRY
+                          start_year='<YEAR>', num_years='1') # Modify YEAR
+    cg.generate_climate_files()
+    
+# Point to existing demographics file    
+inputs_path = os.path.join(<PROJECTPATH>, 'simulation_inputs') # Modify PROJECTPATH
+input_file_name = 'FILENAME' # Modify FILENAME
+demo_fname = os.path.join(inputs_path, 'demographics', '%s_demographics.json' % input_file_name)
+
+# Generate climate files from selected project
+generate_climate(demo_fname, input_file_name)
+
+# Rename climate files and metadata
+for tag in ['air_temperature', 'rainfall', 'relative_humidity'] :
+            os.replace(os.path.join(inputs_path, input_file_name,'Burkina Faso_30arcsec_%s_daily.bin' % tag),
+                       os.path.join(inputs_path, 'climate', '%s_%s_daily.bin' % (input_file_name, tag)))
+            os.replace(os.path.join(inputs_path, input_file_name, 'Burkina Faso_30arcsec_%s_daily.bin.json' % tag),
+                       os.path.join(inputs_path, 'climate', '%s_%s_daily.bin.json' % (input_file_name, tag)))
+```
+
+After completing these steps, there should be climate files for air_temperature, rainfall, and relative_humidity in your inputs folder. To reference these when running a simulation, update the configuration parameters:
+
+```{python, eval=F}
+cb.update_params({"Air_Temperature_Filename": os.path.join('climate', '%s_air_temperature_daily.bin' % input_file_name),
+                  "Land_Temperature_Filename": os.path.join('climate', '%s_air_temperature_daily.bin' % input_file_name),
+                  "Rainfall_Filename": os.path.join('climate', '%s_rainfall_daily.bin' % input_file_name),
+                  "Relative_Humidity_Filename": os.path.join('climate', '%s_relative_humidity_daily.bin' % input_file_name)
+                  })
+```
+
 ## Create a model
 
 ![figure](/images/02_highlighted.png)

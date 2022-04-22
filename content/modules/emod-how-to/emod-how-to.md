@@ -290,8 +290,6 @@ We can see this reflected in the demographics file:
 
 ## Set up migration between nodes
 
-![figure](/images/01_highlighted.png)
-
 Multi-node simulations allow for the possibility that humans or vectors will move between nodes.
 EMOD allows 6 migration types for humans (Local, Regional, Sea, Air, Family, and campaign) and two 
 for vectors (Local and Regional). Other than the campaign type, all other migration types are set via 
@@ -304,6 +302,8 @@ can set up a simulation using Local, Sea, and campaign migration for humans and 
 for vectors.
 
 ### Ongoing Migration
+
+![figure](/images/01_highlighted.png)
 
 See [EMOD documentation on migration parameters](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-configuration-migration.html) 
 for full parameter list and specifications.
@@ -554,6 +554,55 @@ add_vector_migration_report(cb)
 </p>
 </details>
 
+
+
+## Create climate files
+
+![figure](/images/01_highlighted.png)
+
+Once we have generated a demographics file describing the nodes for a simulation, you can also construct climate files 
+
+
+```python
+from dtk.tools.climate.ClimateGenerator import ClimateGenerator
+
+def generate_climate(demo_fname, input_file_name) :
+
+    if not SetupParser.initialized:
+        SetupParser.init('HPC')
+
+    cg = ClimateGenerator(demographics_file_path=demo_fname, work_order_path='./wo.json',
+                          climate_files_output_path=os.path.join(inputs_path, input_file_name),
+                          climate_project='IDM-<COUNTRY>', # Modify COUNTRY
+                          start_year='<YEAR>', num_years='1') # Modify YEAR
+    cg.generate_climate_files()
+    
+# Point to existing demographics file    
+inputs_path = os.path.join(<PROJECTPATH>, 'simulation_inputs') # Modify PROJECTPATH
+input_file_name = 'FILENAME' # Modify FILENAME
+demo_fname = os.path.join(inputs_path, 'demographics', '%s_demographics.json' % input_file_name)
+
+# Generate climate files from selected project
+generate_climate(demo_fname, input_file_name)
+
+# Rename climate files and metadata
+for tag in ['air_temperature', 'rainfall', 'relative_humidity'] :
+            os.replace(os.path.join(inputs_path, input_file_name,'Burkina Faso_30arcsec_%s_daily.bin' % tag),
+                       os.path.join(inputs_path, 'climate', '%s_%s_daily.bin' % (input_file_name, tag)))
+            os.replace(os.path.join(inputs_path, input_file_name, 'Burkina Faso_30arcsec_%s_daily.bin.json' % tag),
+                       os.path.join(inputs_path, 'climate', '%s_%s_daily.bin.json' % (input_file_name, tag)))
+```
+
+After completing these steps, there should be climate files for air_temperature, rainfall, and relative_humidity in your inputs folder. To reference these when running a simulation, update the configuration parameters:
+
+
+```python
+cb.update_params({"Air_Temperature_Filename": os.path.join('climate', '%s_air_temperature_daily.bin' % input_file_name),
+                  "Land_Temperature_Filename": os.path.join('climate', '%s_air_temperature_daily.bin' % input_file_name),
+                  "Rainfall_Filename": os.path.join('climate', '%s_rainfall_daily.bin' % input_file_name),
+                  "Relative_Humidity_Filename": os.path.join('climate', '%s_relative_humidity_daily.bin' % input_file_name)
+                  })
+```
 
 ## Create a model
 
@@ -821,11 +870,17 @@ def smc_adherent_configuration(cb, adherence):
 adherent_drug_configs = smc_adherent_configuration(cb, adherence=0.7)
 ```
 
-## Adding drug campaigns
+## Add drug campaigns
 
 ![figure](/images/04_highlighted.png)
 
-Using add_drug_campaign() you can set different drug campaigns including MDA, MSAT, SMC, fMDA, MTAT, rfMSAT, and rfMDA. This function also includes the ability to set coverage levels, repetitions (such as SMC cycles) and the timesteps between them, diagnostics information for campaigns that include testing, target groups, and restrictions on who can receive drugs by node or individual properties. For more details on all possible specifications see [malaria_drug_campaigns.py](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/malaria_drug_campaigns.py) in dtk-tools-malaria. Node and individual properties are set in the demographics file and can be called upon here for things like low vs high access groups.
+Using add_drug_campaign() you can set different drug campaigns including MDA, MSAT, SMC, fMDA, MTAT, rfMSAT, and rfMDA. 
+This function also includes the ability to set coverage levels, repetitions (such as SMC cycles) and the timesteps 
+between them, diagnostics information for campaigns that include testing, target groups, and restrictions on who can 
+receive drugs by node or individual properties. For more details on all possible specifications see 
+[malaria_drug_campaigns.py](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/malaria_drug_campaigns.py) 
+in dtk-tools-malaria. Node and individual properties are set in the demographics file and can be called upon here for 
+things like low vs high access groups.
 
 This example details a simple SMC intervention. Its coverage level, number of cycles, and start day are specified in the model builder as they may change more regularly based on the purpose of different analyses. Timesteps between repetitions (if more than one cycle given) is set to 30 days as SMC is given on a monthly basis during peak season. The target group is also specified here to limit the age group to 0.25-5 year old children. This example dictates that it only applies to children classified as having "low" SMC access per the demographics file and uses adherent drug configurations as previously shown.
 
@@ -869,31 +924,6 @@ def diagnostic_survey(cb, sim_day, thresh=10, dose=1):
                               #tsteps_btwn_repetitions=365, #365, 7
                               #target={'agemin': val[0], 'agemax': val[1]},
                               #diagnostic_type='PF_HRP2',
-```
-
-## Setting up the experiment manager
-
-![figure](/images/06_highlighted.png)
-
-The experiment manager serves as a mechanism to actually run simulations using the model and config builders. The respective builders, "builder" and "cb", are set up earlier in this list.
-
-
-```python
-from simtools.SetupParser import SetupParser
-from simtools.ExperimentManager.ExperimentManagerFactory import ExperimentManagerFactory
-
-Exp_name = 'my_experiment_name'
-
-run_sim_args = {
-    'exp_name': Exp_name,
-    'config_builder': cb,
-    'exp_builder' : builder
-}
-
-if __name__ == "__main__":
-    SetupParser.init()
-    exp_manager = ExperimentManagerFactory.init()
-    exp_manager.run_simulations(**run_sim_args)
 ```
 
 
@@ -1017,4 +1047,34 @@ run_sim_args = {
     'config_builder': cb,
     'exp_builder' : builder
 }
+```
+
+
+## Setting up the experiment manager
+
+![figure](/images/06_highlighted.png)
+
+The experiment manager serves as a mechanism to actually run simulations using the model and config builders. The respective builders, "builder" and "cb", are set up earlier in this list.
+
+
+```python
+from simtools.SetupParser import SetupParser
+from simtools.ExperimentManager.ExperimentManagerFactory import ExperimentManagerFactory
+
+Exp_name = 'my_experiment_name'
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+
+builder = ModBuilder.from_list(...) # builder is optional
+
+run_sim_args = {
+    'exp_name': Exp_name,
+    'config_builder': cb,
+    'exp_builder' : builder         # delete this line if not using a builder
+}
+
+if __name__ == "__main__":
+    SetupParser.init()
+    exp_manager = ExperimentManagerFactory.init()
+    exp_manager.run_simulations(**run_sim_args)
 ```
