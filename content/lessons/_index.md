@@ -20,84 +20,113 @@ weight: 1
     + The reports/outputs: JSON/CSV outputs
     + The interventions: (To be covered in following weeks)
 - Create demographics and climate files, and incorporate into simulations (Obj 2d)
-    +  Repeat this in own research projects
+    + Implement in own research project
+    + Run barebones version of own research project
 - Grab and plot outputs (Obj 2d)
     + InsetChart
     + MalariaSummaryReport
+    + Implement in own research project
 
 **Week 3: Interventions in EMOD**
 
 - Learn how major malaria interventions are implemented in EMOD (Obj 2a, 2c)
     + Case management for symptomatic malaria
     + Vector control: ITNs, IRS, and larvicides
-    + Drug campaigns
-- Learn about how EMOD can report specific event occurs in the simulation (Obj 2d)
-- Learn about `ModBuilder` (Obj ??)
+    + Antimalarial drug campaigns
+- Learn about event reporting in EMOD (Obj 2d)
+    + Individual-level events
+    + Aggregated events
 - Run various interventions in the simulation and examine the output (Obj 2d, 2e)
-    + Repeat this in own research projects
+    + Implement in own research project
+- Learn about `ModBuilder` (Obj ??)
+    + Design and implement `ModBuilder` for own research project
+    + Run a multi-simulation experiment for own research project
 
 **Week 4: Analyzers and plotters**
 
 - Walkthrough examples of analyzers (Obj 2a, 2c)
-- Write a customized analyzer to extract data from own research project (Obj 2d, 2g)
+    + Single simulation
+    + Multi-simulation experiment
+    + Saving to csv
+    + Plotting in analyzer
+- Write or adapt a customized analyzer to extract data from own research project (Obj 2d, 2g)
 - Plot analyzers' output using R or Python (Obj 2d, 2e, 2g)
 
 **Week 5**
 
 *no technical curriculum, prepping Aims and slide decks*
+- Continue to refine own research projects
 
 **Week 6: Serialization**
 
 - Understand the concept and rationale of burn-in and serialization (Obj 2a, 2c)
-- Perform the following for own research project or based on (Obj 2c):
-    + Serialization of simulation ("Historical" HBHI)
-    + Picking up a serialized population and run it forward (HBHI 2010 to 2019) 
+- Walkthrough example burnin and pickup code
+- Perform the following for own research project (Obj 2c):
+    + Serialization of simulation: create burnin
+    + Picking up a serialized population and run it forward
 
 **Week 7: Sweeping and calibration**
 
-- Understand the concept and needs for sweeping and calibration (Obj 2f)
-- Perform the following for own research project or based on an example (Obj 2f):
+- Understand the concept and needs for sweeping and calibration to prevalence data (Obj 2f)
+- Perform the following for own research project (Obj 2f):
     + Sweep through a range of values for a parameter
     + Determine the best value for the parameter by calculating likelihood over observed data
 
 **Week 8: Individual properties**
 
 - Understand the concept and use case for individual properties (Obj 2a)
-- Perform the following for own research project or based on an example (Optional; Obj 2c)
+- Perform the following for own research project (Optional; Obj 2c)
     + Enable individual properties
     + Implement an intervention based on individual properties
+    + Implement reporting based on individual properties
 
-**Week 9: HBHI simulation**
+**Week 9: Infusing simulations with real data**
 
-- Code walkthrough of HBHI analysis process
-- Learn more about HBHI analysis via interaction with HBHI-Nigeria Shiny app (Obj 3a, 3b)
+- Overview of within-host model and calibration process for EMOD
+- Vector species bionomics and refining vector control interventions
+- Roundtable: Using DHS
+    + DHS overview
+    + Pulling DHS data through API
+- Continue to refine own research projects
 
 **Week 10**
 
 *no technical curriculum, prepping Aims and slide decks*
+- Continue to refine own research projects
 
-**Week 11: Infusing simulations with real data**
+**Week 11: Advanced EMOD: HBHI workflow as a complex example**
 
-- Learn how `MALARIA_SIM` and interventions are parameterized, and understand the limitations of the parameterization process
-- Roundtable: Working with DHS
+- Understand the context for HBHI modeling
+- Nigeria example: manuscript and HBHI-Nigeria Shiny app (Obj 3a, 3b)
+- Code walkthrough of HBHI analysis process
+    + Identify familiar components from previous weeks
+    + Identify new components: managing shared functions, reading intervention data from csv's, multi-analyzers
+- Continue to refine own research projects
 
-**Week 12: Other EMOD applications**
+**Week 12: Advanced EMOD: Spatial modeling in EMOD**
 
-- Demonstrate the use of EMOD in generic and spatial setting (Obj 2a)
+- How to create multi-node simulations
+- How to set up human and/or vector movement between nodes
+- Custom reports useful for multi-node simulations
+- Continue to refine own research projects
 
-**Week 13: Wildcard topic (based on feedback)**
+**Week 13: Advanced EMOD: gene drive and reactive interventions**
 
+- Reactive interventions and surveillance in EMOD
+- Guest lecture: vector genetics and modeling gene drives in EMOD
 - Roundtable: Current limitations and future of EMOD and agent-based modeling of malaria
+- Continue to refine own research projects
 
-**Week 14: Wildcard topic (based on feedback)**
+**Week 14: HPC**
 
-- (Can potentially be about discussion on computing infrastructures, e.g., "public" super computer, EMOD on Linux)
-- Roundtable: Technical difficulty and challenge to run EMOD experiments in home institute
-    + What can NUMM help? Before or after return?
+- Using Quest
+- Roundtable: Technical difficulties and challenges to run EMOD experiments from home institution
+    + How can NUMM help before or after return?
 
 **Week 15**
 
 *no technical curriculum, prepping Aims and slide decks*
+- Continue to refine own research projects
 
 **Week 16**
 
