@@ -18,7 +18,7 @@ weight: 1
 - Identify the three building blocks to run an EMOD simulation (Obj 2c)
     + The basic inputs: Parameters, demographics and climates
     + The reports/outputs: JSON/CSV outputs
-    + The interventions: (To be covered in following weeks)
+    + The interventions: dynamic creation of the campaign file
 - Create demographics and climate files, and incorporate into simulations (Obj 2d)
     + Implement in own research project
     + Run barebones version of own research project
