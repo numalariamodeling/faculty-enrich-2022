@@ -623,6 +623,59 @@ One can also specify different simulation types such as **VECTOR_SIM** to simula
 malaria within-host model, or other simulation types listed [here](https://docs.idmod.org/projects/emod-malaria/en/latest/glossary.html?highlight=Sim_Type#term-simulation-type).
 
 
+
+## Set up mosquito species
+
+![figure](/images/01_highlighted.png)
+
+EMOD allows us to specify the distribution of mosquito species in the simulation, and to specify life cycle, larval habitat, and transmission parameters for each species. The example below would populate the model with 100% gambiae mosquitoes.
+
+
+```python
+from dtk.vector.species import set_species, set_larval_habitat
+from dtk.interventions.habitat_scale import scale_larval_habitats
+
+set_species(cb, ['gambiae'])
+```
+
+The following default parameters appear in the config file for A. gambiae. Some of the default parameters vary between different vector species:
+
+
+```python
+{
+
+    "Larval_Habitat_Types": {
+        "TEMPORARY_RAINFALL": 8e8,
+        "CONSTANT": 8e7
+    },
+
+    "Aquatic_Arrhenius_1": 84200000000,
+    "Aquatic_Arrhenius_2": 8328,
+    "Aquatic_Mortality_Rate": 0.1,
+    "Name": "gambiae",
+    "Immature_Duration": 2,
+    "Male_Life_Expectancy": 10,
+    "Adult_Life_Expectancy": 20,
+    "Days_Between_Feeds": 3,
+    "Anthropophily": 0.85,  # species- and site-specific feeding parameters
+    "Indoor_Feeding_Fraction": 0.95,
+    "Egg_Batch_Size": 100,
+
+    "Vector_Sugar_Feeding_Frequency": "VECTOR_SUGAR_FEEDING_NONE",
+
+    "Acquire_Modifier": 0.2,
+    # VECTOR_SIM uses a factor here for human-to-mosquito infectiousness, while MALARIA_SIM explicitly models gametocytes
+    "Infected_Arrhenius_1": 117000000000,
+    "Infected_Arrhenius_2": 8336,
+    "Infected_Egg_Batch_Factor": 0.8,
+
+    "Infectious_Human_Feed_Mortality_Factor": 1.5,
+    "Nighttime_Feeding_Fraction": 1,
+    "Transmission_Rate": 0.9  # Based on late-2013 calibration of PfPR vs EIR favoring 1.0 to 0.5
+}
+```
+
+
 ## Update config parameters
 
 ![figure](/images/02_highlighted.png)
