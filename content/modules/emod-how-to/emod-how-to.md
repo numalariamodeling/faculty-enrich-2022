@@ -149,7 +149,7 @@ The resulting demographics file is a JSON file organized into 4 main sections:
 </p>
 </details>
 
-## Create multi-node simulations
+## Create multi-node simulations 
 
 ![figure](/images/01_highlighted.png)
 
