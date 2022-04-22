@@ -90,11 +90,47 @@ demo_fname = os.path.join(<INPUTPATH>,"FILENAME_demographics.json") # Modify INP
 
 generate_demographics(df, demo_fname)
 ```
+</p>
+</details>
+
+<details><summary><span style="color: blue";">3. Add Individual Properties</span></summary>
+<p>
+
+Add details - check with Manuela
+
+Individual properties can be used to set specific details for individuals such as risk (i.e. high vs low access groups), cohorts, drug response groups, etc. These properties can help a simulation better reflect the reality of different sites and individuals within them.
+
+```{python,eval=F}
+#in addition to previous step
+from input_file_generation.add_properties_to_demographics import generate_demographics_properties
+
+IPs = [
+        {'Property': 'StudyCohort',
+         'Values': ["Placebo", "Treatment"],
+         'Initial_Distribution': [0.5, 0.5],
+         'Transitions': []},
+        {'Property': 'DrugResponseGroup',
+         'Values': [f'Group{i}' for i in range(100)],
+         'Initial_Distribution': [0.01] * 100,
+         'Transitions': []},
+    ]
+
+demo_fname = os.path.join(<INPUTPATH>,"FILENAME_demographics.json") #from previous 
+demo_fname_IIV = os.path.join(<INPUTPATH>,"FILENAME_demographicsIP.json")
+generate_demographics(df, demo_fname) #from previous
+
+generate_demographics_properties(refdemo_fname=demo_fname,
+                                     output_filename=demo_fname_IIV,
+                                     as_overlay=False,
+                                     IPs=IPs)
+```
+
+
 
 </p>
 </details>
 
-<details><summary><span style="color: blue";">3. Reading your Demographics File</span></summary>
+<details><summary><span style="color: blue";">4. Reading your Demographics File</span></summary>
 <p>
 
 The resulting demographics file is a JSON file organized into 4 main sections:
@@ -1270,7 +1306,9 @@ def smc_intervention(cb, day, cycles, coverage_level):
 
 ![figure](/images/04_highlighted.png)
 
-Add description here
+[Diagnostic surveys](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/malaria_diagnostic.py) are useful interventions for triggering events based on an individual's diagnosis. Testing can be performed at regular intervals (**tsteps_between_repetitions**) for a set number of **repetitions** based on **target** groups and **coverage**. Testing can also be triggered by other events, such as receiving a particular dose of IPTi in this example.
+
+Different methods of diagnostic testing may also be utilized, including *TRUE_PARASITE_DENSITY*, *BLOOD_SMEAR*, *PCR*, *PF_HRP2*, *TRUE_INFECTION_STATUS*, and *HAS_FEVER*. Diagnostic threshold, sensitivity, and specificity can all be parameterized. Once a positive or negative result is obtained in the simulation, the relative configs parameter dictates what will happen to that individual. In this example, either diagnosis broadcasts an event for that individual that they were positive or negative on the day that they received their first dose of IPTi.
 
 ```{python,eval=F}
 from malaria.interventions.malaria_drug_campaigns import add_drug_campaign, add_diagnostic_survey
@@ -1280,16 +1318,11 @@ def diagnostic_survey(cb, sim_day, thresh=10, dose=1):
     add_diagnostic_survey(cb, start_day=sim_day,
                           diagnostic_threshold=thresh,
                           trigger_condition_list=[f'Received_IPTi_{dose}'],
+                          diagnostic_type='TRUE_PARASITE_DENSITY'
                           positive_diagnosis_configs=[{'class': 'BroadcastEvent',
                                                        'Broadcast_Event': 'Day_0_positive'}],
                           negative_diagnosis_configs=[{'class': 'BroadcastEvent',
-                                                       'Broadcast_Event': 'Day_0_negative'}],
-                          triggered_campaign_delay=0)
-                              #additional arguments
-                              #repetitions=2, #2, 73
-                              #tsteps_btwn_repetitions=365, #365, 7
-                              #target={'agemin': val[0], 'agemax': val[1]},
-                              #diagnostic_type='PF_HRP2',
+                                                       'Broadcast_Event': 'Day_0_negative'}])
 ```
 
 
