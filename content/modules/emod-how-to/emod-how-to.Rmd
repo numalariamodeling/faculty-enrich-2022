@@ -1,5 +1,5 @@
 ---
-title: "EMOD How Tos"
+title: "EMOD How To's"
 author: "Anne Stahlfeld & Tobias Holden"
 date: "4/18/2022"
 output: 
@@ -37,9 +37,9 @@ Create a file "my_node.csv" with the following columns:
 
 Example "my_node.csv":
 
-| nodeid      | population  |  Village |
-| ----------- | ----------- | -------- |
-| 1      | 1400       | "Obom" |
+| nodeid      | population  |  Village | lat     |  lon    |
+| ----------- | ----------- | -------- |-------- |-------- |
+| 1           | 1400        | "Obom"   | 5.760759  | -0.4473415  |
 
 </p>
 </details>
@@ -48,6 +48,8 @@ Example "my_node.csv":
 <p>
 
 ```{python, eval=F}
+import os
+import pandas as pd
 import json
 from dtk.tools.demographics.DemographicsGeneratorConcern import WorldBankBirthRateConcern, EquilibriumAgeDistributionConcern, DefaultIndividualAttributesConcern
 from dtk.tools.demographics.DemographicsGenerator import DemographicsGenerator
@@ -83,8 +85,8 @@ def generate_demographics(demo_df, demo_fname, days_spread=1) :
 
     
     
-df = pd.read_csv(".../my_node.csv")    
-demo_fname = ".../FILENAME_demographics.json"
+df = pd.read_csv(os.path.join(<PATHTOFILE>,"my_node.csv"))  # Modify PATHTOFILE
+demo_fname = os.path.join(<INPUTPATH>,"FILENAME_demographics.json") # Modify INPUTPATH and FILENAME
 
 generate_demographics(df, demo_fname)
 ```
@@ -552,7 +554,7 @@ created by loading default parameters:
 from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
 from simtools.ModBuilder import ModBuilder, ModFn
 
-cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
 ```
 
 One can also specify different simulation types such as **VECTOR_SIM** to simulate just the vector model without the 
@@ -879,7 +881,7 @@ from simtools.ModBuilder import ModBuilder, ModFn
 expt_name = 'multi_seed_experiment'
 numseeds = 10 
 
-cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
 builder = ModBuilder.from_list([[ModFn(DTKConfigBuilder.set_param, 'Run_Number', x)
                                  ]
                                 for x in range(numseeds)
@@ -905,7 +907,7 @@ from simtools.ModBuilder import ModBuilder, ModFn
 expt_name = 'multi_habitat_and_seed_experiment'
 numseeds = 10 
 
-cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
 builder = ModBuilder.from_list([[ModFn(DTKConfigBuilder.set_param, 'Run_Number', x),
                                  ModFn(DTKConfigBuilder.set_param, 'x_Temporary_Larval_Habitat, hab)
                                  ]
@@ -937,7 +939,7 @@ from dtk.interventions.input_EIR import add_InputEIR, monthly_to_daily_EIR
 expt_name = 'SMC_EIR_sweep'
 numseeds = 10 
 
-cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
 
 def smc_intervention(cb, day, cycles, coverage_level) :
 
@@ -987,7 +989,7 @@ from simtools.ExperimentManager.ExperimentManagerFactory import ExperimentManage
 
 Exp_name = 'my_experiment_name'
 
-cb = DTKConfigBuilder.from_defaults('MALARIA_SIM)
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
 
 builder = ModBuilder.from_list(...) # builder is optional
 
