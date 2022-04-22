@@ -824,6 +824,8 @@ add_summary_report(cb, start=365, interval=30,
 
 ## Add malaria
 
+![figure](/images/02_highlighted.png)
+
 There are 4 ways to add malaria into a simulation. Ways #1, 2, and 3 are used for idealized situations while #4 is the 
 standard method to use when modeling a specific geography.
 
