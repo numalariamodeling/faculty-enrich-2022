@@ -48,5 +48,11 @@ EMOD is easiest to install (and use) in Windows.
 3. Install the tool using `setup.py` script
     + Command: `python setup.py develop`
     + This is the "standard" way to install a custom package for python. Specifying the `develop` behind allows changes made to the code repository to directly reflect in the package. Sometimes, you want to use `install` instead: future changes to the code repository will not be captured into the installed package in your computer until you rerun the command.
+4. If there are no clear error messages, go to the next section to verify that both `dtk-tools` and `dtk-tools-malaria` are installed successfully and useable!
 
 ### Verify that you are all set!
+1. Navigate to the `dtk-tools-malaria` folder and go to the `examples` subfolder.
+2. Edit the `simtools.ini` (using PyCharm or Notepad++) to make sure that they are pointing to the right path. I.e., change all the `path\to` to correspond to the location of your `dtk-tools-malaria` folder.
+3. In powershell, run the `run_exampleSim.py` script in the `examples` subfolder.
+    + Command: `python run_exampleSim.py`
+4. If the simulation runs successfully, both `dtk-tools` and `dtk-tools-malaria` are successfully installed in your machine.
