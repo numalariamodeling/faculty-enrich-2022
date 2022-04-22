@@ -90,6 +90,7 @@ demo_fname = os.path.join(<INPUTPATH>,"FILENAME_demographics.json") # Modify INP
 
 generate_demographics(df, demo_fname)
 ```
+
 </p>
 </details>
 

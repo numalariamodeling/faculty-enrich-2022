@@ -91,6 +91,7 @@ demo_fname = os.path.join(<INPUTPATH>,"FILENAME_demographics.json") # Modify INP
 
 generate_demographics(df, demo_fname)
 ```
+
 </p>
 </details>
 
@@ -628,12 +629,52 @@ malaria within-host model, or other simulation types listed [here](https://docs.
 
 ![figure](/images/02_highlighted.png)
 
-EMOD allows us to specify the distribution of mosquito species in the simulation, and to specify life cycle, larval habitat, and transmission parameters for each species. 
+EMOD allows us to specify the distribution of mosquito species in the simulation, and to specify life cycle, larval 
+habitat, and transmission parameters for each species. 
 
-<details><summary><span style="color: blue";">Single Vector Species</span></summary>
-<p>
+`dtk-tools` has pre-configued vector species parameters for major malaria vectors specified [here](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/vector/species.py). 
+All species parameters can be overwritten by the user.
 
-The example below would populate the model with 100% gambiae mosquitoes.
+The following default parameters appear in the config file for *A. gambiae*:
+
+
+```python
+{
+    "Vector_Species_Params": [{
+
+    "Name": "gambiae",
+    "Larval_Habitat_Types": {
+        "TEMPORARY_RAINFALL": 8e8,
+        "CONSTANT": 8e7
+    },
+    "Aquatic_Arrhenius_1": 84200000000,
+    "Aquatic_Arrhenius_2": 8328,
+    "Aquatic_Mortality_Rate": 0.1,
+    "Immature_Duration": 2,
+    "Male_Life_Expectancy": 10,
+    "Adult_Life_Expectancy": 20,
+    "Days_Between_Feeds": 3,
+    "Anthropophily": 0.85,  # species- and site-specific feeding parameters
+    "Indoor_Feeding_Fraction": 0.95,
+    "Egg_Batch_Size": 100,
+    "Vector_Sugar_Feeding_Frequency": "VECTOR_SUGAR_FEEDING_NONE",
+    "Acquire_Modifier": 0.2,
+    # VECTOR_SIM uses a factor here for human-to-mosquito infectiousness, while 
+    # MALARIA_SIM explicitly models gametocytes
+    "Infected_Arrhenius_1": 117000000000,
+    "Infected_Arrhenius_2": 8336,
+    "Infected_Egg_Batch_Factor": 0.8,
+    "Infectious_Human_Feed_Mortality_Factor": 1.5,
+    "Nighttime_Feeding_Fraction": 1,
+    "Transmission_Rate": 0.9  # Based on late-2013 calibration of PfPR vs EIR favoring 1.0 to 0.5
+    }]
+}
+```
+
+**Adding a single vector species to a simulation**
+
+Add vector species to the simulation with the [set_species](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/vector/species.py#L308) 
+function. The example below would populate the model with 100% gambiae mosquitoes:
 
 
 ```python
@@ -641,165 +682,49 @@ from dtk.vector.species import set_species
 set_species(cb, ['gambiae'])
 ```
 
-The following default parameters appear in the config file for A. gambiae. Some of the default parameters vary between different vector species:
+**Adding multiple vector species to a simulation**
 
-
-```python
-{
-    "Vector_Species_Params": [{
-
-    "Name": "gambiae",
-    "Larval_Habitat_Types": {
-        "TEMPORARY_RAINFALL": 8e8,
-        "CONSTANT": 8e7
-    },
-    "Aquatic_Arrhenius_1": 84200000000,
-    "Aquatic_Arrhenius_2": 8328,
-    "Aquatic_Mortality_Rate": 0.1,
-    "Immature_Duration": 2,
-    "Male_Life_Expectancy": 10,
-    "Adult_Life_Expectancy": 20,
-    "Days_Between_Feeds": 3,
-    "Anthropophily": 0.85,  # species- and site-specific feeding parameters
-    "Indoor_Feeding_Fraction": 0.95,
-    "Egg_Batch_Size": 100,
-    "Vector_Sugar_Feeding_Frequency": "VECTOR_SUGAR_FEEDING_NONE",
-    "Acquire_Modifier": 0.2,
-    # VECTOR_SIM uses a factor here for human-to-mosquito infectiousness, while 
-    # MALARIA_SIM explicitly models gametocytes
-    "Infected_Arrhenius_1": 117000000000,
-    "Infected_Arrhenius_2": 8336,
-    "Infected_Egg_Batch_Factor": 0.8,
-    "Infectious_Human_Feed_Mortality_Factor": 1.5,
-    "Nighttime_Feeding_Fraction": 1,
-    "Transmission_Rate": 0.9  # Based on late-2013 calibration of PfPR vs EIR favoring 1.0 to 0.5
-    }]
-}
-```
-
-</p> </details>
-
-<details><summary><span style="color: blue";">Multiple Vector Species</span></summary>
-<p>
-
-We can also include a mix of vector species, adding multiple vector populations with species-specific parameters.
+We can also include a mix of vector species, adding multiple vector populations with species-specific parameters. The 
+relative abundance of each species is determined by reproduction and survival factors as well as abundance of their 
+breeding sites, set in the species parameter **Larval_Habitat_Types**.
 
 
 ```python
 from dtk.vector.species import set_species
-set_species(cb, ['gambiae','arabiensis'])
+set_species(cb, ['gambiae','arabiensis', 'funestus'])
 ```
 
-For each species listed in Vector_Species_Params, a “VectorPopulation” object will be added to the simulation at each node. Each species will be defined by parameters in the simulation configuration file for the vector ecology and behavior of the species. This allows for a mechanistic description of vector abundances and behavior through the effects of climate and weather on different preferred larval habitats.
+**Modify vector species parameters**
 
-
-```python
-{
-    "Vector_Species_Params": [{
-
-    "Name": "gambiae",
-    "Larval_Habitat_Types": {
-        "TEMPORARY_RAINFALL": 8e8,
-        "CONSTANT": 8e7
-    },
-    "Aquatic_Arrhenius_1": 84200000000,
-    "Aquatic_Arrhenius_2": 8328,
-    "Aquatic_Mortality_Rate": 0.1,
-    "Immature_Duration": 2,
-    "Male_Life_Expectancy": 10,
-    "Adult_Life_Expectancy": 20,
-    "Days_Between_Feeds": 3,
-    "Anthropophily": 0.85,  # species- and site-specific feeding parameters
-    "Indoor_Feeding_Fraction": 0.95,
-    "Egg_Batch_Size": 100,
-    "Vector_Sugar_Feeding_Frequency": "VECTOR_SUGAR_FEEDING_NONE",
-    "Acquire_Modifier": 0.2,
-    # VECTOR_SIM uses a factor here for human-to-mosquito infectiousness, while 
-    # MALARIA_SIM explicitly models gametocytes
-    "Infected_Arrhenius_1": 117000000000,
-    "Infected_Arrhenius_2": 8336,
-    "Infected_Egg_Batch_Factor": 0.8,
-    "Infectious_Human_Feed_Mortality_Factor": 1.5,
-    "Nighttime_Feeding_Fraction": 1,
-    "Transmission_Rate": 0.9  # Based on late-2013 calibration of PfPR vs EIR favoring 1.0 to 0.5
-    },
-    {
-
-    "Name": "arabiensis",
-    "Larval_Habitat_Types": {
-        "TEMPORARY_RAINFALL": 8e8,
-        "CONSTANT": 8e7
-    },
-    "Aquatic_Arrhenius_1": 84200000000,
-    "Aquatic_Arrhenius_2": 8328,
-    "Aquatic_Mortality_Rate": 0.1,
-    "Immature_Duration": 2,
-    "Male_Life_Expectancy": 10,
-    "Adult_Life_Expectancy": 20,
-    "Days_Between_Feeds": 3,
-    "Anthropophily": 0.85,  # species- and site-specific feeding parameters
-    "Indoor_Feeding_Fraction": 0.5,
-    "Egg_Batch_Size": 100,
-    "Vector_Sugar_Feeding_Frequency": "VECTOR_SUGAR_FEEDING_NONE",
-    "Acquire_Modifier": 0.2,
-    # VECTOR_SIM uses a factor here for human-to-mosquito infectiousness, while 
-    # MALARIA_SIM explicitly models gametocytes
-    "Infected_Arrhenius_1": 117000000000,
-    "Infected_Arrhenius_2": 8336,
-    "Infected_Egg_Batch_Factor": 0.8,
-    "Infectious_Human_Feed_Mortality_Factor": 1.5,
-    "Nighttime_Feeding_Fraction": 1,
-    "Transmission_Rate": 0.9  # Based on late-2013 calibration of PfPR vs EIR favoring 1.0 to 0.5
-    }]
-}
-```
-
-
-</p> </details>
-
-<details><summary><span style="color: blue";">Modify vector species parameters</span></summary>
-<p>
-
-To change vector species parameters from defaults, use the update_species_param() function.
+To change vector species parameters from defaults, use the [update_species_param](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/vector/species.py#L375) 
+function:
 
 
 ```python
 from dtk.vector.species import update_species_param
 
-# Example: Decrease the 'Transmission_Rate' of A. arabiensis from 0.9 (default) to 0.75.
+# Example: Decrease the 'Anthropohpily' of *A. gambiae* from 0.85 (default) to 0.6.
 update_species_param(cb, 
-                     species="arabiensis", 
-                     parameter="Transmission_Rate", 
-                     value=0.75, 
-                     overwrite=False # If True, replaces any previous stored values
+                     species="gambiae", 
+                     parameter="Anthropophily", 
+                     value=0.6
                      )
 ```
 
-</p> </details>
+**Modify species habitat parameters**
 
-<details><summary><span style="color: blue";">Modify species habitat parameters</span></summary>
-<p>
-
-The larval habitat parameters for each vector species can also be modified.
+The larval habitat parameters for each vector species can also be modified:
 
 
 ```python
 from dtk.vector.species import update_species_param
 
-# Example: Add brackish swamp habitat availability for A. arabiensis only. 
-
-new_habitats = {"arabiensis": {"TEMPORARY_RAINFALL": 1.7e9, "CONSTANT": 1e7}}
-
-for species, habitat in new_habitats.items():
-    update_species_param(cb, species,
-                         parameter="Larval_Habitat_Types", 
-                         value= habitat, 
-                         overwrite=False # Does not delete previous habitat types
-                         )
+update_species_param(cb, 'arabiensis',
+                     parameter="Larval_Habitat_Types", 
+                     value={"TEMPORARY_RAINFALL": 1.7e9, "CONSTANT": 1e7}
+                    )
 ```
 
-
-</p> </details>
 
 ## Update config parameters
 
@@ -945,6 +870,162 @@ daily_EIR = monthly_to_daily_EIR(monthly_site_EIR)
 EIRscale_factor = 1
 
 add_InputEIR(cb, start_day=0, EIR_type='DAILY', dailyEIRs=daily_EIR, scaling_factor=EIRscale_factor)
+```
+
+## Add larvicides
+
+![figure](/images/04_highlighted.png)
+
+Functions for adding attractive targeted sugar baits, topical repellents, outdoor residual spray, eave tubes, and 
+larvicides are found [here](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/vector/species.py#L375).
+
+To add larvicides: 
+
+
+```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from dtk.interventions.novel_vector_control import add_larvicides
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+
+add_larvicides(cb, start_day=0, 
+               habitat_target='CONSTANT',   # habitat type to target
+               killing_initial=0.6,         # initial killing efficacy of the insecticide
+               killing_decay=150            # decay time constant, in days, for exponential decay of larvicide efficacy
+               )
+```
+
+
+## Add insecticide resistance
+
+![figure](/images/04_highlighted.png)
+
+Modeling insecticide resistance involves 3 steps:
+1. Set up vector genetics
+2. Relate genotypes to phenotype: define insecticide response of resistance genotypes
+3. Add intervention that distributes insecticide (vector control)
+
+**Setting up vector genetics**
+
+
+```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from dtk.vector.species import set_species_param, set_species
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+
+set_species(cb, ['gambiae'])
+set_species_param(cb, 'gambiae', 'Genes', [
+    {
+        "Alleles": {
+            "a0": 0.8,
+            "a1": 0.19999999999999996,
+            "a2": 0.0
+        },
+        "Mutations": {
+            "a0:a1": 0,
+            "a0:a2": 0,
+            "a1:a0": 0,
+            "a1:a2": 0,
+            "a2:a0": 0,
+            "a2:a1": 0
+        }
+    }
+])
+```
+
+Reporting on vector genetics (abundance of alleles and/or genotypes) is requested like so:
+
+
+```python
+from dtk.utils.reports import BaseVectorGeneticsReport
+
+cb.add_reports(BaseVectorGeneticsReport(type='ReportVectorGenetics',
+                                        species='gambiae',
+                                        gender='VECTOR_FEMALE',
+                                        include_vector_state_columns=0,
+                                        stratify_by='ALLELE_FREQ'))
+```
+
+**Relating genotype to phenotype**
+
+The `Insecticides` config param is a list of dictionaries, one per insecticide. For each insecticide, genotype-specific 
+modifications of killing, blocking, repelling, and larval killing can be set.
+
+
+```python
+cb.update_params({
+    "Insecticides": [
+        {
+            "Name": "pyrethroid",
+            "Resistances": [
+                {
+                    "Allele_Combinations": [
+                        [
+                            "a1",
+                            "a1"
+                        ]
+                    ],
+                    "Blocking_Modifier": 1.0,
+                    "Killing_Modifier": 0.05,
+                    "Larval_Killing_Modifier": 0,
+                    "Repelling_Modifier": 0,
+                    "Species": "gambiae"
+                }
+            ]
+        },
+        {
+            "Name": "carbamate",
+            "Resistances": [
+                {
+                    "Allele_Combinations": [
+                        [   # for this specification, any allele in combination with a2 will have these modifiers
+                            "a2",
+                            "*"
+                        ]
+                    ],
+                    "Blocking_Modifier": 1.0,
+                    "Killing_Modifier": 0.25,
+                    "Larval_Killing_Modifier": 0,
+                    "Repelling_Modifier": 0,
+                    "Species": "gambiae"
+                }
+            ]
+        },
+        {
+            "Name": "pyrethroid-PBO",
+            "Resistances": [
+                {
+                    "Allele_Combinations": [
+                        [
+                            "a1",
+                            "a1"
+                        ]
+                    ],
+                    "Blocking_Modifier": 1.0,
+                    "Killing_Modifier": 0.5,
+                    "Larval_Killing_Modifier": 0,
+                    "Repelling_Modifier": 0,
+                    "Species": "gambiae"
+                }
+            ]
+        }
+    ]
+})
+```
+
+**Add vector control***
+
+Specify the insecticide when adding vector control:
+
+
+```python
+add_ITN(cb, start=0, coverage_by_ages=[{'min': 0, 'max': 100, 'coverage': 0.6}],
+        insecticide='pyrethroid')
+add_ITN(cb, start=100, coverage_by_ages=[{'min': 0, 'max': 100, 'coverage': 0.6}],
+        insecticide='pyrethroid-PBO')
+add_ITN(cb, start=200, coverage_by_ages=[{'min': 0, 'max': 100, 'coverage': 0.6}],
+        insecticide='carbamate')
 ```
 
 ## Add case management
