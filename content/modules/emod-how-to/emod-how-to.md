@@ -624,18 +624,24 @@ One can also specify different simulation types such as **VECTOR_SIM** to simula
 malaria within-host model, or other simulation types listed [here](https://docs.idmod.org/projects/emod-malaria/en/latest/glossary.html?highlight=Sim_Type#term-simulation-type).
 
 
-
 ## Set up mosquito species
 
 ![figure](/images/02_highlighted.png)
 
-EMOD allows us to specify the distribution of mosquito species in the simulation, and to specify life cycle, larval 
-habitat, and transmission parameters for each species. 
+EMOD allows us to specify the distribution of mosquito species in the simulation, and to specify life cycle, larval habitat, and transmission parameters for each species. 
 
-`dtk-tools` has pre-configued vector species parameters for major malaria vectors specified [here](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/vector/species.py). 
-All species parameters can be overwritten by the user.
+<details><summary><span style="color: blue";">Single Vector Species</span></summary>
+<p>
 
-The following default parameters appear in the config file for *A. gambiae*:
+The example below would populate the model with 100% gambiae mosquitoes.
+
+
+```python
+from dtk.vector.species import set_species
+set_species(cb, ['gambiae'])
+```
+
+The following default parameters appear in the config file for A. gambiae. Some of the default parameters vary between different vector species:
 
 
 ```python
@@ -671,60 +677,128 @@ The following default parameters appear in the config file for *A. gambiae*:
 }
 ```
 
-**Adding a single vector species to a simulation**
+</p> </details>
 
-Add vector species to the simulation with the [set_species](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/vector/species.py#L308) 
-function. The example below would populate the model with 100% gambiae mosquitoes:
+<details><summary><span style="color: blue";">Multiple Vector Species</span></summary>
+<p>
 
-
-```python
-from dtk.vector.species import set_species
-set_species(cb, ['gambiae'])
-```
-
-**Adding multiple vector species to a simulation**
-
-We can also include a mix of vector species, adding multiple vector populations with species-specific parameters. The 
-relative abundance of each species is determined by reproduction and survival factors as well as abundance of their 
-breeding sites, set in the species parameter **Larval_Habitat_Types**.
+We can also include a mix of vector species, adding multiple vector populations with species-specific parameters.
 
 
 ```python
 from dtk.vector.species import set_species
-set_species(cb, ['gambiae','arabiensis', 'funestus'])
+set_species(cb, ['gambiae','arabiensis'])
 ```
 
-**Modify vector species parameters**
+For each species listed in Vector_Species_Params, a “VectorPopulation” object will be added to the simulation at each node. Each species will be defined by parameters in the simulation configuration file for the vector ecology and behavior of the species. This allows for a mechanistic description of vector abundances and behavior through the effects of climate and weather on different preferred larval habitats.
 
-To change vector species parameters from defaults, use the [update_species_param](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/vector/species.py#L375) 
-function:
+
+```python
+{
+    "Vector_Species_Params": [{
+
+    "Name": "gambiae",
+    "Larval_Habitat_Types": {
+        "TEMPORARY_RAINFALL": 8e8,
+        "CONSTANT": 8e7
+    },
+    "Aquatic_Arrhenius_1": 84200000000,
+    "Aquatic_Arrhenius_2": 8328,
+    "Aquatic_Mortality_Rate": 0.1,
+    "Immature_Duration": 2,
+    "Male_Life_Expectancy": 10,
+    "Adult_Life_Expectancy": 20,
+    "Days_Between_Feeds": 3,
+    "Anthropophily": 0.85,  # species- and site-specific feeding parameters
+    "Indoor_Feeding_Fraction": 0.95,
+    "Egg_Batch_Size": 100,
+    "Vector_Sugar_Feeding_Frequency": "VECTOR_SUGAR_FEEDING_NONE",
+    "Acquire_Modifier": 0.2,
+    # VECTOR_SIM uses a factor here for human-to-mosquito infectiousness, while 
+    # MALARIA_SIM explicitly models gametocytes
+    "Infected_Arrhenius_1": 117000000000,
+    "Infected_Arrhenius_2": 8336,
+    "Infected_Egg_Batch_Factor": 0.8,
+    "Infectious_Human_Feed_Mortality_Factor": 1.5,
+    "Nighttime_Feeding_Fraction": 1,
+    "Transmission_Rate": 0.9  # Based on late-2013 calibration of PfPR vs EIR favoring 1.0 to 0.5
+    },
+    {
+
+    "Name": "arabiensis",
+    "Larval_Habitat_Types": {
+        "TEMPORARY_RAINFALL": 8e8,
+        "CONSTANT": 8e7
+    },
+    "Aquatic_Arrhenius_1": 84200000000,
+    "Aquatic_Arrhenius_2": 8328,
+    "Aquatic_Mortality_Rate": 0.1,
+    "Immature_Duration": 2,
+    "Male_Life_Expectancy": 10,
+    "Adult_Life_Expectancy": 20,
+    "Days_Between_Feeds": 3,
+    "Anthropophily": 0.85,  # species- and site-specific feeding parameters
+    "Indoor_Feeding_Fraction": 0.5,
+    "Egg_Batch_Size": 100,
+    "Vector_Sugar_Feeding_Frequency": "VECTOR_SUGAR_FEEDING_NONE",
+    "Acquire_Modifier": 0.2,
+    # VECTOR_SIM uses a factor here for human-to-mosquito infectiousness, while 
+    # MALARIA_SIM explicitly models gametocytes
+    "Infected_Arrhenius_1": 117000000000,
+    "Infected_Arrhenius_2": 8336,
+    "Infected_Egg_Batch_Factor": 0.8,
+    "Infectious_Human_Feed_Mortality_Factor": 1.5,
+    "Nighttime_Feeding_Fraction": 1,
+    "Transmission_Rate": 0.9  # Based on late-2013 calibration of PfPR vs EIR favoring 1.0 to 0.5
+    }]
+}
+```
+
+
+</p> </details>
+
+<details><summary><span style="color: blue";">Modify vector species parameters</span></summary>
+<p>
+
+To change vector species parameters from defaults, use the update_species_param() function.
 
 
 ```python
 from dtk.vector.species import update_species_param
 
-# Example: Decrease the 'Anthropohpily' of *A. gambiae* from 0.85 (default) to 0.6.
+# Example: Decrease the 'Transmission_Rate' of A. arabiensis from 0.9 (default) to 0.75.
 update_species_param(cb, 
-                     species="gambiae", 
-                     parameter="Anthropophily", 
-                     value=0.6
+                     species="arabiensis", 
+                     parameter="Transmission_Rate", 
+                     value=0.75, 
+                     overwrite=False # If True, replaces any previous stored values
                      )
 ```
 
-**Modify species habitat parameters**
+</p> </details>
 
-The larval habitat parameters for each vector species can also be modified:
+<details><summary><span style="color: blue";">Modify species habitat parameters</span></summary>
+<p>
+
+The larval habitat parameters for each vector species can also be modified.
 
 
 ```python
 from dtk.vector.species import update_species_param
 
-update_species_param(cb, 'arabiensis',
-                     parameter="Larval_Habitat_Types", 
-                     value={"TEMPORARY_RAINFALL": 1.7e9, "CONSTANT": 1e7}
-                    )
+# Example: Add brackish swamp habitat availability for A. arabiensis only. 
+
+new_habitats = {"arabiensis": {"BRACKISH_SWAMP": 1.7e9, "Max_Larval_Capacity": 30000000.0}}
+
+for species, habitat in new_habitats.items():
+    update_species_param(cb, species,
+                         parameter="Larval_Habitat_Types", 
+                         value= habitat, 
+                         overwrite=False # Does not delete previous habitat types
+                         )
 ```
 
+</p> </details>
 
 ## Update config parameters
 
