@@ -734,7 +734,7 @@ For each species listed in Vector_Species_Params, a “VectorPopulation” objec
 {
     "Vector_Species_Params": [{
 
-    "Name": "gambiae",
+    "Name": "gambiae",              #First Species
     "Larval_Habitat_Types": {
         "TEMPORARY_RAINFALL": 8e8,
         "CONSTANT": 8e7
@@ -746,23 +746,21 @@ For each species listed in Vector_Species_Params, a “VectorPopulation” objec
     "Male_Life_Expectancy": 10,
     "Adult_Life_Expectancy": 20,
     "Days_Between_Feeds": 3,
-    "Anthropophily": 0.85,  # species- and site-specific feeding parameters
-    "Indoor_Feeding_Fraction": 0.95,
+    "Anthropophily": 0.85,  
+    "Indoor_Feeding_Fraction": 0.95, 
     "Egg_Batch_Size": 100,
     "Vector_Sugar_Feeding_Frequency": "VECTOR_SUGAR_FEEDING_NONE",
     "Acquire_Modifier": 0.2,
-    # VECTOR_SIM uses a factor here for human-to-mosquito infectiousness, while 
-    # MALARIA_SIM explicitly models gametocytes
     "Infected_Arrhenius_1": 117000000000,
     "Infected_Arrhenius_2": 8336,
     "Infected_Egg_Batch_Factor": 0.8,
     "Infectious_Human_Feed_Mortality_Factor": 1.5,
     "Nighttime_Feeding_Fraction": 1,
-    "Transmission_Rate": 0.9  # Based on late-2013 calibration of PfPR vs EIR favoring 1.0 to 0.5
+    "Transmission_Rate": 0.9
     },
     {
 
-    "Name": "arabiensis",
+    "Name": "arabiensis",          # Second species 
     "Larval_Habitat_Types": {
         "TEMPORARY_RAINFALL": 8e8,
         "CONSTANT": 8e7
@@ -774,19 +772,17 @@ For each species listed in Vector_Species_Params, a “VectorPopulation” objec
     "Male_Life_Expectancy": 10,
     "Adult_Life_Expectancy": 20,
     "Days_Between_Feeds": 3,
-    "Anthropophily": 0.85,  # species- and site-specific feeding parameters
-    "Indoor_Feeding_Fraction": 0.5,
+    "Anthropophily": 0.85,  
+    "Indoor_Feeding_Fraction": 0.5, # This value is different
     "Egg_Batch_Size": 100,
     "Vector_Sugar_Feeding_Frequency": "VECTOR_SUGAR_FEEDING_NONE",
     "Acquire_Modifier": 0.2,
-    # VECTOR_SIM uses a factor here for human-to-mosquito infectiousness, while 
-    # MALARIA_SIM explicitly models gametocytes
     "Infected_Arrhenius_1": 117000000000,
     "Infected_Arrhenius_2": 8336,
     "Infected_Egg_Batch_Factor": 0.8,
     "Infectious_Human_Feed_Mortality_Factor": 1.5,
     "Nighttime_Feeding_Fraction": 1,
-    "Transmission_Rate": 0.9  # Based on late-2013 calibration of PfPR vs EIR favoring 1.0 to 0.5
+    "Transmission_Rate": 0.9  
     }]
 }
 ```
@@ -836,6 +832,101 @@ for species, habitat in new_habitats.items():
 ```
 
 </p> </details>
+
+## Change mosquito abundance
+
+After adding vectors to your model, you may want to alter their abundance in order to reach a desired entomological innoculation rate (EIR). 
+
+In EMOD this is often done by re-scaling the amount of habitat available for larval development: Available habitat is directly related to mosquito abundance, and mosquito abundance in turn is directly related to biting rate. 
+
+In order to calibrate the model there are several options for configuring habitat. You can first set habitat parameters and modify them directly as detailed in the section "Set up mosquito species".
+
+Then, after those initial parameters are set, you can modify habitat with overall scaling parameters.
+
+### Universal Habitat Scaling (x_Temporary_Larval_Habitat)
+
+![figure](/images/02_highlighted.png)
+
+To apply a constant scale factor to all habitats equally for all species, use the **x_Temporary_Larval_Habitat** configuration parameter.
+
+This parameter will scale all habitat parameters without changing the temporal dynamics, so that a new transmission is achieved with the same ratios among the species, and same time profile. For example, setting x_Temporary_Larval_Habitat to 0.1 would simulate low EIR (or a low transmission setting) by reducing available habitat to 10%; a value of 1 could be used to simulate high EIR (or a high transmission setting), and there would be no reduction in available habitat.
+
+
+```python
+# Ex: Reduce habitat (and thus, adult vectors and biting rate) by 50%.
+cb.update_params({'x_Temporary_Larval_Habitat': 0.5})    
+```
+
+### Custom Habitat Scaling (LarvalHabitatMultiplier)
+
+![figure](/images/04_highlighted.png)
+
+An alternative to x_Temporary_Larval_Habitat is **LarvalHabitatMultiplier**. LarvalHabitatMultiplier is a parameter in the demographics file, and can be applied through campaign events to 1) all habitat types configured for the simulation, 2) specific habitat types, or 3) individual mosquito species 4) within particular habitat types in 5) certain nodes. It therefore allows for more customization, and for scaling to vary with time (ex. seasonally). 
+
+1. Import *scale_larval_habitats* from dtk-tools
+
+```python
+from dtk.interventions.habitat_scale import scale_larval_habitats
+```
+
+2. Specify conditions for habitat scaling. This can be done uniformly for all nodes/habitats/species, or with more specifications. See examples:
+
+
+```python
+# Example 1 ####################################################
+# Scale TEMPORARY_RAINFALL by 3-fold for all nodes, all species:
+
+df = pd.DataFrame({ 'TEMPORARY_RAINFALL': [3]})
+
+# Example 2 ####################################################
+# Scale TEMPORARY_RAINFALL by 3-fold for all nodes, arabiensis only:
+
+df = pd.DataFrame({ 'TEMPORARY_RAINFALL.arabiensis': [3]})
+
+# Example 3 ####################################################
+# Scale TEMPORARY_RAINFALL differently by node ID, all species:
+
+df = pd.DataFrame({ 'NodeID' : [0, 1, 2, 3, 4],
+                    'CONSTANT': [1, 0, 1, 1, 1],
+                    'TEMPORARY_RAINFALL': [1, 1, 0, 1, 0],
+                     })
+
+# Example 4 ####################################################
+# Scale differently by both node ID and species::
+
+df = pd.DataFrame({ 'NodeID' : [0, 1, 2, 3, 4],
+                    'CONSTANT.arabiensis': [1, 0, 1, 1, 1],
+                    'TEMPORARY_RAINFALL.arabiensis': [1, 1, 0, 1, 0],
+                    'CONSTANT.funestus': [1, 0, 1, 1, 1]
+                 })
+
+# Example 5 ####################################################
+# Scale some habitats by species and others same for all species::
+
+df = pd.DataFrame({  'NodeID' : [0, 1, 2, 3, 4],
+                     'CONSTANT.arabiensis': [1, 0, 1, 1, 1],
+                     'TEMPORARY_RAINFALL.arabiensis': [1, 1, 0, 1, 0],
+                     'CONSTANT.funestus': [1, 0, 1, 1, 1],
+                     'LINEAR_SPLINE': [1, 1, 0, 1, 0]
+                     })
+
+# Example 6 ####################################################
+# Scale nodes at different dates::
+
+df = pd.DataFrame({  'NodeID' : [0, 1, 2, 3, 4],
+                     'CONSTANT': [1, 0, 1, 1, 1],
+                     'TEMPORARY_RAINFALL': [1, 1, 0, 1, 0],
+                     'Start_Day': [0, 30, 60, 65, 65],
+                     })
+```
+
+3. Apply habitat scaling
+
+
+```python
+scale_larval_habitats(cb, habitat_df)
+```
+
 
 ## Update config parameters
 
@@ -1515,3 +1606,94 @@ if __name__ == "__main__":
     exp_manager = ExperimentManagerFactory.init()
     exp_manager.run_simulations(**run_sim_args)
 ```
+
+
+## Serialization
+
+![figure](/images/05_highlighted.png)
+
+Some simulations can take a long time to run and the part you are really interested in analyzing isn’t until closer to the end. You’d like to save the state of the simulation just before the interesting stuff and then restart from that spot. This would allow you to iterate more quickly on different intervention strategies or just trying to understand what the simulation is doing better. EMOD supports this ability with a feature called “serialized populations.”
+
+The serialized population feature in EMOD allows you to save the state of the people and restart from that saved state. This state includes the person’s health, infections, any interventions that they have, and more. This is especially useful when you need to create a population that has natural immunity to a pathogen (i.e. the pathogen is not novel and the population is not naive.) 
+
+### Simple Burn-in
+
+To create a population with an endemic disease, one option is to start with a naive population and run simulation till disease dynamics reach an equilibrium. These simulation burn-in methods can take several years of simulation time until a steady state is reached. Saving the state to a file and continuing from this state reduces the time needed to model the effect of different interventions.
+
+For the initial burn-in simulation, you need to update the configuration parameters for simulation. The following example is for a 50-year simple burn-in.
+
+
+```python
+serialize_year = 50    # Number of years to run burn-in
+
+cb.update_params({
+            'Serialization_Time_Steps': [365 * serialize_year],
+            'Serialization_Type': 'TIMESTEP',
+            'Serialized_Population_Writing_Type': 'TIMESTEP',
+            'Serialized_Population_Reading_Type': 'NONE',
+            'Serialization_Mask_Node_Write': 0,
+            'Serialization_Precision': 'REDUCED'
+        })
+```
+
+Then, run this simulation as you would any other. 
+
+### Picking up from Serialized Burn-in
+
+![figure](/images/05_highlighted.png)
+
+To pick up from the end of a saved burn-in simulation, and run for an additional year, you'll need the <ExperimentID> (from COMPS or python console output). Copy it, then update the following configuration parameters:
+
+
+```python
+burnin_id = <ExperimentID> # replace with burn-in ID
+
+# Number of years from burn-in to include.
+pull_year = 50 # NOT number of years to run pick-up
+
+cb.update_params({
+            'Serialized_Population_Reading_Type': 'READ',
+            'Serialized_Population_Filenames': ['state-%05d.dtk' % (pull_year*365)], # Pull last day of <pull_year> to be used as a starting point.
+            'Enable_Random_Generator_From_Serialized_Population': 0,
+            'Serialization_Mask_Node_Read': 0,
+            'Enable_Default_Reporting' : 0
+        })
+```
+
+![figure](/images/06_highlighted.png)
+
+Then, to run to run your pick-up simulations:
+
+1. Import retrieve_experiment from dtk-tools
+
+
+```python
+from simtools.Utilities.Experiments import retrieve_experiment
+```
+
+2. Add the following code below <if \_\_name\_\_=="__main__":> 
+
+
+```python
+expt = retrieve_experiment(burnin_id) # Identifies the desired burn-in experiment
+
+# Loop through unique "tags" to distinguish between burn-in scenarios (ex. varied historical coverage levels)
+ser_df = pd.DataFrame([x.tags for x in expt.simulations])
+ser_df["outpath"] = pd.Series([sim.get_path() for sim in expt.simulations])
+```
+
+3. Add the following code to the Model Builder (or create one, if you did not need one before).
+
+
+```python
+builder = ModBuilder.from_list([[...,
+              ...,
+              ModFn(DTKConfigBuilder.set_param,
+              'Serialized_Population_Path',
+              os.path.join(row['outpath'], 'output')),
+              ...],
+          # Run pick-up from each unique burn-in scenario
+          for r,row in ser_df.iterrows()
+          ])
+```
+
