@@ -1697,3 +1697,104 @@ builder = ModBuilder.from_list([[...,
           ])
 ```
 
+
+
+## Event reporting
+
+![figure](/images/03_highlighted.png)
+
+Your simulation may include campaign events that you want to track explicitly and generate a report of. For example, in the simple SMC intervention (see "Add drug campaigns") we defined an event called "Received_SMC" to describe children who actually received SMC drugs in the simulation.
+
+To enable reporting of a custom event, first update the following configuration parameters:
+
+
+```python
+cb.update_params({
+  # Name(s) of events to track
+  'Custom_Individual_Events': ['Received_SMC']
+})
+```
+
+### Aggregate Events (EventCounter)
+
+1. Import the *add_event_counter_report* from dtk-tools.
+
+
+```python
+from malaria.reports.MalariaReport import add_event_counter_report
+```
+
+2. Add the following code below <if\_name\_=="main":>
+
+
+```python
+add_event_counter_report(cb, event_trigger_list=['Received_SMC'])
+```
+
+This generates a .json file that reports that total number of events in each day of the simulation. If you ran a multi-node simulation, this report aggregates events across all nodes.
+
+### Individual Events (EventRecorder)
+
+Sometimes you may want to stratify an event report by node or by demographics. To do so, we use **ReportEventRecorder**, which is similar to ReportEventCounter but lists individual events and also provides information about the person at the time of the event.
+
+1. Update configuration parameters
+
+```python
+cb.update_params({
+  # Enable generation of ReportEventRecorder.csv
+  'Report_Event_Recorder': 1,
+  # Logical indicating whether to include or exclude events specified in the list 
+  # (0 => include only events in list)
+  # (1 => include all events except those in list)
+  'Report_Event_Recorder_Ignore_Events_In_List': 0,
+  # List of events to include
+  'Report_Event_Recorder_Events': ['Received_SMC',],
+  # Name(s) of events to track
+  'Custom_Individual_Events': ['Received_SMC'],
+})
+```
+
+*Note*: If you want to return all events from the simulation, leave the "Events" array empty and set "Ignore_Events_In_List" to 1.
+
+There are additional optional parameters that you can specify to refine your report. This can help reduce file sizes and speed up processing if you know you'll only a subset of the simulation data.
+
+
+```python
+cb.update_params({
+  # Individual Properties to include in the report (default: none)
+  'Report_Event_Recorder_Individual_Properties':[],
+  # Day of simulation to start reporting (default: simulation start)
+  'Report_Event_Recorder_Start_Day': 0,
+  # Day of simulation to stop reporting (default: simulation end)
+  'Report_Event_Recorder_End_Day': 3.40282e+38,
+  'Report_Event_Recorder_Node_IDs_Of_Interest':,
+  # Age range of people to collect data on (default all ages)
+  'Report_Event_Recorder_Min_Age_Years': 0,
+  'Report_Event_Recorder_Max_Age_Years': 9.3228e+35,
+  # Nodes to collect data from (default: all nodes)
+  'Report_Event_Recorder_Node_IDs_Of_Interest': [],
+  # Individual Property key:value that someone must have to be included in the report (default: no restriction)
+  'Report_Event_Recorder_Must_Have_IP_Key_Value':[],
+  # Intervention someone must have to be included (default: no restriction)
+  'Report_Event_Recorder_Must_Have_Intervention': []
+})
+```
+
+After running, a file called ReportEventRecorder.csv will be generated in the output/ folder for the simulation. Each row of the report represents a distinct event, with the following information in its columns:
+
+Event Details:
+- **Time** (when did event occur)
+- **Node_ID** (where did event occur)
+- **Event_Name** (what happened)
+
+Individual Details (who did it happen to?):
+- **Individual_ID**
+- **Age**
+- **Gender**
+- **Infected** (1 = True)
+- **Infectiousness**
+- **RelativeBitingRate**
+- **TrueParasiteDensity**
+- **TrueGametocyteDensity**
+
+Plus an additional column for the value of each additional Individual Property included in the 'Report_Event_Recorder_Individual_Properties' list.
