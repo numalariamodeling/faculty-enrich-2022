@@ -1685,79 +1685,52 @@ builder = ModBuilder.from_list([[...,
 
 ![figure](/images/03_highlighted.png)
 
-Your simulation may include campaign events that you want to track explicitly and generate a report of. For example, in the simple SMC intervention (see "Add drug campaigns") we defined an event called "Received_SMC" to describe children who actually received SMC drugs in the simulation.
+EMOD is capable of tracking a variety of [built-in events](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-campaign-event-list.html) 
+as well as custom campaign events. Custom events can be particularly useful for explicitly tracking and counting the number 
+of interventions distributed. For example, in the simple SMC intervention (see [Add drug campaigns](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#add-drug-campaigns)) 
+we defined an event called `'Received_SMC'` to describe children who actually received SMC drugs in the simulation. The 
+[add_health_seeking](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#add-case-management) function 
+automatically generates a `'Received_Treatment'` event for each individual receiving treatment for symptomatic malaria. 
+Adding custom events to the config parameter `'Custom_Individual_Events'` is automatically handled by `dtk-tools`.
 
-To enable reporting of a custom event, first update the following configuration parameters:
+### Aggregate Events
 
-```{python, eval=F}
-cb.update_params({
-  # Name(s) of events to track
-  'Custom_Individual_Events': ['Received_SMC']
-})
-```
-
-### Aggregate Events (EventCounter)
-
-1. Import the *add_event_counter_report* from dtk-tools.
+To track how many events are occurring each day, request [ReportEventCounter](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-event-counter.html) 
+and specify the list of events you would like to track:
 
 ```{python, eval=F}
 from malaria.reports.MalariaReport import add_event_counter_report
+
+add_event_counter_report(cb, event_trigger_list=['Received_SMC', 'Received_Treatment'])
 ```
 
-2. Add the following code below <if\_name\_=="main":>
+This generates a ReportEventCounter.json file that reports that total number of events in each day of the simulation. 
+Reporting a subset of node IDs, restricting on age, and restricing on individual property are all configurable. 
+The format of the .json is identical to InsetChart.json, so analyzers written for InsetChart.json can be easily adapted 
+for ReportEventCounter.
 
-```{python, eval=F}
-add_event_counter_report(cb, event_trigger_list=['Received_SMC'])
-```
+### Individual Events
 
-This generates a .json file that reports that total number of events in each day of the simulation. If you ran a multi-node simulation, this report aggregates events across all nodes.
-
-### Individual Events (EventRecorder)
-
-Sometimes you may want to stratify an event report by node or by demographics. To do so, we use **ReportEventRecorder**, which is similar to ReportEventCounter but lists individual events and also provides information about the person at the time of the event.
+Sometimes you may want to track individual-level events. To do so, we use [ReportEventRecorder](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-event-recorder.html), 
+which is similar to ReportEventCounter but lists each event as it occurs and provides information about the person experiencing 
+the event.
 
 1. Update configuration parameters
 ```{python, eval=F}
 cb.update_params({
-  # Enable generation of ReportEventRecorder.csv
-  'Report_Event_Recorder': 1,
-  # Logical indicating whether to include or exclude events specified in the list 
-  # (0 => include only events in list)
-  # (1 => include all events except those in list)
-  'Report_Event_Recorder_Ignore_Events_In_List': 0,
-  # List of events to include
-  'Report_Event_Recorder_Events': ['Received_SMC',],
-  # Name(s) of events to track
-  'Custom_Individual_Events': ['Received_SMC'],
+  'Report_Event_Recorder': 1,  # Enable generation of ReportEventRecorder.csv  
+  'Report_Event_Recorder_Ignore_Events_In_List': 0, # Logical indicating whether to include or exclude the events specified in the list 
+  'Report_Event_Recorder_Events': ['NewClinicalCase', 'Received_Treatment'], # List of events to include
 })
 ```
 
 *Note*: If you want to return all events from the simulation, leave the "Events" array empty and set "Ignore_Events_In_List" to 1.
 
-There are additional optional parameters that you can specify to refine your report. This can help reduce file sizes and speed up processing if you know you'll only a subset of the simulation data.
+There are additional optional parameters that you can specify to refine your report: see full list [here](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-event-recorder.html). 
+This can help reduce file sizes and speed up processing if you know you'll only a subset of the simulation data.
 
-```{python, eval=F}
-cb.update_params({
-  # Individual Properties to include in the report (default: none)
-  'Report_Event_Recorder_Individual_Properties':[],
-  # Day of simulation to start reporting (default: simulation start)
-  'Report_Event_Recorder_Start_Day': 0,
-  # Day of simulation to stop reporting (default: simulation end)
-  'Report_Event_Recorder_End_Day': 3.40282e+38,
-  'Report_Event_Recorder_Node_IDs_Of_Interest':,
-  # Age range of people to collect data on (default all ages)
-  'Report_Event_Recorder_Min_Age_Years': 0,
-  'Report_Event_Recorder_Max_Age_Years': 9.3228e+35,
-  # Nodes to collect data from (default: all nodes)
-  'Report_Event_Recorder_Node_IDs_Of_Interest': [],
-  # Individual Property key:value that someone must have to be included in the report (default: no restriction)
-  'Report_Event_Recorder_Must_Have_IP_Key_Value':[],
-  # Intervention someone must have to be included (default: no restriction)
-  'Report_Event_Recorder_Must_Have_Intervention': []
-})
-```
-
-After running, a file called ReportEventRecorder.csv will be generated in the output/ folder for the simulation. Each row of the report represents a distinct event, with the following information in its columns:
+After running, a file called ReportEventRecorder.csv will be generated in the output/ folder for the simulation. Each 
+row of the report represents a distinct event, with the following information in its columns:
 
 Event Details:
 - **Time** (when did event occur)
@@ -1774,4 +1747,5 @@ Individual Details (who did it happen to?):
 - **TrueParasiteDensity**
 - **TrueGametocyteDensity**
 
-Plus an additional column for the value of each additional Individual Property included in the 'Report_Event_Recorder_Individual_Properties' list.
+Plus an additional column for the value of each additional Individual Property included in the 
+'Report_Event_Recorder_Individual_Properties' list.
