@@ -1,6 +1,6 @@
 ---
 date: "2019-02-11T19:27:37+10:00"
-title: Week 3
+title: Week 3 - June 13
 weight: 4
 ---
 
@@ -8,7 +8,21 @@ weight: 4
 
 ### Technical track (EMOD)
 
-- ...
+Topic: Interventions in EMOD
+
+- Learn how major malaria interventions are implemented in EMOD (Obj 2a, 2c)
+    + Case management for symptomatic malaria
+    + Vector control: ITNs, IRS, and larvicides
+    + Antimalarial drug campaigns
+- Learn about event reporting in EMOD (Obj 2d)
+    + Individual-level events
+    + Aggregated events
+- Run various interventions in the simulation and examine the output (Obj 2d, 2e)
+    + Implement in own research project
+- Learn about `ModBuilder` (Obj ??)
+    + Design and implement `ModBuilder` for own research project
+    + Run a multi-simulation experiment for own research project
+- [=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-3-interventions-in-emod-)
 
 ### Journal club
 

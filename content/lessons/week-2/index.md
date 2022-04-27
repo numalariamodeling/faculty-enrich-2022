@@ -1,7 +1,7 @@
 ---
 date: "2019-02-11T19:27:37+10:00"
 draft: false
-title: Week 2
+title: Week 2 - June 6
 weight: 3
 ---
 
@@ -9,14 +9,20 @@ weight: 3
 
 ### Technical track (EMOD)
 
+Topic: Basic building blocks of EMOD
+
 - Identify the three building blocks to run an EMOD simulation (Obj 2c)
     + The basic inputs: Parameters, demographics and climates
     + The reports/outputs: JSON/CSV outputs
-    + The interventions: (To be covered in following weeks)
-- Create demographics and climate files, incorporate into simulation (Obj 2d)
+    + The interventions: dynamic creation of the campaign file
+- Create demographics and climate files, and incorporate into simulations (Obj 2d)
+    + Implement in own research project
+    + Run barebones version of own research project
 - Grab and plot outputs (Obj 2d)
     + InsetChart
     + MalariaSummaryReport
+    + Implement in own research project
+- [=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-2-basic-building-blocks-of-emod-)
 
 ### Journal club
 

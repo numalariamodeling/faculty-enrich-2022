@@ -1,7 +1,7 @@
 ---
 date: "2019-02-11T19:30:08+10:00"
 draft: false
-title: Week 7
+title: Week 7 - July 11
 weight: 8
 ---
 
@@ -9,7 +9,13 @@ weight: 8
 
 ### Technical track (EMOD)
 
-- ...
+Topic: Sweeping and calibration
+
+- Understand the concept and needs for sweeping and calibration to prevalence data (Obj 2f)
+- Perform the following for own research project (Obj 2f):
+    + Sweep through a range of values for a parameter
+    + Determine the best value for the parameter by calculating likelihood over observed data
+- [=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-7-sweeping-and-calibration-)
 
 ### Journal club
 

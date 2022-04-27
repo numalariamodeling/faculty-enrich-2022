@@ -1,15 +1,20 @@
 ---
 date: "2019-02-11T19:30:08+10:00"
 draft: false
-title: Week 15
+title: Week 15 - Sept 6
 weight: 16
 ---
 
 <!--more-->
 
+### Logistics
+
+September 6: holiday
+
 ### Technical track (EMOD)
 
 No technical instruction this week.
+Continue to refine own research projects.
 
 ### Presentations
 

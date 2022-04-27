@@ -1,7 +1,7 @@
 ---
 date: "2019-02-11T19:30:08+10:00"
 draft: false
-title: Week 10
+title: Week 10 - August 1
 weight: 11
 ---
 

@@ -9,11 +9,11 @@ weight: 1
 **Week 1: Overview of EMOD**
 
 - Install PyCharm, `dtk-tools`, and `dtk-tools malaria` (Obj 2b)
+- Basic git
+- Clone [example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples)
 - Learn development history of EMOD (Obj 2a)
 - Learn each part of EMOD software ecosystem and how they interact (Obj 2a)
 - Learn basic EMOD simulation workflow and run a barebones `ExampleSim` (Obj 2a, 2c)
-- Basic git
-- _[=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-1-overview-of-emod-)_
   
 **Week 2: Basic building blocks of EMOD**
 
@@ -28,8 +28,6 @@ weight: 1
     + InsetChart
     + MalariaSummaryReport
     + Implement in own research project
-- _[=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-2-basic-building-blocks-of-emod-)_
-
 
 **Week 3: Interventions in EMOD**
 
@@ -45,7 +43,6 @@ weight: 1
 - Learn about `ModBuilder` (Obj ??)
     + Design and implement `ModBuilder` for own research project
     + Run a multi-simulation experiment for own research project
-- _[=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-3-interventions-in-emod-)_
 
 **Week 4: Analyzers and plotters**
 - Walkthrough examples of analyzers (Obj 2a, 2c)
@@ -55,7 +52,6 @@ weight: 1
     + Plotting in analyzer
 - Write or adapt a customized analyzer to extract data from own research project (Obj 2d, 2g)
 - Plot analyzers' output using R or Python (Obj 2d, 2e, 2g)
-- _[=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-4-analyzers-and-plotters-)_
 
 **Week 5**
 
@@ -69,7 +65,6 @@ weight: 1
 - Perform the following for own research project (Obj 2c):
     + Serialization of simulation: create burnin
     + Picking up a serialized population and run it forward
-- _[=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-6-serialization-)_
 
 **Week 7: Sweeping and calibration**
 
@@ -77,7 +72,6 @@ weight: 1
 - Perform the following for own research project (Obj 2f):
     + Sweep through a range of values for a parameter
     + Determine the best value for the parameter by calculating likelihood over observed data
-- _[=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-7-sweeping-and-calibration-)_
 
 **Week 8: Individual properties**
 
@@ -86,7 +80,6 @@ weight: 1
     + Enable individual properties
     + Implement an intervention based on individual properties
     + Implement reporting based on individual properties
-- _[=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-8-individual-properties)_
 
 **Week 9: Infusing simulations with real data**
 
@@ -96,7 +89,6 @@ weight: 1
     + DHS overview
     + Pulling DHS data through API
 - Continue to refine own research projects
-- _[=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-9-infusing-simulations-with-real-data-)_
 
 **Week 10**
 
@@ -111,7 +103,6 @@ weight: 1
     + Identify familiar components from previous weeks
     + Identify new components: managing shared functions, reading intervention data from csv's, multi-analyzers
 - Continue to refine own research projects
-- _[=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-11-advanced-emod-hbhi-workflow-as-a-complex-example-)_
 
 **Week 12: Advanced EMOD: Spatial modeling in EMOD**
 
@@ -119,7 +110,6 @@ weight: 1
 - How to set up human and/or vector movement between nodes
 - Custom reports useful for multi-node simulations
 - Continue to refine own research projects
-- _[=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-12-advanced-emod-spatial-modeling-in-emod-)_
 
 **Week 13: Advanced EMOD: gene drive and reactive interventions**
 
@@ -133,7 +123,6 @@ weight: 1
 - Using Quest
 - Roundtable: Technical difficulties and challenges to run EMOD experiments from home institution
     + How can NUMM help before or after return?
-- _[=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-14-hpc-)_
 
 **Week 15**
 

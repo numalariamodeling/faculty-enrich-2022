@@ -1,7 +1,7 @@
 ---
 date: "2019-02-11T19:30:08+10:00"
 draft: false
-title: Week 13
+title: Week 13 - August 22
 weight: 14
 ---
 
@@ -9,7 +9,13 @@ weight: 14
 
 ### Technical track (EMOD)
 
-- ...
+Topic: Advanced EMOD: gene drive and reactive interventions
+
+- Reactive interventions and surveillance in EMOD
+- Guest lecture: vector genetics and modeling gene drives in EMOD
+- Roundtable: Current limitations and future of EMOD and agent-based modeling of malaria
+- Continue to refine own research projects
+- [example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-13-advanced-emod-gene-drive-and-reactive-interventions-)
 
 ### Journal club
 
