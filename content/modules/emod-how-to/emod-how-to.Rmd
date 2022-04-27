@@ -16,14 +16,75 @@ output:
 
 ![figure](/images/01_highlighted.png)
 
-The demographics file specifies characteristics of the population in a simulation. This includes things like the population size, distribution of age/gender, immunity, biting/mortality risks, and more.
+The demographics file is a required input file for EMOD that specifies characteristics of the population in a 
+simulation. This includes aspects like the population size, birth rates, non-malaria mortality rates, age structure, 
+initial prevalence, and more. Full documentation on the demographics file can be found [here](https://docs.idmod.org/projects/emod-malaria/en/latest/software-demographics.html).
 
-At least one demographics file is required for every simulation unless you set the parameter **Enable_Demographics_Builtin** to 1 (one) in the configuration file. This setting does not represent a real location and is generally only used for testing and validating code.
+At least one demographics file is required for every simulation unless you set the parameter 
+**Enable_Demographics_Builtin** to 1 (one) in the configuration file. This setting does not represent a real 
+location and is generally only used for testing and validating code.
 
-<details><summary><span style="color: blue";">1. Create CSV</span></summary>
+For many applications, users often will reuse a standard demographics file and make modifications by hand or by 
+script. In more complex simulations, creating a demographics file from scratch may be needed.
+
+<details><summary><span style="color: blue";">1. Parts of a demographics file</span></summary>
 <p>
 
-Create a file "my_node.csv" with the following columns:
+A demographics file is a JSON file organized into 4 main sections:
+
+1. Metadata
+2. NodeProperties
+3. Defaults
+    - Parameters applied to all nodes in the simulation
+4. Nodes: each node is a simulated location. Transmission within a node is well-mixed, and nodes 
+are connected by human and/or vector migration.
+    - Allows node-specific parameters
+    - Specified parameters override values in 'Defaults'
+
+```{python, eval=F}
+# Structure of Demographics File for a simulation with 1 node
+  {
+     "Metadata": {
+          "DateCreated": "dateTime",
+          "Tool": "scriptUsedToGenerate",
+          "Author": "author",
+          "IdReference": "Gridded world grump2.5arcmin",
+          "NodeCount": "1"
+     },
+     "NodeProperties": [
+          {...}
+     ],
+     "Defaults": {
+          "NodeAttributes": {
+            ...
+            "BirthRateSource": "World Bank",
+            "CountryBirthRate": 31.047,
+            "World Bank Year": "2016",
+            ...
+          },
+          "IndividualAttributes": {...},
+          "IndividualProperties": {...}
+     },
+     "Nodes": [{
+          "NodeID": 1,
+          "NodeAttributes": {
+            "BirthRate": 0.1190,
+            "InitialPopulation": 1400,
+            "Village": "Obom"
+          },
+          "IndividualAttributes": {...},
+          "IndividualProperties": {...}
+     }]
+  }
+```
+
+</p>
+</details>
+
+<details><summary><span style="color: blue";">2. Creating a demographics file</span></summary>
+<p>
+
+First, create a file "my_node.csv" with the following columns:
 
 **Required**
 
@@ -32,8 +93,7 @@ Create a file "my_node.csv" with the following columns:
 
 *Optional*
 
-- Village (clearer labels than nodeID)
-- Other node-specific variables (if any)
+- Other node-specific variables, if any, such as village name, latitude, and longitude
 
 Example "my_node.csv":
 
@@ -41,11 +101,8 @@ Example "my_node.csv":
 | ----------- | ----------- | -------- |-------- |-------- |
 | 1           | 1400        | "Obom"   | 5.760759  | -0.4473415  |
 
-</p>
-</details>
+Next, run `generate_demographics()`:
 
-<details><summary><span style="color: blue";">2. Run generate_demographics()</span></summary>
-<p>
 
 ```{python, eval=F}
 import os
@@ -69,10 +126,7 @@ def generate_demographics(demo_df, demo_fname, days_spread=1) :
         EquilibriumAgeDistributionConcern(default_birth_rate=br_concern.default_birth_rate),
     ]
 
-    current: Dict[str, 
-                  Union[List[Dict[str,Union[Union[int, Dict[Any, Any]], Any]]], 
-                        Dict[Any, Any], 
-                        Dict[str, Union[str, int]]]] = DemographicsGenerator.from_dataframe(demo_df,
+    current = DemographicsGenerator.from_dataframe(demo_df,
                                                    population_column_name='population',
                                                    nodeid_column_name='nodeid',
                                                    node_id_from_lat_long=False,
@@ -130,58 +184,6 @@ generate_demographics_properties(refdemo_fname=demo_fname,
 </p>
 </details>
 
-<details><summary><span style="color: blue";">4. Reading your Demographics File</span></summary>
-<p>
-
-The resulting demographics file is a JSON file organized into 4 main sections:
-
-1. Metadata
-2. NodeProperties
-3. Defaults
-    - Parameters applied to all nodes in the simulation
-4. Nodes
-    - Allows node-specific parameters
-    - Duplicated parameters override values in 'Defaults'
-
-```{python, eval=F}
-# Structure of Demographics File for a simulation with 1 node
-  {
-     "Metadata": {
-          "DateCreated": "dateTime",
-          "Tool": "scriptUsedToGenerate",
-          "Author": "author",
-          "IdReference": "Gridded world grump2.5arcmin",
-          "NodeCount": "1"
-     },
-     "NodeProperties": [
-          {...}
-     ],
-     "Defaults": {
-          "NodeAttributes": {
-            ...
-            "BirthRateSource": "World Bank",
-            "CountryBirthRate": 31.047,
-            "World Bank Year": "2016",
-            ...
-          },
-          "IndividualAttributes": {...},
-          "IndividualProperties": {...}
-     },
-     "Nodes": [{
-          "NodeID": 1,
-          "NodeAttributes": {
-            "BirthRate": 0.1190,
-            "InitialPopulation": 1400,
-            "Village": "Obom"
-          },
-          "IndividualAttributes": {...},
-          "IndividualProperties": {...}
-     }]
-  }
-```
-
-</p>
-</details>
 
 ## Create multi-node simulations 
 
@@ -209,10 +211,15 @@ generate_demographics(df="/my_nodes.csv")
 </p>
 </details>
 
-<details><summary><span style="color: blue;">2. Setting Node-Specific Inputs</span></summary>
+<details><summary><span style="color: blue;">2. Setting Node-Specific Parameters</span></summary>
 <p>
 
-Sometimes we want to vary properties between nodes based on prior knowledge. Imagine we know the proportion of "high-risk" individuals in each node and want to use this designation to target them for an intervention.
+Sometimes we want to vary properties between nodes based on prior knowledge. For any `NodeAttribute` parameters, these 
+can be created simply by specifying them in the `my_nodes.csv` as columns and setting `load_other_columns_as_attributes=True` 
+in the call to `DemographicsGenerator()`.
+
+To set `IndividualAttributes` or `IndividualProperties`, see the following example. Imagine we know the proportion of 
+"high-risk" individuals in each node and want to use this designation to target them for an intervention.
 
 First, we would add a column to our input file representing the high-risk proportion in each node.
 
@@ -222,15 +229,17 @@ First, we would add a column to our input file representing the high-risk propor
 | 2 | 2255 | "Kofi Kwei" | 0.10|
 | 3 | 1800 | "Village 3" | 0.50|
 
-Then, when we can assign the "high_risk" property to individuals in each node with the probability listed in the table, by adding the following code to the end of the generate_demographics() function definition, before writing the .json file.
+Then, when we can assign the "high_risk" property to individuals in each node with the probability listed in the table, 
+by adding the following code to the end of the `generate_demographics()` function definition, before writing the .json 
+file.
 
 ```{python, eval=F}
 ...
-for n in list(range(current['Metadata']['NodeCount'])):
-   current['Nodes'][n]['IndividualProperties'] = [{"Property":"high_risk",
-   "Values": ['yes','no'],
-   "Initial_Distribution": [high_risk, (1-high_risk)]}]
-   
+current = DemographicsGenerator(...)
+for r, row in demo_df.iterrows() :
+    current['Nodes'][r]['IndividualProperties'] = [{"Property":"high_risk",
+                                                    "Values": ['yes','no'],
+                                                    "Initial_Distribution": [row['high_risk'], (1-row['']high_risk)]}]
 
 with open(demo_fname, 'w') as fout :
   json.dump(current, fout, sort_keys=True,indent=4, separators=(',', ': '))
