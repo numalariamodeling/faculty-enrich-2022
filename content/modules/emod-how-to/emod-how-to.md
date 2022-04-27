@@ -1464,6 +1464,83 @@ add_health_seeking(cb, start_day=0,
                    drug=['Artemether', 'Lumefantrine'])
 ```
 
+## Add ITN
+### Simple ITN without seasonal usage pattern
+One of the easiest way to distribute bednet in a simulation, is to use `add_ITN()` function available in the interventions module. 
+
+There are [a number of arguments](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/524e85d443411ef096511a0bdd4f1ea59f6b5817/dtk/interventions/itn.py#L6) that allow you to customize how the ITN is distributed. In a simplistic usage, you can specify the start of ITN distribution of the simulation, and repeat the distribution on a regular interval, and that the ITN coverage differ for specific age groups:
+
+```python
+from dtk.interventions.itn import add_ITN
+add_ITN(cb,
+        start=366, # starts at first day of second year
+        coverage_by_ages=[ 
+          {"coverage":1,"min": 0, "max": 10},     # 100% for 0-10 years old
+          {"coverage":0.75,"min": 11, "max": 50}, # 75% for 11-50 years old
+          {"coverage":0.6,"min": 51, "max": 125}  # 60% for everyone else
+        ],
+        repetitions=1, # ITN will be repeatedly distributed
+        tsteps_btwn_repetitions: int = 365*3 # for every three years till end of simulations
+)
+```
+
+Here, since `insecticide` and `waning` argument is unspecified, The following factors follow the default configuration:
+1. How well ITN kill the vector resting on it over time `Killing_Config`, 
+2. How well ITN block the vector from entering over time `Blocking_Config`, 
+3. How well ITN repel the vector over time `Repelling_Config`, and 
+4. How long before someone discard the net `Usage_Config`
+
+Following code is an example of event triggered bednet distribution, that from the first day of second year in simulation onwards, a clinical or severe case would receive a bednet 14 days after diagnosis:
+
+```python
+add_ITN(cb, 
+        start=366,
+        triggered_campaign_delay=14,
+        trigger_condition_list=["NewClinicalCase", "NewSevereCase"],
+        duration=365)
+```
+
+Note that default `coverage_by_age` is such that coverage for anyone (receiving ITN) would be 100% regardless of age. `duration=365` means the event-triggered distribution of bed net will be going on till the following year. Setting `duration=-1` will allow the campaign to go on until the end of simulation.
+
+### ITN with seasonal usage pattern
+People's usage of ITN can change depending on the season, e.g., using the net more during rainy season to reduce mosquito bites. `add_ITN_age_season()` allows us to make fine scale usage specification to the simulation. 
+
+You can read the detailed arguments [here](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/524e85d443411ef096511a0bdd4f1ea59f6b5817/dtk/interventions/itn_age_season.py#L8). While they are largely similar to `add_ITN()`, there are several differences. Instead of specifying bednet killing, blocking and efficiency and usage all in `waning`, you specify them in separately in `killing_config`, `blocking_config`, `repelling_config` and `discard_times`. Additionally, you specify age- and season-dependent coverage `age_dependence` and `seasonal_dependence`.
+
+It is easier to see how this is done through the very elaborate example below:
+
+```python
+from dtk.interventions.itn_age_season import add_ITN_age_season
+seasonal_time = [0.0, 20.0, 21.0, 30.0, 31.0, 365.0]
+seasonal_values = [1.0, 1.0, 0.0, 0.0, 1.0, 1.0]
+add_ITN_age_season(cb, 
+                   start=366,
+                   demographic_coverage=0.9,
+                   killing_config={
+                       "Initial_Effect": 0.6,
+                       "Decay_Time_Constant": 1460,
+                       "class": "WaningEffectExponential"},
+                   blocking_config={
+                       "Initial_Effect": 0.9,
+                       "Decay_Time_Constant": 730,
+                       "class": "WaningEffectExponential"},
+                   discard_times={
+                       "Expiration_Period_Distribution": "DUAL_EXPONENTIAL_DISTRIBUTION",
+                       "Expiration_Period_Proportion_1": 0.9,
+                       "Expiration_Period_Mean_1": 365*1.5,
+                       "Expiration_Period_Mean_2": 3650},
+                   age_dependence={'Times': [0, 5, 18],
+                                  'Values': [1, 0.7, 0.2]},
+                   seasonal_dependence={"Times": seasonal_times, "Values": seasonal_values}
+)
+```
+
+In this example, the baseline coverage of ITN is 0.9 specified by `demographic_coverage`. The net is distributed on first day of second year of simulation. Coverage by age starts highest or 0 years old with a scale of 1 (Note actual coverage is 1 times 0.9 = 0.9) and *linearly* decline to 0.7 by age of 5 years, and then continue to decline to 0.2 at age of 18. For seasonal dependent coverage, in this rather contrived example the scale of coverage is 1 throughout the year except in between day 21 and day 30 whereby coverage is 0.
+
+Similar to `add_ITN`, you can specify event triggered distribution in this function via `trigger_condition_list`. The function also provides `birth_triggered` as a boolean argument in case ITN is distributed to newborn baby. 
+
+However, this function *does not* support repetitions. Therefore, to add multiple rounds of ITN distribution in your simulation, you need to call the `add_ITN_age_season()` multiple times. Another difference is this function *will* automatically add three events into the simulation: `Bednet_Discarded`, `Bednet_Got_New_One` and `Bednet_Using`.
+
 ## Change drug adherence
 
 ![figure](/images/04_highlighted.png)
@@ -1541,6 +1618,33 @@ def smc_intervention(cb, day, cycles, coverage_level):
                           receiving_drugs_event_name='Received_SMC')
 ```
 
+## Add IRS campaign
+IRS campaign can be added using the `add_IRS()` function provided in the `interventions` module.
+
+You can read more about the arguments available for the function [here](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/524e85d443411ef096511a0bdd4f1ea59f6b5817/dtk/interventions/irs.py#L32). You can specify the choice of `insecticide` if you have already configure one, otherwise, you can either use the default setting or specify the `killing_config` and `blocking_config` corresponding to the killing and blocking efficiency and waning properties of the insecticide here. The function allows you to specify coverage according to age groups, here is an example:
+
+
+```python
+from dtk.interventions.irs import add_IRS
+add_IRS(cb,
+        start=366, # IRS occurs on first day of second year
+        coverage_by_ages=[ 
+          {"coverage":1,"min": 0, "max": 10},     # 100% for 0-10 years old
+          {"coverage":0.75,"min": 11, "max": 50}, # 75% for 11-50 years old
+          {"coverage":0.6,"min": 51, "max": 125}  # 60% for everyone else
+        ],
+        killing_config={
+            "class": "WaningEffectBoxExponential",
+            "Box_Duration": 60,
+            "Decay_Time_Constant": 120,
+            "Initial_Effect": 0.6
+        }
+)
+```
+
+Note in this case, the effect of IRS follows [a boxed exponential decay](https://docs.idmod.org/projects/emod-generic/en/latest/parameter-campaign-waningeffects.html?highlight=waning#waningeffectboxexponential) with efficacy of first 60 days held constant, before exponential decay kicks in.
+
+The IRS can be set to trigger based on certain event using `trigger_condition_list`.
 
 ## Add diagnostic surveys
 
