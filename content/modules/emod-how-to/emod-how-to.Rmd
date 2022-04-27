@@ -1242,7 +1242,7 @@ add_larvicides(cb, start_day=0,
 ```
 
 
-## Add insecticide resistance
+## Add insecticide resistance 
 
 ![figure](/images/04_highlighted.png)
 

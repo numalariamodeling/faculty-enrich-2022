@@ -1089,6 +1089,78 @@ add_summary_report(cb, start=365, interval=30,
                    description='Monthly_Report')
 ```
 
+## Event reporting
+
+![figure](/images/03_highlighted.png)
+
+EMOD is capable of tracking a variety of [built-in events](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-campaign-event-list.html) 
+as well as custom campaign events. Custom events can be particularly useful for explicitly tracking and counting the number 
+of interventions distributed. For example, in the simple SMC intervention (see [Add drug campaigns](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#add-drug-campaigns)) 
+we defined an event called `'Received_SMC'` to describe children who actually received SMC drugs in the simulation. The 
+[add_health_seeking](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#add-case-management) function 
+automatically generates a `'Received_Treatment'` event for each individual receiving treatment for symptomatic malaria. 
+Adding custom events to the config parameter `'Custom_Individual_Events'` is automatically handled by `dtk-tools`.
+
+### Aggregate Events
+
+To track how many events are occurring each day, request [ReportEventCounter](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-event-counter.html) 
+and specify the list of events you would like to track:
+
+
+```python
+from malaria.reports.MalariaReport import add_event_counter_report
+
+add_event_counter_report(cb, event_trigger_list=['Received_SMC', 'Received_Treatment'])
+```
+
+This generates a ReportEventCounter.json file that reports that total number of events in each day of the simulation. 
+Reporting a subset of node IDs, restricting on age, and restricing on individual property are all configurable. 
+The format of the .json is identical to InsetChart.json, so analyzers written for InsetChart.json can be easily adapted 
+for ReportEventCounter.
+
+### Individual Events
+
+Sometimes you may want to track individual-level events. To do so, we use [ReportEventRecorder](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-event-recorder.html), 
+which is similar to ReportEventCounter but lists each event as it occurs and provides information about the person experiencing 
+the event.
+
+1. Update configuration parameters
+
+```python
+cb.update_params({
+  'Report_Event_Recorder': 1,  # Enable generation of ReportEventRecorder.csv  
+  'Report_Event_Recorder_Ignore_Events_In_List': 0, # Logical indicating whether to include or exclude the events specified in the list 
+  'Report_Event_Recorder_Events': ['NewClinicalCase', 'Received_Treatment'], # List of events to include
+})
+```
+
+*Note*: If you want to return all events from the simulation, leave the "Events" array empty and set "Ignore_Events_In_List" to 1.
+
+There are additional optional parameters that you can specify to refine your report: see full list [here](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-event-recorder.html). 
+This can help reduce file sizes and speed up processing if you know you'll only a subset of the simulation data.
+
+After running, a file called ReportEventRecorder.csv will be generated in the output/ folder for the simulation. Each 
+row of the report represents a distinct event, with the following information in its columns:
+
+Event Details:
+- **Time** (when did event occur)
+- **Node_ID** (where did event occur)
+- **Event_Name** (what happened)
+
+Individual Details (who did it happen to?):
+- **Individual_ID**
+- **Age**
+- **Gender**
+- **Infected** (1 = True)
+- **Infectiousness**
+- **RelativeBitingRate**
+- **TrueParasiteDensity**
+- **TrueGametocyteDensity**
+
+Plus an additional column for the value of each additional Individual Property included in the 
+'Report_Event_Recorder_Individual_Properties' list.
+
+
 ## Add malaria
 
 ![figure](/images/02_highlighted.png)
@@ -1207,7 +1279,7 @@ add_larvicides(cb, start_day=0,
 ```
 
 
-## Add insecticide resistance
+## Add insecticide resistance 
 
 ![figure](/images/04_highlighted.png)
 
@@ -1764,74 +1836,3 @@ builder = ModBuilder.from_list([[...,
           for r,row in ser_df.iterrows()   # Run pick-up from each unique burn-in scenario
           ])
 ```
-
-## Event reporting
-
-![figure](/images/03_highlighted.png)
-
-EMOD is capable of tracking a variety of [built-in events](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-campaign-event-list.html) 
-as well as custom campaign events. Custom events can be particularly useful for explicitly tracking and counting the number 
-of interventions distributed. For example, in the simple SMC intervention (see [Add drug campaigns](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#add-drug-campaigns)) 
-we defined an event called `'Received_SMC'` to describe children who actually received SMC drugs in the simulation. The 
-[add_health_seeking](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#add-case-management) function 
-automatically generates a `'Received_Treatment'` event for each individual receiving treatment for symptomatic malaria. 
-Adding custom events to the config parameter `'Custom_Individual_Events'` is automatically handled by `dtk-tools`.
-
-### Aggregate Events
-
-To track how many events are occurring each day, request [ReportEventCounter](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-event-counter.html) 
-and specify the list of events you would like to track:
-
-
-```python
-from malaria.reports.MalariaReport import add_event_counter_report
-
-add_event_counter_report(cb, event_trigger_list=['Received_SMC', 'Received_Treatment'])
-```
-
-This generates a ReportEventCounter.json file that reports that total number of events in each day of the simulation. 
-Reporting a subset of node IDs, restricting on age, and restricing on individual property are all configurable. 
-The format of the .json is identical to InsetChart.json, so analyzers written for InsetChart.json can be easily adapted 
-for ReportEventCounter.
-
-### Individual Events
-
-Sometimes you may want to track individual-level events. To do so, we use [ReportEventRecorder](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-event-recorder.html), 
-which is similar to ReportEventCounter but lists each event as it occurs and provides information about the person experiencing 
-the event.
-
-1. Update configuration parameters
-
-```python
-cb.update_params({
-  'Report_Event_Recorder': 1,  # Enable generation of ReportEventRecorder.csv  
-  'Report_Event_Recorder_Ignore_Events_In_List': 0, # Logical indicating whether to include or exclude the events specified in the list 
-  'Report_Event_Recorder_Events': ['NewClinicalCase', 'Received_Treatment'], # List of events to include
-})
-```
-
-*Note*: If you want to return all events from the simulation, leave the "Events" array empty and set "Ignore_Events_In_List" to 1.
-
-There are additional optional parameters that you can specify to refine your report: see full list [here](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-event-recorder.html). 
-This can help reduce file sizes and speed up processing if you know you'll only a subset of the simulation data.
-
-After running, a file called ReportEventRecorder.csv will be generated in the output/ folder for the simulation. Each 
-row of the report represents a distinct event, with the following information in its columns:
-
-Event Details:
-- **Time** (when did event occur)
-- **Node_ID** (where did event occur)
-- **Event_Name** (what happened)
-
-Individual Details (who did it happen to?):
-- **Individual_ID**
-- **Age**
-- **Gender**
-- **Infected** (1 = True)
-- **Infectiousness**
-- **RelativeBitingRate**
-- **TrueParasiteDensity**
-- **TrueGametocyteDensity**
-
-Plus an additional column for the value of each additional Individual Property included in the 
-'Report_Event_Recorder_Individual_Properties' list.
