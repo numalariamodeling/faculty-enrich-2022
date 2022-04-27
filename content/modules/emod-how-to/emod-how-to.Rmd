@@ -147,12 +147,14 @@ generate_demographics(df, demo_fname)
 </p>
 </details>
 
-<details><summary><span style="color: blue";">3. Add Individual Properties</span></summary>
+## Individual Properties 
+
+<details><summary><span style="color: blue";">1. Adding to a demographics file</span></summary>
 <p>
 
-Add details - check with Manuela
+Individual properties can be used to set specific details for individuals such as risk (i.e. high vs low access groups), cohorts, drug response groups, etc. These properties can help a simulation better reflect the reality of different sites and individuals within them and are completely customizable. The [generate_demographics_properties()](https://github.com/InstituteforDiseaseModeling/malaria-toolbox/blob/master/input_file_generation/add_properties_to_demographics.py) function in *malaria-toolbox* adds individual and node properties to a reference demographics file (as created in the previous step, and shown here, with generate_demographics()). 
 
-Individual properties can be used to set specific details for individuals such as risk (i.e. high vs low access groups), cohorts, drug response groups, etc. These properties can help a simulation better reflect the reality of different sites and individuals within them.
+In this example we specify our **IndividualProperties** with a list of dictionaries, called IPs. We specifically create a Study Cohort where 50% of individuals are assigned to 'Placebo' and the other 50% are assigned to 'Treatment' without any transitions between the groups. We also create a set of drug response groups to mimic inter-individual variation of pharmacodynamics/the body's response to antimalarial drugs (drug parameters must be specified separately). This example uses 100 groups, set by 'for i in range(100)' with equal distribution amongst individuals in the simulation and no transitions. Once the desired properties are coded they can be added to the reference demographics with generate_demographics_properties(). In this case, a new .json that contains the IndividualProperties is generated based on the reference file. 
 
 ```{python,eval=F}
 #in addition to previous step
@@ -178,12 +180,46 @@ generate_demographics_properties(refdemo_fname=demo_fname,
                                      as_overlay=False,
                                      IPs=IPs)
 ```
-
-
-
 </p>
 </details>
 
+<details><summary><span style="color: blue";">2. Using IPs in Interventions</span></summary>
+<p>
+
+Individual properties can be used in interventions, typically by calling **ind_property_restrictions** within the function and setting the desired IndividualProperty restrictions. This example creates an SMC drug campaign that is limited to individuals in the 'Treatment' group as setup by the demographics file.
+
+```{python,eval=F}
+from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
+
+def smc_intervention(cb, day, cycles, coverage_level):
+    add_drug_campaign(cb, campaign_type='SMC',
+                          coverage=coverage_level, start_days=[(sim_years - 1) * 365 + day],
+                          ind_property_restrictions=[{'StudyCohort': "Treatment"}],
+                          repetitions=cycles, tsteps_btwn_repetitions=30,
+                          adherent_drug_configs=[adherent_drug_configs],
+                          target_group={'agemin': 0.25, 'agemax': 5},
+                          receiving_drugs_event_name='Received_SMC')
+```
+</p>
+</details>
+
+<details><summary><span style="color: blue";">3. Using IPs in Reporting</span></summary>
+<p>
+
+Individual properties can also be used in reporting with add_summary_report() to limit the report to only those individuals in the specified group with **ipfilter**. For example, the following function will report, on aggregate, every 30 days on new infections and other infection updates in the Placebo group across the three age bins.
+
+```{python,eval=F}
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from malaria.reports.MalariaReport import add_summary_report
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+
+add_summary_report(cb, start=365, interval=30,
+                   age_bins=[0.25,5,100], ipfilter='StudyCohort:Placebo',
+                   description='Monthly_Placebo')
+```
+</p>
+</details>
 
 ## Create multi-node simulations 
 
@@ -1008,10 +1044,9 @@ cb.update_params({'logLevel_default' : 'WARNING',
 
 The [MalariaSummaryReport](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-malaria-summary.html) 
 is a useful output that reports infection data (prevalence, clinical incidence, parasitemia, infectivity) by age group 
-and aggregated over a user-defined time interval such as years or months.
+and aggregated over a user-defined time interval such as years or months. Specific events of interest can be set with **event_trigger_list=** - defaults include 'EveryUpdate' and 'NewInfectionEvent'.
 
-In this example, simulation data is reported starting at day 365, with a monthly aggregation, in 3 age bins, and only for 
-individuals with the IndividualProperty of SMCAccess with value High.
+In this example, simulation data is reported starting at day 365, with a monthly aggregation, in 3 age bins. 
 
 ```{python,eval=F}
 from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
@@ -1020,8 +1055,8 @@ from malaria.reports.MalariaReport import add_summary_report
 cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
 
 add_summary_report(cb, start=365, interval=30,
-                   age_bins=[0.25,5,100], ipfilter='SMCAccess:High',
-                   description='Monthly_HighAccess')
+                   age_bins=[0.25,5,100],
+                   description='Monthly_Report')
 ```
 
 ## Add malaria
@@ -1379,7 +1414,7 @@ receive drugs by node or individual properties. For more details on all possible
 in dtk-tools-malaria. Node and individual properties are set in the demographics file and can be called upon here for 
 things like low vs high access groups.
 
-This example details a simple SMC intervention. Its coverage level, number of cycles, and start day are specified in the model builder as they may change more regularly based on the purpose of different analyses. Timesteps between repetitions (if more than one cycle given) is set to 30 days as SMC is given on a monthly basis during peak season. The target group is also specified here to limit the age group to 0.25-5 year old children. This example dictates that it only applies to children classified as having "low" SMC access per the demographics file and uses adherent drug configurations as previously shown.
+This example details a simple SMC intervention. Its coverage level, number of cycles, and start day are specified in the model builder as they may change more regularly based on the purpose of different analyses. Timesteps between repetitions (if more than one cycle given) is set to 30 days as SMC is given on a monthly basis during peak season. The target group is also specified here to limit the age group to 0.25-5 year old children. This example uses adherent drug configurations as previously shown.
 
 ```{python,eval=F}
 from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
@@ -1387,7 +1422,6 @@ from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
 def smc_intervention(cb, day, cycles, coverage_level):
     add_drug_campaign(cb, campaign_type='SMC',
                           coverage=coverage_level, start_days=[(sim_years - 1) * 365 + day],
-                          ind_property_restrictions=[{'Property_name': "Value"}],
                           repetitions=cycles, tsteps_btwn_repetitions=30,
                           adherent_drug_configs=[adherent_drug_configs],
                           target_group={'agemin': 0.25, 'agemax': 5},

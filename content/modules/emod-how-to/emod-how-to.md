@@ -16,134 +16,30 @@ output:
 
 ![figure](/images/01_highlighted.png)
 
-The demographics file specifies characteristics of the population in a simulation. This includes things like the population size, distribution of age/gender, immunity, biting/mortality risks, and more.
+The demographics file is a required input file for EMOD that specifies characteristics of the population in a 
+simulation. This includes aspects like the population size, birth rates, non-malaria mortality rates, age structure, 
+initial prevalence, and more. Full documentation on the demographics file can be found [here](https://docs.idmod.org/projects/emod-malaria/en/latest/software-demographics.html).
 
-At least one demographics file is required for every simulation unless you set the parameter **Enable_Demographics_Builtin** to 1 (one) in the configuration file. This setting does not represent a real location and is generally only used for testing and validating code.
+At least one demographics file is required for every simulation unless you set the parameter 
+**Enable_Demographics_Builtin** to 1 (one) in the configuration file. This setting does not represent a real 
+location and is generally only used for testing and validating code.
 
-<details><summary><span style="color: blue";">1. Create CSV</span></summary>
+For many applications, users often will reuse a standard demographics file and make modifications by hand or by 
+script. In more complex simulations, creating a demographics file from scratch may be needed.
+
+<details><summary><span style="color: blue";">1. Parts of a demographics file</span></summary>
 <p>
 
-Create a file "my_node.csv" with the following columns:
-
-**Required**
-
-- nodeid (unique # 1-n, for n nodes)
-- population (starting population size)
-
-*Optional*
-
-- Village (clearer labels than nodeID)
-- Other node-specific variables (if any)
-
-Example "my_node.csv":
-
-| nodeid      | population  |  Village | lat     |  lon    |
-| ----------- | ----------- | -------- |-------- |-------- |
-| 1           | 1400        | "Obom"   | 5.760759  | -0.4473415  |
-
-</p>
-</details>
-
-<details><summary><span style="color: blue";">2. Run generate_demographics()</span></summary>
-<p>
-
-
-```python
-import os
-import pandas as pd
-import json
-from dtk.tools.demographics.DemographicsGeneratorConcern import WorldBankBirthRateConcern, EquilibriumAgeDistributionConcern, DefaultIndividualAttributesConcern
-from dtk.tools.demographics.DemographicsGenerator import DemographicsGenerator
-
-##### Example for Ghana #####
-#############################
-
-
-def generate_demographics(demo_df, demo_fname, days_spread=1) :
-  # Get WorldBank birth rate estimate
-  # UPDATE country and birthrate_year
-  br_concern = WorldBankBirthRateConcern(country="Ghana", birthrate_year=2016)
-
-  chain = [
-        DefaultIndividualAttributesConcern(),
-        br_concern,
-        EquilibriumAgeDistributionConcern(default_birth_rate=br_concern.default_birth_rate),
-    ]
-
-    current: Dict[str, 
-                  Union[List[Dict[str,Union[Union[int, Dict[Any, Any]], Any]]], 
-                        Dict[Any, Any], 
-                        Dict[str, Union[str, int]]]] = DemographicsGenerator.from_dataframe(demo_df,
-                                                   population_column_name='population',
-                                                   nodeid_column_name='nodeid',
-                                                   node_id_from_lat_long=False,
-                                                   concerns=chain,
-                                                   load_other_columns_as_attributes=True,
-                                                   include_columns=['Village'])  # Add any "optional" columns
-
-    with open(demo_fname, 'w') as fout :
-      json.dump(current, fout, sort_keys=True,indent=4, separators=(',', ': '))
-
-    
-    
-df = pd.read_csv(os.path.join(<PATHTOFILE>,"my_node.csv"))  # Modify PATHTOFILE
-demo_fname = os.path.join(<INPUTPATH>,"FILENAME_demographics.json") # Modify INPUTPATH and FILENAME
-
-generate_demographics(df, demo_fname)
-```
-</p>
-</details>
-
-<details><summary><span style="color: blue";">3. Add Individual Properties</span></summary>
-<p>
-
-Add details - check with Manuela
-
-Individual properties can be used to set specific details for individuals such as risk (i.e. high vs low access groups), cohorts, drug response groups, etc. These properties can help a simulation better reflect the reality of different sites and individuals within them.
-
-
-```python
-#in addition to previous step
-from input_file_generation.add_properties_to_demographics import generate_demographics_properties
-
-IPs = [
-        {'Property': 'StudyCohort',
-         'Values': ["Placebo", "Treatment"],
-         'Initial_Distribution': [0.5, 0.5],
-         'Transitions': []},
-        {'Property': 'DrugResponseGroup',
-         'Values': [f'Group{i}' for i in range(100)],
-         'Initial_Distribution': [0.01] * 100,
-         'Transitions': []},
-    ]
-
-demo_fname = os.path.join(<INPUTPATH>,"FILENAME_demographics.json") #from previous 
-demo_fname_IIV = os.path.join(<INPUTPATH>,"FILENAME_demographicsIP.json")
-generate_demographics(df, demo_fname) #from previous
-
-generate_demographics_properties(refdemo_fname=demo_fname,
-                                     output_filename=demo_fname_IIV,
-                                     as_overlay=False,
-                                     IPs=IPs)
-```
-
-
-
-</p>
-</details>
-
-<details><summary><span style="color: blue";">4. Reading your Demographics File</span></summary>
-<p>
-
-The resulting demographics file is a JSON file organized into 4 main sections:
+A demographics file is a JSON file organized into 4 main sections:
 
 1. Metadata
 2. NodeProperties
 3. Defaults
     - Parameters applied to all nodes in the simulation
-4. Nodes
+4. Nodes: each node is a simulated location. Transmission within a node is well-mixed, and nodes 
+are connected by human and/or vector migration.
     - Allows node-specific parameters
-    - Duplicated parameters override values in 'Defaults'
+    - Specified parameters override values in 'Defaults'
 
 
 ```python
@@ -186,6 +82,150 @@ The resulting demographics file is a JSON file organized into 4 main sections:
 </p>
 </details>
 
+<details><summary><span style="color: blue";">2. Creating a demographics file</span></summary>
+<p>
+
+First, create a file "my_node.csv" with the following columns:
+
+**Required**
+
+- nodeid (unique # 1-n, for n nodes)
+- population (starting population size)
+
+*Optional*
+
+- Other node-specific variables, if any, such as village name, latitude, and longitude
+
+Example "my_node.csv":
+
+| nodeid      | population  |  Village | lat     |  lon    |
+| ----------- | ----------- | -------- |-------- |-------- |
+| 1           | 1400        | "Obom"   | 5.760759  | -0.4473415  |
+
+Next, run `generate_demographics()`:
+
+
+
+```python
+import os
+import pandas as pd
+import json
+from dtk.tools.demographics.DemographicsGeneratorConcern import WorldBankBirthRateConcern, EquilibriumAgeDistributionConcern, DefaultIndividualAttributesConcern
+from dtk.tools.demographics.DemographicsGenerator import DemographicsGenerator
+
+##### Example for Ghana #####
+#############################
+
+
+def generate_demographics(demo_df, demo_fname, days_spread=1) :
+  # Get WorldBank birth rate estimate
+  # UPDATE country and birthrate_year
+  br_concern = WorldBankBirthRateConcern(country="Ghana", birthrate_year=2016)
+
+  chain = [
+        DefaultIndividualAttributesConcern(),
+        br_concern,
+        EquilibriumAgeDistributionConcern(default_birth_rate=br_concern.default_birth_rate),
+    ]
+
+    current = DemographicsGenerator.from_dataframe(demo_df,
+                                                   population_column_name='population',
+                                                   nodeid_column_name='nodeid',
+                                                   node_id_from_lat_long=False,
+                                                   concerns=chain,
+                                                   load_other_columns_as_attributes=True,
+                                                   include_columns=['Village'])  # Add any "optional" columns
+
+    with open(demo_fname, 'w') as fout :
+      json.dump(current, fout, sort_keys=True,indent=4, separators=(',', ': '))
+
+    
+    
+df = pd.read_csv(os.path.join(<PATHTOFILE>,"my_node.csv"))  # Modify PATHTOFILE
+demo_fname = os.path.join(<INPUTPATH>,"FILENAME_demographics.json") # Modify INPUTPATH and FILENAME
+
+generate_demographics(df, demo_fname)
+```
+</p>
+</details>
+
+## Individual Properties 
+
+<details><summary><span style="color: blue";">1. Adding to a demographics file</span></summary>
+<p>
+
+Individual properties can be used to set specific details for individuals such as risk (i.e. high vs low access groups), cohorts, drug response groups, etc. These properties can help a simulation better reflect the reality of different sites and individuals within them and are completely customizable. The [generate_demographics_properties()](https://github.com/InstituteforDiseaseModeling/malaria-toolbox/blob/master/input_file_generation/add_properties_to_demographics.py) function in *malaria-toolbox* adds individual and node properties to a reference demographics file (as created in the previous step, and shown here, with generate_demographics()). 
+
+In this example we specify our **IndividualProperties** with a list of dictionaries, called IPs. We specifically create a Study Cohort where 50% of individuals are assigned to 'Placebo' and the other 50% are assigned to 'Treatment' without any transitions between the groups. We also create a set of drug response groups to mimic inter-individual variation of pharmacodynamics/the body's response to antimalarial drugs (drug parameters must be specified separately). This example uses 100 groups, set by 'for i in range(100)' with equal distribution amongst individuals in the simulation and no transitions. Once the desired properties are coded they can be added to the reference demographics with generate_demographics_properties(). In this case, a new .json that contains the IndividualProperties is generated based on the reference file. 
+
+
+```python
+#in addition to previous step
+from input_file_generation.add_properties_to_demographics import generate_demographics_properties
+
+IPs = [
+        {'Property': 'StudyCohort',
+         'Values': ["Placebo", "Treatment"],
+         'Initial_Distribution': [0.5, 0.5],
+         'Transitions': []},
+        {'Property': 'DrugResponseGroup',
+         'Values': [f'Group{i}' for i in range(100)],
+         'Initial_Distribution': [0.01] * 100,
+         'Transitions': []},
+    ]
+
+demo_fname = os.path.join(<INPUTPATH>,"FILENAME_demographics.json") #from previous 
+demo_fname_IIV = os.path.join(<INPUTPATH>,"FILENAME_demographicsIP.json")
+generate_demographics(df, demo_fname) #from previous
+
+generate_demographics_properties(refdemo_fname=demo_fname,
+                                     output_filename=demo_fname_IIV,
+                                     as_overlay=False,
+                                     IPs=IPs)
+```
+</p>
+</details>
+
+<details><summary><span style="color: blue";">2. Using IPs in Interventions</span></summary>
+<p>
+
+Individual properties can be used in interventions, typically by calling **ind_property_restrictions** within the function and setting the desired IndividualProperty restrictions. This example creates an SMC drug campaign that is limited to individuals in the 'Treatment' group as setup by the demographics file.
+
+
+```python
+from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
+
+def smc_intervention(cb, day, cycles, coverage_level):
+    add_drug_campaign(cb, campaign_type='SMC',
+                          coverage=coverage_level, start_days=[(sim_years - 1) * 365 + day],
+                          ind_property_restrictions=[{'StudyCohort': "Treatment"}],
+                          repetitions=cycles, tsteps_btwn_repetitions=30,
+                          adherent_drug_configs=[adherent_drug_configs],
+                          target_group={'agemin': 0.25, 'agemax': 5},
+                          receiving_drugs_event_name='Received_SMC')
+```
+</p>
+</details>
+
+<details><summary><span style="color: blue";">3. Using IPs in Reporting</span></summary>
+<p>
+
+Individual properties can also be used in reporting with add_summary_report() to limit the report to only those individuals in the specified group with **ipfilter**. For example, the following function will report, on aggregate, every 30 days on new infections and other infection updates in the Placebo group across the three age bins.
+
+
+```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from malaria.reports.MalariaReport import add_summary_report
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+
+add_summary_report(cb, start=365, interval=30,
+                   age_bins=[0.25,5,100], ipfilter='StudyCohort:Placebo',
+                   description='Monthly_Placebo')
+```
+</p>
+</details>
+
 ## Create multi-node simulations 
 
 ![figure](/images/01_highlighted.png)
@@ -213,10 +253,15 @@ generate_demographics(df="/my_nodes.csv")
 </p>
 </details>
 
-<details><summary><span style="color: blue;">2. Setting Node-Specific Inputs</span></summary>
+<details><summary><span style="color: blue;">2. Setting Node-Specific Parameters</span></summary>
 <p>
 
-Sometimes we want to vary properties between nodes based on prior knowledge. Imagine we know the proportion of "high-risk" individuals in each node and want to use this designation to target them for an intervention.
+Sometimes we want to vary properties between nodes based on prior knowledge. For any `NodeAttribute` parameters, these 
+can be created simply by specifying them in the `my_nodes.csv` as columns and setting `load_other_columns_as_attributes=True` 
+in the call to `DemographicsGenerator()`.
+
+To set `IndividualAttributes` or `IndividualProperties`, see the following example. Imagine we know the proportion of 
+"high-risk" individuals in each node and want to use this designation to target them for an intervention.
 
 First, we would add a column to our input file representing the high-risk proportion in each node.
 
@@ -226,16 +271,18 @@ First, we would add a column to our input file representing the high-risk propor
 | 2 | 2255 | "Kofi Kwei" | 0.10|
 | 3 | 1800 | "Village 3" | 0.50|
 
-Then, when we can assign the "high_risk" property to individuals in each node with the probability listed in the table, by adding the following code to the end of the generate_demographics() function definition, before writing the .json file.
+Then, when we can assign the "high_risk" property to individuals in each node with the probability listed in the table, 
+by adding the following code to the end of the `generate_demographics()` function definition, before writing the .json 
+file.
 
 
 ```python
 ...
-for n in list(range(current['Metadata']['NodeCount'])):
-   current['Nodes'][n]['IndividualProperties'] = [{"Property":"high_risk",
-   "Values": ['yes','no'],
-   "Initial_Distribution": [high_risk, (1-high_risk)]}]
-   
+current = DemographicsGenerator(...)
+for r, row in demo_df.iterrows() :
+    current['Nodes'][r]['IndividualProperties'] = [{"Property":"high_risk",
+                                                    "Values": ['yes','no'],
+                                                    "Initial_Distribution": [row['high_risk'], (1-row['']high_risk)]}]
 
 with open(demo_fname, 'w') as fout :
   json.dump(current, fout, sort_keys=True,indent=4, separators=(',', ': '))
@@ -598,11 +645,13 @@ add_vector_migration_report(cb)
 
 ![figure](/images/01_highlighted.png)
 
-Once we have generated a demographics file describing the nodes for a simulation, you can also construct climate files 
+Once we have generated a demographics file describing the nodes for a simulation, we can construct climate files by 
+accessing IDM's climate database on COMPS.
 
 
 ```python
 from dtk.tools.climate.ClimateGenerator import ClimateGenerator
+rom simtools.SetupParser import SetupParser
 
 def generate_climate(demo_fname, input_file_name) :
 
@@ -625,13 +674,14 @@ generate_climate(demo_fname, input_file_name)
 
 # Rename climate files and metadata
 for tag in ['air_temperature', 'rainfall', 'relative_humidity'] :
-            os.replace(os.path.join(inputs_path, input_file_name,'Burkina Faso_30arcsec_%s_daily.bin' % tag),
+            os.replace(os.path.join(inputs_path, input_file_name,'COUNTRY_30arcsec_%s_daily.bin' % tag),
                        os.path.join(inputs_path, 'climate', '%s_%s_daily.bin' % (input_file_name, tag)))
-            os.replace(os.path.join(inputs_path, input_file_name, 'Burkina Faso_30arcsec_%s_daily.bin.json' % tag),
+            os.replace(os.path.join(inputs_path, input_file_name, 'COUNTRY_30arcsec_%s_daily.bin.json' % tag),
                        os.path.join(inputs_path, 'climate', '%s_%s_daily.bin.json' % (input_file_name, tag)))
 ```
 
-After completing these steps, there should be climate files for air_temperature, rainfall, and relative_humidity in your inputs folder. To reference these when running a simulation, update the configuration parameters:
+After completing these steps, there should be climate files for air_temperature, rainfall, and relative_humidity in your 
+inputs folder. To reference these when running a simulation, update the configuration parameters:
 
 
 ```python
@@ -835,98 +885,90 @@ for species, habitat in new_habitats.items():
 
 ## Change mosquito abundance
 
-After adding vectors to your model, you may want to alter their abundance in order to reach a desired entomological innoculation rate (EIR). 
+After adding vectors to your model, you may want to alter their abundance in order to reach a desired entomological 
+innoculation rate (EIR), malaria prevalence, or malaria incidence. In EMOD this is often done by re-scaling the amount 
+of habitat available for larval development: Available habitat is 
+directly related to mosquito abundance, and mosquito abundance in turn is directly related to biting rate. 
 
-In EMOD this is often done by re-scaling the amount of habitat available for larval development: Available habitat is directly related to mosquito abundance, and mosquito abundance in turn is directly related to biting rate. 
+There are several options for configuring habitat. You can first set habitat parameters and modify them directly as 
+detailed in the section [Set up mosquito species](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#set-up-mosquito-species).
 
-In order to calibrate the model there are several options for configuring habitat. You can first set habitat parameters and modify them directly as detailed in the section "Set up mosquito species".
+After those initial parameters are set, habitat can be modified with scaling parameters.
 
-Then, after those initial parameters are set, you can modify habitat with overall scaling parameters.
-
-### Universal Habitat Scaling (x_Temporary_Larval_Habitat)
+<details><summary><span style="color: blue";">Universal Habitat Scaling (x_Temporary_Larval_Habitat)</span></summary>
+<p>
 
 ![figure](/images/02_highlighted.png)
 
-To apply a constant scale factor to all habitats equally for all species, use the **x_Temporary_Larval_Habitat** configuration parameter.
+To apply a constant scale factor to all habitats equally for all species, use the **x_Temporary_Larval_Habitat** 
+configuration parameter.
 
-This parameter will scale all habitat parameters without changing the temporal dynamics, so that a new transmission is achieved with the same ratios among the species, and same time profile. For example, setting x_Temporary_Larval_Habitat to 0.1 would simulate low EIR (or a low transmission setting) by reducing available habitat to 10%; a value of 1 could be used to simulate high EIR (or a high transmission setting), and there would be no reduction in available habitat.
+This parameter will scale all habitat parameters for the entire simulation duration without changing the temporal 
+dynamics, so that a new transmission is 
+achieved with the same ratios among the species and same time profile. For example, setting **x_Temporary_Larval_Habitat** 
+to 0.1 would reduce habitat by 90%. 
 
 
 ```python
-# Ex: Reduce habitat (and thus, adult vectors and biting rate) by 50%.
-cb.update_params({'x_Temporary_Larval_Habitat': 0.5})    
+# Ex: Reduce habitat (and thus, adult vectors and biting rate) by 90%.
+cb.update_params({'x_Temporary_Larval_Habitat': 0.1})    
+```
+</p></details>
+
+<details><summary><span style="color: blue";">Node-Specific Habitat Scaling in Demographics (LarvalHabitatMultiplier)</span></summary>
+<p>
+
+![figure](/images/01_highlighted.png)
+
+Node- and species-specific habitat scaling can be set in the demographics file through the NodeAttributes parameter 
+**LarvalHabitatMultiplier**. Multipliers can be set by species as in the example below, or `'ALL_SPECIES'` to target 
+the specified habitat for all species.
+
+
+```python
+"NodeAttributes: {
+    ...
+    "LarvalHabitatMultiplier": [
+        {
+            "Habitat": "TEMPORARY_RAINFALL",
+            "Species": "gambiae",
+            "Factor": 0.1
+        },
+        {
+            "Habitat": "BRACKISH_SWAMP",
+            "Species": "arabiensis",
+            "Factor": 0.5
+        }
+    ]
+}
 ```
 
-### Custom Habitat Scaling (LarvalHabitatMultiplier)
+</p></details>
 
-![figure](/images/04_highlighted.png)
 
-An alternative to x_Temporary_Larval_Habitat is **LarvalHabitatMultiplier**. LarvalHabitatMultiplier is a parameter in the demographics file, and can be applied through campaign events to 1) all habitat types configured for the simulation, 2) specific habitat types, or 3) individual mosquito species 4) within particular habitat types in 5) certain nodes. It therefore allows for more customization, and for scaling to vary with time (ex. seasonally). 
+<details><summary><span style="color: blue";">Dynamic Habitat Scaling during Simulation (ScaleLarvalHabitats)</span></summary>
+<p>
 
-1. Import *scale_larval_habitats* from dtk-tools
+![figure](/images/02_highlighted.png)
+
+The [ScaleLarvalHabitat](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-campaign-node-scalelarvalhabitat.html) 
+intervention allows the user to scale habitats by type and species at a specified time during the simulation. The `dtk-tools` 
+function [scale_larval_habitats()](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/interventions/habitat_scale.py) 
+takes a dataframe argument to construct the campaign events for habitat scaling:
+
 
 ```python
 from dtk.interventions.habitat_scale import scale_larval_habitats
+
+scale_larval_habitats(cb, df=habitat_df, start_day=0)
 ```
 
-2. Specify conditions for habitat scaling. This can be done uniformly for all nodes/habitats/species, or with more specifications. See examples:
+The `habitat_df` argument requires column name(s) for each habitat type being scaled, with column values being the 
+scale factor(s). Many configuration options are available, including by species, by node, and by date. See documentation in 
+[scale_larval_habitats()](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/interventions/habitat_scale.py).
 
 
-```python
-# Example 1 ####################################################
-# Scale TEMPORARY_RAINFALL by 3-fold for all nodes, all species:
-
-df = pd.DataFrame({ 'TEMPORARY_RAINFALL': [3]})
-
-# Example 2 ####################################################
-# Scale TEMPORARY_RAINFALL by 3-fold for all nodes, arabiensis only:
-
-df = pd.DataFrame({ 'TEMPORARY_RAINFALL.arabiensis': [3]})
-
-# Example 3 ####################################################
-# Scale TEMPORARY_RAINFALL differently by node ID, all species:
-
-df = pd.DataFrame({ 'NodeID' : [0, 1, 2, 3, 4],
-                    'CONSTANT': [1, 0, 1, 1, 1],
-                    'TEMPORARY_RAINFALL': [1, 1, 0, 1, 0],
-                     })
-
-# Example 4 ####################################################
-# Scale differently by both node ID and species::
-
-df = pd.DataFrame({ 'NodeID' : [0, 1, 2, 3, 4],
-                    'CONSTANT.arabiensis': [1, 0, 1, 1, 1],
-                    'TEMPORARY_RAINFALL.arabiensis': [1, 1, 0, 1, 0],
-                    'CONSTANT.funestus': [1, 0, 1, 1, 1]
-                 })
-
-# Example 5 ####################################################
-# Scale some habitats by species and others same for all species::
-
-df = pd.DataFrame({  'NodeID' : [0, 1, 2, 3, 4],
-                     'CONSTANT.arabiensis': [1, 0, 1, 1, 1],
-                     'TEMPORARY_RAINFALL.arabiensis': [1, 1, 0, 1, 0],
-                     'CONSTANT.funestus': [1, 0, 1, 1, 1],
-                     'LINEAR_SPLINE': [1, 1, 0, 1, 0]
-                     })
-
-# Example 6 ####################################################
-# Scale nodes at different dates::
-
-df = pd.DataFrame({  'NodeID' : [0, 1, 2, 3, 4],
-                     'CONSTANT': [1, 0, 1, 1, 1],
-                     'TEMPORARY_RAINFALL': [1, 1, 0, 1, 0],
-                     'Start_Day': [0, 30, 60, 65, 65],
-                     })
-```
-
-3. Apply habitat scaling
-
-
-```python
-scale_larval_habitats(cb, habitat_df)
-```
-
+</p></details>
 
 ## Update config parameters
 
@@ -1031,10 +1073,9 @@ cb.update_params({'logLevel_default' : 'WARNING',
 
 The [MalariaSummaryReport](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-malaria-summary.html) 
 is a useful output that reports infection data (prevalence, clinical incidence, parasitemia, infectivity) by age group 
-and aggregated over a user-defined time interval such as years or months.
+and aggregated over a user-defined time interval such as years or months. Specific events of interest can be set with **event_trigger_list=** - defaults include 'EveryUpdate' and 'NewInfectionEvent'.
 
-In this example, simulation data is reported starting at day 365, with a monthly aggregation, in 3 age bins, and only for 
-individuals with the IndividualProperty of SMCAccess with value High.
+In this example, simulation data is reported starting at day 365, with a monthly aggregation, in 3 age bins. 
 
 
 ```python
@@ -1044,8 +1085,8 @@ from malaria.reports.MalariaReport import add_summary_report
 cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
 
 add_summary_report(cb, start=365, interval=30,
-                   age_bins=[0.25,5,100], ipfilter='SMCAccess:High',
-                   description='Monthly_HighAccess')
+                   age_bins=[0.25,5,100],
+                   description='Monthly_Report')
 ```
 
 ## Add malaria
@@ -1413,7 +1454,7 @@ receive drugs by node or individual properties. For more details on all possible
 in dtk-tools-malaria. Node and individual properties are set in the demographics file and can be called upon here for 
 things like low vs high access groups.
 
-This example details a simple SMC intervention. Its coverage level, number of cycles, and start day are specified in the model builder as they may change more regularly based on the purpose of different analyses. Timesteps between repetitions (if more than one cycle given) is set to 30 days as SMC is given on a monthly basis during peak season. The target group is also specified here to limit the age group to 0.25-5 year old children. This example dictates that it only applies to children classified as having "low" SMC access per the demographics file and uses adherent drug configurations as previously shown.
+This example details a simple SMC intervention. Its coverage level, number of cycles, and start day are specified in the model builder as they may change more regularly based on the purpose of different analyses. Timesteps between repetitions (if more than one cycle given) is set to 30 days as SMC is given on a monthly basis during peak season. The target group is also specified here to limit the age group to 0.25-5 year old children. This example uses adherent drug configurations as previously shown.
 
 
 ```python
@@ -1422,7 +1463,6 @@ from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
 def smc_intervention(cb, day, cycles, coverage_level):
     add_drug_campaign(cb, campaign_type='SMC',
                           coverage=coverage_level, start_days=[(sim_years - 1) * 365 + day],
-                          ind_property_restrictions=[{'Property_name': "Value"}],
                           repetitions=cycles, tsteps_btwn_repetitions=30,
                           adherent_drug_configs=[adherent_drug_configs],
                           target_group={'agemin': 0.25, 'agemax': 5},
@@ -1610,17 +1650,25 @@ if __name__ == "__main__":
 
 ## Serialization
 
-![figure](/images/05_highlighted.png)
+![figure](/images/02_highlighted.png)
 
-Some simulations can take a long time to run and the part you are really interested in analyzing isn’t until closer to the end. You’d like to save the state of the simulation just before the interesting stuff and then restart from that spot. This would allow you to iterate more quickly on different intervention strategies or just trying to understand what the simulation is doing better. EMOD supports this ability with a feature called “serialized populations.”
+Some simulations can take a long time to run and the part you are really interested in analyzing isn’t until closer to 
+the end. You’d like to save the state of the simulation just before the interesting stuff and then restart from that 
+spot. This would allow you to iterate more quickly on different intervention strategies or just trying to understand 
+what the simulation is doing better. EMOD supports this ability with a feature called “serialized populations.”
 
-The serialized population feature in EMOD allows you to save the state of the people and restart from that saved state. This state includes the person’s health, infections, any interventions that they have, and more. This is especially useful when you need to create a population that has natural immunity to a pathogen (i.e. the pathogen is not novel and the population is not naive.) 
+The serialized population feature in EMOD allows you to save the state of the people and restart from that saved state. 
+This state includes the person’s health, infections, any interventions that they have, and more. This is especially 
+useful when you need to create a population that has natural immunity to a pathogen (i.e. the pathogen is not novel and 
+the population is not naive.) 
 
 ### Simple Burn-in
 
-To create a population with an endemic disease, one option is to start with a naive population and run simulation till disease dynamics reach an equilibrium. These simulation burn-in methods can take several years of simulation time until a steady state is reached. Saving the state to a file and continuing from this state reduces the time needed to model the effect of different interventions.
+To create a population with an endemic disease, we start with a naive population and run the simulation till 
+disease dynamics reach an equilibrium, usually around 50 years.
 
-For the initial burn-in simulation, you need to update the configuration parameters for simulation. The following example is for a 50-year simple burn-in.
+For the initial burn-in simulation, you need to tell EMOD that you would like it to save a serialized population and at 
+what timestep(s).
 
 
 ```python
@@ -1636,151 +1684,139 @@ cb.update_params({
         })
 ```
 
-Then, run this simulation as you would any other. 
+Then, run this simulation as you would any other. When the simulation has succeeded, the output/ directory should 
+contain a state-*.dtk file, where * is the 5-digit date of serialization. In this example, a state-18250.dtk file 
+would be created.
 
 ### Picking up from Serialized Burn-in
 
-![figure](/images/05_highlighted.png)
+![figure](/images/02_highlighted.png)
 
-To pick up from the end of a saved burn-in simulation, and run for an additional year, you'll need the <ExperimentID> (from COMPS or python console output). Copy it, then update the following configuration parameters:
+To pick up from the end of a saved burn-in simulation, and run for some additional time, you need the name of the state*.dtk 
+file from the burn-in and the path to the state-*.dtk file. If you know the path to the state-*.dtk, you can specify it 
+directly:
 
 
 ```python
 burnin_id = <ExperimentID> # replace with burn-in ID
 
 # Number of years from burn-in to include.
-pull_year = 50 # NOT number of years to run pick-up
+serialize_year = 50 # number of years used in first burn-in simulation, NOT number of years to run pick-up
 
 cb.update_params({
             'Serialized_Population_Reading_Type': 'READ',
-            'Serialized_Population_Filenames': ['state-%05d.dtk' % (pull_year*365)], # Pull last day of <pull_year> to be used as a starting point.
+            'Serialized_Population_Filenames': ['state-%05d.dtk' % (serialize_year*365)],
+            'Serialized_Population_Path': '.../output/',   # where ... is the path to the state-*.dtk file
             'Enable_Random_Generator_From_Serialized_Population': 0,
             'Serialization_Mask_Node_Read': 0,
             'Enable_Default_Reporting' : 0
         })
 ```
 
-![figure](/images/06_highlighted.png)
-
-Then, to run to run your pick-up simulations:
-
-1. Import retrieve_experiment from dtk-tools
+If you know the experiment ID of your burn-in simulation, you can use that instead through the `retrieve_experiment` 
+function, updating other serialization parameters as above: 
 
 
 ```python
 from simtools.Utilities.Experiments import retrieve_experiment
+import os
+
+burnin_id = '...' # alphanumeric string
+
+expt = retrieve_experiment(burnin_id) # Identifies the desired burn-in experiment
+output_paths = [sim.get_path() for sim in expt.simulations]
+
+cb.update_params({
+            ...
+            'Serialized_Population_Path': os.path.join(output_paths[0], 'output')     # takes the first simulation in the experiment
+        })
 ```
 
-2. Add the following code below <if \_\_name\_\_=="__main__":> 
+If you ran a burn-in experiment that varied key parameters that you would like to also reuse during pickup, you can 
+incorporate setting the `Serialized_Population_Path` in the builder:
 
 
 ```python
+from simtools.Utilities.Experiments import retrieve_experiment
+import os
+
+burnin_id = '...' # alphanumeric string
+serialize_year = 50 # number of years used in first burn-in simulation, NOT number of years to run pick-up
+
 expt = retrieve_experiment(burnin_id) # Identifies the desired burn-in experiment
 
-# Loop through unique "tags" to distinguish between burn-in scenarios (ex. varied historical coverage levels)
-ser_df = pd.DataFrame([x.tags for x in expt.simulations])
+cb.update_params({
+            'Serialized_Population_Reading_Type': 'READ',
+            'Serialized_Population_Filenames': ['state-%05d.dtk' % (serialize_year*365)],
+            'Enable_Random_Generator_From_Serialized_Population': 0,
+            'Serialization_Mask_Node_Read': 0,
+            'Enable_Default_Reporting' : 0
+        })
+
+ser_df = pd.DataFrame([x.tags for x in expt.simulations])  # tags distinguish between burn-in scenarios (ex. varied historical coverage levels)
 ser_df["outpath"] = pd.Series([sim.get_path() for sim in expt.simulations])
-```
 
-3. Add the following code to the Model Builder (or create one, if you did not need one before).
-
-
-```python
 builder = ModBuilder.from_list([[...,
               ...,
-              ModFn(DTKConfigBuilder.set_param,
-              'Serialized_Population_Path',
-              os.path.join(row['outpath'], 'output')),
+              ModFn(DTKConfigBuilder.set_param, 'Serialized_Population_Path', os.path.join(row['outpath'], 'output')),
+              # set other ModFn()s to incorporate desired data from tags
               ...],
-          # Run pick-up from each unique burn-in scenario
-          for r,row in ser_df.iterrows()
+          for r,row in ser_df.iterrows()   # Run pick-up from each unique burn-in scenario
           ])
 ```
-
-
 
 ## Event reporting
 
 ![figure](/images/03_highlighted.png)
 
-Your simulation may include campaign events that you want to track explicitly and generate a report of. For example, in the simple SMC intervention (see "Add drug campaigns") we defined an event called "Received_SMC" to describe children who actually received SMC drugs in the simulation.
+EMOD is capable of tracking a variety of [built-in events](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-campaign-event-list.html) 
+as well as custom campaign events. Custom events can be particularly useful for explicitly tracking and counting the number 
+of interventions distributed. For example, in the simple SMC intervention (see [Add drug campaigns](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#add-drug-campaigns)) 
+we defined an event called `'Received_SMC'` to describe children who actually received SMC drugs in the simulation. The 
+[add_health_seeking](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#add-case-management) function 
+automatically generates a `'Received_Treatment'` event for each individual receiving treatment for symptomatic malaria. 
+Adding custom events to the config parameter `'Custom_Individual_Events'` is automatically handled by `dtk-tools`.
 
-To enable reporting of a custom event, first update the following configuration parameters:
+### Aggregate Events
 
-
-```python
-cb.update_params({
-  # Name(s) of events to track
-  'Custom_Individual_Events': ['Received_SMC']
-})
-```
-
-### Aggregate Events (EventCounter)
-
-1. Import the *add_event_counter_report* from dtk-tools.
+To track how many events are occurring each day, request [ReportEventCounter](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-event-counter.html) 
+and specify the list of events you would like to track:
 
 
 ```python
 from malaria.reports.MalariaReport import add_event_counter_report
+
+add_event_counter_report(cb, event_trigger_list=['Received_SMC', 'Received_Treatment'])
 ```
 
-2. Add the following code below <if\_name\_=="main":>
+This generates a ReportEventCounter.json file that reports that total number of events in each day of the simulation. 
+Reporting a subset of node IDs, restricting on age, and restricing on individual property are all configurable. 
+The format of the .json is identical to InsetChart.json, so analyzers written for InsetChart.json can be easily adapted 
+for ReportEventCounter.
 
+### Individual Events
 
-```python
-add_event_counter_report(cb, event_trigger_list=['Received_SMC'])
-```
-
-This generates a .json file that reports that total number of events in each day of the simulation. If you ran a multi-node simulation, this report aggregates events across all nodes.
-
-### Individual Events (EventRecorder)
-
-Sometimes you may want to stratify an event report by node or by demographics. To do so, we use **ReportEventRecorder**, which is similar to ReportEventCounter but lists individual events and also provides information about the person at the time of the event.
+Sometimes you may want to track individual-level events. To do so, we use [ReportEventRecorder](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-event-recorder.html), 
+which is similar to ReportEventCounter but lists each event as it occurs and provides information about the person experiencing 
+the event.
 
 1. Update configuration parameters
 
 ```python
 cb.update_params({
-  # Enable generation of ReportEventRecorder.csv
-  'Report_Event_Recorder': 1,
-  # Logical indicating whether to include or exclude events specified in the list 
-  # (0 => include only events in list)
-  # (1 => include all events except those in list)
-  'Report_Event_Recorder_Ignore_Events_In_List': 0,
-  # List of events to include
-  'Report_Event_Recorder_Events': ['Received_SMC',],
-  # Name(s) of events to track
-  'Custom_Individual_Events': ['Received_SMC'],
+  'Report_Event_Recorder': 1,  # Enable generation of ReportEventRecorder.csv  
+  'Report_Event_Recorder_Ignore_Events_In_List': 0, # Logical indicating whether to include or exclude the events specified in the list 
+  'Report_Event_Recorder_Events': ['NewClinicalCase', 'Received_Treatment'], # List of events to include
 })
 ```
 
 *Note*: If you want to return all events from the simulation, leave the "Events" array empty and set "Ignore_Events_In_List" to 1.
 
-There are additional optional parameters that you can specify to refine your report. This can help reduce file sizes and speed up processing if you know you'll only a subset of the simulation data.
+There are additional optional parameters that you can specify to refine your report: see full list [here](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-event-recorder.html). 
+This can help reduce file sizes and speed up processing if you know you'll only a subset of the simulation data.
 
-
-```python
-cb.update_params({
-  # Individual Properties to include in the report (default: none)
-  'Report_Event_Recorder_Individual_Properties':[],
-  # Day of simulation to start reporting (default: simulation start)
-  'Report_Event_Recorder_Start_Day': 0,
-  # Day of simulation to stop reporting (default: simulation end)
-  'Report_Event_Recorder_End_Day': 3.40282e+38,
-  'Report_Event_Recorder_Node_IDs_Of_Interest':,
-  # Age range of people to collect data on (default all ages)
-  'Report_Event_Recorder_Min_Age_Years': 0,
-  'Report_Event_Recorder_Max_Age_Years': 9.3228e+35,
-  # Nodes to collect data from (default: all nodes)
-  'Report_Event_Recorder_Node_IDs_Of_Interest': [],
-  # Individual Property key:value that someone must have to be included in the report (default: no restriction)
-  'Report_Event_Recorder_Must_Have_IP_Key_Value':[],
-  # Intervention someone must have to be included (default: no restriction)
-  'Report_Event_Recorder_Must_Have_Intervention': []
-})
-```
-
-After running, a file called ReportEventRecorder.csv will be generated in the output/ folder for the simulation. Each row of the report represents a distinct event, with the following information in its columns:
+After running, a file called ReportEventRecorder.csv will be generated in the output/ folder for the simulation. Each 
+row of the report represents a distinct event, with the following information in its columns:
 
 Event Details:
 - **Time** (when did event occur)
@@ -1797,4 +1833,5 @@ Individual Details (who did it happen to?):
 - **TrueParasiteDensity**
 - **TrueGametocyteDensity**
 
-Plus an additional column for the value of each additional Individual Property included in the 'Report_Event_Recorder_Individual_Properties' list.
+Plus an additional column for the value of each additional Individual Property included in the 
+'Report_Event_Recorder_Individual_Properties' list.
