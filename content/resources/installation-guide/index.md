@@ -1,6 +1,6 @@
 ---
 date: "2019-02-11T19:27:37+10:00"
-title: EMOD and dtk installation guide
+title: EMOD & Quest
 weight: 2
 ---
 
