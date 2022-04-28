@@ -1682,14 +1682,41 @@ def diagnostic_survey(cb, sim_day, thresh=10, dose=1):
 ```
 
 
-## Add RTS,S Vaccine
+## Add vaccine
 
 ![figure](/images/04_highlighted.png)
 
-Malaria vaccine campaign can be added using `add_vaccine()` function in the `dtk-tools-malaria` package. Although the function is more generic than this, we walk through the use of the function in implementing RTS,S vaccine through an EPI campaign here.
+Malaria vaccines can be added using the [add_vaccine()](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/malaria_vaccine.py#L19) function.
+The function is generic: it can handle pre-erythrocytic vaccines, transmission-blocking vaccines, and RTS,S specifically.
+Initial efficacy and decay parameters for RTS,S are set to the EMOD parameterization in Penny et al. 2016.
 
-### EPI RTS,S distribution
-The RTS,S vaccine schedule is relatively complex. It is common to assume that the first two doses of RTS,S vaccine conveys no protection at all, thus simplifying the campaign specification in the simulation.
+In this example, a mass campaign is given at 80% coverage on day 365:
+```{python, eval=F}
+from malaria.interventions.malaria_vaccine import add_vaccine
+
+add_vaccine(cb,
+            vaccine_type='RTSS',
+            start_days=365,
+            coverage=0.8)
+```
+
+
+### Distributing RTS,S through age-based immunization
+
+The RTS,S vaccine schedule is relatively complex, including a 3-dose primary schedule ending at 9 months of age and one
+or more boosters.
+
+The example below specifies an RTS,S vaccine campaign starting day 365. From this day on, any newborn baby will be
+marked as `RTSS_3rddose_eligible` on 270 days old. The child will be given 3rd dose of RTS,S (first two doses don't
+matter due to the assumption of zero efficacy until dose 3) at 80% probability. Any child who receives a dose of
+vaccine also receives the event `Received_Vaccine`, which is specified in `add_vaccine()`.
+
+Because only children who receive third dose vaccine would go on to receive a booster, we use individual properties to
+keep track of who is eligible for a booster. In other parts of the code, we set up an
+[individual property](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#individual-properties)
+`VaccineStatus` that can have be `None` or `GotVaccine`. We use the
+`change_individual_property` function to switch someone with the individual property `VaccineStatus` of `None` to `GotVaccine`,
+when they `Received_Vaccine`.
 
 ```{python, eval=F}
 from malaria.interventions.malaria_vaccine import add_vaccine
@@ -1697,11 +1724,12 @@ from dtk.interventions.property_change import change_individual_property
 
 add_vaccine(cb,
             vaccine_type='RTSS',
-            start_days=366,
+            start_days=365,
             coverage=0.8,
             triggered_delay=270,
             trigger_condition_list=["RTSS_3rddose_eligible"],
             birthtriggered=True)
+
 change_individual_property(cb,
                            target_property_name='VaccineStatus',
                            target_property_value='GotVaccine',
@@ -1710,11 +1738,11 @@ change_individual_property(cb,
                            blackout_flag=False)
 ```
 
-The example above specify that there is an RTSS vaccine campaign, starting on the first day of second year in the simulation. From this day on, any newborn baby will be marked as `RTSS_3rddose_eligible` on 270 days old. The child may then be given 3rd dose of RTS,S (first two doses don't matter due to the assumptions). The coverage of this RTS,S is specified at 80%.
+Those who have received their 3rd dose of vaccine are eligible for a booster at the age of 2 years (730 days) old. The
+`ind_property_restrictions` argument is used to ensure that only those with `VaccineStatus` of `GotVaccine` receive the booster.
+`change_individual_property` is then used change `VaccineStatus` to `GotBooster1`, which helps bookkeeping and is
+particularly important in the event that they are to receive additional boosters.
 
-Moreover, because only children who receive third dose vaccine would go on to receive booster shot eventually, it is important to use individual property to keep track of them when they become eligible for booster. Thus, `change_individual_property` function is introduced to switch someone with a `VaccineStatus` of `None` to `GotVaccine`, when they `Received_Vaccine`.
-
-For the booster shot:
 ```{python, eval=F}
 add_vaccine(cb,
             vaccine_type='RTSS',
@@ -1724,6 +1752,7 @@ add_vaccine(cb,
             trigger_condition_list=["RTSS_booster1_eligible"],
             ind_property_restrictions=[{'VaccineStatus': 'GotVaccine'}],
             birthtriggered=True)
+
 change_individual_property(cb,
                            target_property_name='VaccineStatus',
                            target_property_value='GotBooster1',
@@ -1732,7 +1761,6 @@ change_individual_property(cb,
                            blackout_flag=False)
 ```
 
-For those who have received their 3rd dose vaccine, they are eligible for booster shot at the age of 2 years of 730 days old. `ind_property_restrictions` argument is used to ensure these restrictions are imposed when we use `add_vaccine()` for booster shot. Likewise, `change_individual_property` is used to label a person who received their booster dose, which helps bookkeeping, and is particularly important in the event that they are to receive additional boosters.
 
 
 ## Triggered interventions
