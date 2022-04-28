@@ -149,82 +149,6 @@ generate_demographics(df, demo_fname)
 </p>
 </details>
 
-## Individual Properties 
-
-<details><summary><span style="color: blue";">1. Adding to a demographics file</span></summary>
-<p>
-
-Individual properties can be used to set specific details for individuals such as risk (i.e. high vs low access groups), cohorts, drug response groups, etc. These properties can help a simulation better reflect the reality of different sites and individuals within them and are completely customizable. The [generate_demographics_properties()](https://github.com/InstituteforDiseaseModeling/malaria-toolbox/blob/master/input_file_generation/add_properties_to_demographics.py) function in *malaria-toolbox* adds individual and node properties to a reference demographics file (as created in the previous step, and shown here, with generate_demographics()). 
-
-In this example we specify our **IndividualProperties** with a list of dictionaries, called IPs. We specifically create a Study Cohort where 50% of individuals are assigned to 'Placebo' and the other 50% are assigned to 'Treatment' without any transitions between the groups. We also create a set of drug response groups to mimic inter-individual variation of pharmacodynamics/the body's response to antimalarial drugs (drug parameters must be specified separately). This example uses 100 groups, set by 'for i in range(100)' with equal distribution amongst individuals in the simulation and no transitions. Once the desired properties are coded they can be added to the reference demographics with generate_demographics_properties(). In this case, a new .json that contains the IndividualProperties is generated based on the reference file. 
-
-
-```python
-#in addition to previous step
-from input_file_generation.add_properties_to_demographics import generate_demographics_properties
-
-IPs = [
-        {'Property': 'StudyCohort',
-         'Values': ["Placebo", "Treatment"],
-         'Initial_Distribution': [0.5, 0.5],
-         'Transitions': []},
-        {'Property': 'DrugResponseGroup',
-         'Values': [f'Group{i}' for i in range(100)],
-         'Initial_Distribution': [0.01] * 100,
-         'Transitions': []},
-    ]
-
-demo_fname = os.path.join(<INPUTPATH>,"FILENAME_demographics.json") #from previous 
-demo_fname_IIV = os.path.join(<INPUTPATH>,"FILENAME_demographicsIP.json")
-generate_demographics(df, demo_fname) #from previous
-
-generate_demographics_properties(refdemo_fname=demo_fname,
-                                     output_filename=demo_fname_IIV,
-                                     as_overlay=False,
-                                     IPs=IPs)
-```
-</p>
-</details>
-
-<details><summary><span style="color: blue";">2. Using IPs in Interventions</span></summary>
-<p>
-
-Individual properties can be used in interventions, typically by calling **ind_property_restrictions** within the function and setting the desired IndividualProperty restrictions. This example creates an SMC drug campaign that is limited to individuals in the 'Treatment' group as setup by the demographics file.
-
-
-```python
-from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
-
-def smc_intervention(cb, day, cycles, coverage_level):
-    add_drug_campaign(cb, campaign_type='SMC',
-                          coverage=coverage_level, start_days=[(sim_years - 1) * 365 + day],
-                          ind_property_restrictions=[{'StudyCohort': "Treatment"}],
-                          repetitions=cycles, tsteps_btwn_repetitions=30,
-                          adherent_drug_configs=[adherent_drug_configs],
-                          target_group={'agemin': 0.25, 'agemax': 5},
-                          receiving_drugs_event_name='Received_SMC')
-```
-</p>
-</details>
-
-<details><summary><span style="color: blue";">3. Using IPs in Reporting</span></summary>
-<p>
-
-Individual properties can also be used in reporting with add_summary_report() to limit the report to only those individuals in the specified group with **ipfilter**. For example, the following function will report, on aggregate, every 30 days on new infections and other infection updates in the Placebo group across the three age bins.
-
-
-```python
-from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
-from malaria.reports.MalariaReport import add_summary_report
-
-cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
-
-add_summary_report(cb, start=365, interval=30,
-                   age_bins=[0.25,5,100], ipfilter='StudyCohort:Placebo',
-                   description='Monthly_Placebo')
-```
-</p>
-</details>
 
 ## Create multi-node simulations 
 
@@ -692,6 +616,155 @@ cb.update_params({"Air_Temperature_Filename": os.path.join('climate', '%s_air_te
                   })
 ```
 
+## Individual Properties (IPs)
+
+[Individual properties](https://docs.idmod.org/projects/emod-malaria/en/latest/model-properties.html) can be used to set
+specific details for individuals such as risk (i.e. high vs low access groups), cohorts, drug response groups, etc.
+These properties can help a simulation better reflect the reality of different sites and individuals within them and are
+completely customizable.
+
+<details><summary><span style="color: blue";">1. Adding to a demographics file</span></summary>
+<p>
+
+Individual properties, possible property values, and initial distributions of property values must be specified in the
+demographics file.
+
+The [generate_demographics_properties()](https://github.com/InstituteforDiseaseModeling/malaria-toolbox/blob/master/input_file_generation/add_properties_to_demographics.py)
+function in *malaria-toolbox* adds individual and node properties to a reference [demographics file](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#create-a-demographics-file).
+
+In this example we specify our **IndividualProperties** with a list of dictionaries, called IPs. We specifically create
+a Study Cohort where 50% of individuals are assigned to 'Placebo' and the other 50% are assigned to 'Treatment' without
+any transitions between the groups. We also create a set of drug response groups to mimic inter-individual variation of
+pharmacodynamics/the body's response to antimalarial drugs (drug parameters must be specified separately). This example
+uses 100 groups, set by `for i in range(100) with equal distribution amongst individuals in the simulation and no
+transitions. Once the desired properties are coded they can be added to the reference demographics with
+`generate_demographics_properties()`. In this case, a new .json that contains the IndividualProperties is
+generated based on the reference file.
+
+Building on the creation of a new demographics file as shown [here](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#create-a-demographics-file):
+
+
+```python
+from input_file_generation.add_properties_to_demographics import generate_demographics_properties
+
+IPs = [
+        {'Property': 'StudyCohort',
+         'Values': ["Placebo", "Treatment"],
+         'Initial_Distribution': [0.5, 0.5],
+         'Transitions': []},
+        {'Property': 'DrugResponseGroup',
+         'Values': [f'Group{i}' for i in range(100)],
+         'Initial_Distribution': [0.01] * 100,
+         'Transitions': []},
+    ]
+
+demo_fname = os.path.join(<INPUTPATH>,"FILENAME_demographics.json") #from previous
+demo_fname_IIV = os.path.join(<INPUTPATH>,"FILENAME_demographicsIP.json")
+generate_demographics(df, demo_fname) #from previous
+
+generate_demographics_properties(refdemo_fname=demo_fname,
+                                     output_filename=demo_fname_IIV,
+                                     as_overlay=False,
+                                     IPs=IPs)
+```
+
+To enable user-defined IPs:
+
+```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+cb.update_params({'Disable_IP_Whitelist' : 1})
+```
+
+</p>
+</details>
+
+<details><summary><span style="color: blue";">2. Using IPs in Interventions</span></summary>
+<p>
+
+Most interventions can be targeted to individuals holding specific IP values, typically with the `ind_property_restrictions`
+function argument and setting the desired IndividualProperty restrictions. This example creates an SMC drug campaign
+that is limited to individuals in the 'Treatment' group as defined in the demographics file.
+
+
+```python
+from malaria.interventions.malaria_drug_campaigns import add_drug_campaign
+
+add_drug_campaign(cb,
+                  campaign_type='SMC',
+                  coverage=0.6,
+                  start_days=[165],
+                  ind_property_restrictions=[{'StudyCohort': "Treatment"}],
+                  repetitions=4,
+                  tsteps_btwn_repetitions=30,
+                  target_group={'agemin': 0.25, 'agemax': 5},
+                  receiving_drugs_event_name='Received_SMC')
+```
+</p>
+</details>
+
+<details><summary><span style="color: blue";">3. Using IPs in Reporting</span></summary>
+<p>
+
+Individual properties can also be used in reporting to limit the report to only those individuals in the specified group,
+to track the number of individuals with an IP or combination of IPs, or to report the IPs of individuals.
+
+For the [summary report](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#add-summary-reports),
+aggregation can be restricted by IP using the `ipfilter` argument. For example, the following function will report, on
+aggregate, every 30 days on new infections and other infection updates in the Placebo group across the three age bins.
+
+
+```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+from malaria.reports.MalariaReport import add_summary_report
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+
+add_summary_report(cb, start=365, interval=30,
+                   age_bins=[0.25,5,100], ipfilter='StudyCohort:Placebo',
+                   description='Monthly_Placebo')
+```
+</p>
+</details>
+
+The [PropertyReport](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-property.html) outputs select
+channels (population, infected, new infections, and disease deaths) for all combinations of IPs and IP values. This
+output can get very large if there are many IPs and/or IP values in play.
+
+To request the PropertyReport:
+
+
+```python
+from dtk.utils.core.DTKConfigBuilder import DTKConfigBuilder
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+cb.update_params({'Enable_Property_Output' : 1})
+```
+
+The [NodeDemographicsReport](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-malaria-node-demographics.html),
+added using [add_node_demographics_report()](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/utils/reports/CustomReport.py#L210),
+reports on node-level counts of individuals by age bin, infection status, and IP if requested:
+
+```python
+from dtk.utils.reports.CustomReport import add_node_demographics_report
+
+cb = DTKConfigBuilder.from_defaults('MALARIA_SIM')
+add_node_demographics_report(cb, IP_key_to_collect='StudyCohort')
+```
+
+To add an IP column to [ReportEventRecorder](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#individual-events)
+that reports the IP value for each individual experiencing the requested events:
+
+```python
+cb.update_params({
+  'Report_Event_Recorder': 1,  # Enable generation of ReportEventRecorder.csv
+  'Report_Event_Recorder_Ignore_Events_In_List': 0, # Logical indicating whether to include or exclude the events specified in the list
+  'Report_Event_Recorder_Events': ['NewClinicalCase', 'Received_Treatment'], # List of events to include
+  'Report_Event_Recorder_Individual_Properties': ['StudyCohort', 'DrugResponseGroup'],
+})
+```
+
 ## Create a model
 
 ![figure](/images/02_highlighted.png)
@@ -895,7 +968,7 @@ detailed in the section [Set up mosquito species](https://faculty-enrich-2022.ne
 
 After those initial parameters are set, habitat can be modified with scaling parameters.
 
-<details><summary><span style="color: blue";">Universal Habitat Scaling (x_Temporary_Larval_Habitat)</span></summary>
+<details><summary><span style="color: blue";">Universal Habitat Scaling</span></summary>
 <p>
 
 ![figure](/images/02_highlighted.png)
@@ -915,7 +988,7 @@ cb.update_params({'x_Temporary_Larval_Habitat': 0.1})
 ```
 </p></details>
 
-<details><summary><span style="color: blue";">Node-Specific Habitat Scaling in Demographics (LarvalHabitatMultiplier)</span></summary>
+<details><summary><span style="color: blue";">Node-Specific Habitat Scaling in Demographics</span></summary>
 <p>
 
 ![figure](/images/01_highlighted.png)
@@ -946,7 +1019,7 @@ the specified habitat for all species.
 </p></details>
 
 
-<details><summary><span style="color: blue";">Dynamic Habitat Scaling during Simulation (ScaleLarvalHabitats)</span></summary>
+<details><summary><span style="color: blue";">Dynamic Habitat Scaling during Simulation</span></summary>
 <p>
 
 ![figure](/images/02_highlighted.png)
@@ -1255,6 +1328,169 @@ EIRscale_factor = 1
 add_InputEIR(cb, start_day=0, EIR_type='DAILY', dailyEIRs=daily_EIR, scaling_factor=EIRscale_factor)
 ```
 
+## Add ITN
+
+![figure](/images/04_highlighted.png)
+
+### Basic ITN without seasonal usage
+
+Insecticide-treated bednets can be distributed with the [add_ITN()](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/interventions/itn.py)
+function, which has many options to configure who is targeted for ITN distribution.
+
+
+```python
+from dtk.interventions.itn import add_ITN
+
+add_ITN(cb,
+        start=365, # starts on first day of second year
+        coverage_by_ages=[
+          {"coverage":1,"min": 0, "max": 10},     # 100% for 0-10 years old
+          {"coverage":0.75,"min": 10, "max": 50}, # 75% for 10-50 years old
+          {"coverage":0.6,"min": 50, "max": 125}  # 60% for everyone else
+        ],
+        repetitions=5, # ITN will be distributed 5 times
+        tsteps_btwn_repetitions: int = 365*3 # three years between ITN distributions
+)
+```
+The default `coverage_by_age` sets coverage to 100% for everyone regardless of age.
+
+ITNs can be delivered at birth by specifying in the `coverage_by_ages` list:
+
+
+```python
+from dtk.interventions.itn import add_ITN
+
+add_ITN(cb,
+        start=365, # starts on first day of second year
+        coverage_by_ages=[
+          { "birth":"birth",  # distribute at birth
+            "coverage":0.5,   # 50% of newborns receive an ITN
+            "duration":34}    # birth-triggered ITN program lasts for 34 days
+        ],
+)
+```
+
+The `waning` arguments configure the strength and duration of the ITN's effects. `dtk-tools` will provide
+[default](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/interventions/itn.py#L82)
+killing, blocking, and usage decay profiles if none are specified by the user:
+1. `Killing_Config`: how well the ITN kills the vector
+2. `Blocking_Config`: how well the ITN blocks the vector from biting
+3. `Repelling_Config`: how well the ITN repels the vector
+4. `Usage_Config`: how long before the user discards their net
+
+The decay profile of any of these configs are specified using
+[WaningEffect classes](https://docs.idmod.org/projects/emod-malaria/en/latest/parameter-campaign-waningeffects.html).
+For example, to change the killing of the ITN to last 10 years at 0.6:
+
+```python
+from dtk.interventions.itn import add_ITN
+
+add_ITN(cb,
+        start=365, # starts on first day of second year
+        coverage_by_ages=[
+          {"coverage":1,"min": 0, "max": 10},     # 100% for 0-10 years old
+          {"coverage":0.75,"min": 10, "max": 50}, # 75% for 10-50 years old
+          {"coverage":0.6,"min": 50, "max": 125}  # 60% for everyone else
+        ],
+        waning={"Killing_Config" : {
+            "Box_Duration": 3650,
+            "Initial_Effect": 0.6,
+            "class": "WaningEffectBox"
+        }
+        },
+        repetitions=5, # ITN will be distributed 5 times
+        tsteps_btwn_repetitions: int = 365*3 # three years between ITN distributions
+)
+```
+
+
+### ITNs with seasonal and leaky usage
+
+People's usage of ITN can change depending on the season, e.g., using the net more during the rainy season to reduce
+nuisance bites, or they may own a net but not use it every day.
+[add_ITN_age_season()](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/interventions/itn_age_season.py)
+allows us to make fine scale usage specifications for ITNs.
+
+While `add_itn_age_season()` is similar to `add_ITN()`, there are several differences. Instead of specifying bednet
+killing, blocking and efficiency and usage all in `waning`, you specify them in separately in `killing_config`,
+`blocking_config`, `repelling_config` and `discard_times`. Additionally, you specify age- and season-dependent usage with
+`age_dependence` and `seasonal_dependence`.
+
+For example:
+
+```python
+from dtk.interventions.itn_age_season import add_ITN_age_season
+seasonal_time = [0.0, 20.0, 21.0, 30.0, 31.0, 365.0]
+seasonal_values = [1.0, 1.0, 0.5, 0.5, 1.0, 1.0]
+add_ITN_age_season(cb,
+                   start=365,
+                   demographic_coverage=0.9,
+                   killing_config={
+                       "Initial_Effect": 0.6,
+                       "Decay_Time_Constant": 1460,
+                       "class": "WaningEffectExponential"},
+                   blocking_config={
+                       "Initial_Effect": 0.9,
+                       "Decay_Time_Constant": 730,
+                       "class": "WaningEffectExponential"},
+                   discard_times={
+                       "Expiration_Period_Distribution": "DUAL_EXPONENTIAL_DISTRIBUTION",
+                       "Expiration_Period_Proportion_1": 0.9,
+                       "Expiration_Period_Mean_1": 365*1.5,
+                       "Expiration_Period_Mean_2": 3650},
+                   age_dependence={'Times': [0, 5, 18],
+                                  'Values': [1, 0.7, 0.2]},
+                   seasonal_dependence={"Times": seasonal_times, "Values": seasonal_values}
+)
+```
+
+In this example, the baseline coverage of ITN is 0.9 specified by `demographic_coverage`. This means that 90% of the
+population will receive an ITN for use. Usage by age starts highest at 0 years old with a scale of 1 (Note actual
+usage is 1 * 0.9 = 0.9) and *linearly* declines to 0.7 at age of 5 years, and then continues to decline to 0.2 at age of
+18 and remains at 0.2 for those over 18.
+
+For season-dependent usage, in this example, usage is 1 throughout the year except between day 21 and day 30 when
+usage is 0.5. Each individual who owns a net uses it with probability of their age-dependent usage value and the
+season-dependent usage value.
+
+The `add_itn_age_season()` function *does not* support repetitions. Therefore, to add multiple rounds of ITN distribution
+in your simulation, you need to call `add_ITN_age_season()` multiple times. Another difference is this function *will*
+automatically add three events into the simulation: `Bednet_Discarded`, `Bednet_Got_New_One` and `Bednet_Using`.
+
+
+## Add IRS
+
+![figure](/images/04_highlighted.png)
+
+IRS campaigns can be added using the [add_IRS()](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/interventions/irs.py) function.
+Adding IRS works very similarly to the simple [add_ITN()](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#add-itn) function.
+
+You can either use the default settings or specify the `killing_config` for the killing efficiency and waning properties
+of the insecticide. The function allows you to specify coverage according to age groups, here is an example:
+
+
+```python
+from dtk.interventions.irs import add_IRS
+add_IRS(cb,
+        start=366, # IRS occurs on first day of second year
+        coverage_by_ages=[
+          {"coverage":1,"min": 0, "max": 10},     # 100% for 0-10 years old
+          {"coverage":0.75,"min": 11, "max": 50}, # 75% for 11-50 years old
+          {"coverage":0.6,"min": 51, "max": 125}  # 60% for everyone else
+        ],
+        killing_config={
+            "class": "WaningEffectBoxExponential",
+            "Box_Duration": 60,
+            "Decay_Time_Constant": 120,
+            "Initial_Effect": 0.6
+        }
+)
+```
+
+Note in this case, the effect of IRS follows [a boxed exponential decay](https://docs.idmod.org/projects/emod-generic/en/latest/parameter-campaign-waningeffects.html?highlight=waning#waningeffectboxexponential)
+with efficacy of first 60 days held constant, before exponential decay kicks in.
+
+
 ## Add larvicides
 
 ![figure](/images/04_highlighted.png)
@@ -1464,83 +1700,6 @@ add_health_seeking(cb, start_day=0,
                    drug=['Artemether', 'Lumefantrine'])
 ```
 
-## Add ITN
-### Simple ITN without seasonal usage pattern
-One of the easiest way to distribute bednet in a simulation, is to use `add_ITN()` function available in the interventions module. 
-
-There are [a number of arguments](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/524e85d443411ef096511a0bdd4f1ea59f6b5817/dtk/interventions/itn.py#L6) that allow you to customize how the ITN is distributed. In a simplistic usage, you can specify the start of ITN distribution of the simulation, and repeat the distribution on a regular interval, and that the ITN coverage differ for specific age groups:
-
-```python
-from dtk.interventions.itn import add_ITN
-add_ITN(cb,
-        start=366, # starts at first day of second year
-        coverage_by_ages=[ 
-          {"coverage":1,"min": 0, "max": 10},     # 100% for 0-10 years old
-          {"coverage":0.75,"min": 11, "max": 50}, # 75% for 11-50 years old
-          {"coverage":0.6,"min": 51, "max": 125}  # 60% for everyone else
-        ],
-        repetitions=1, # ITN will be repeatedly distributed
-        tsteps_btwn_repetitions: int = 365*3 # for every three years till end of simulations
-)
-```
-
-Here, since `insecticide` and `waning` argument is unspecified, The following factors follow the default configuration:
-1. How well ITN kill the vector resting on it over time `Killing_Config`, 
-2. How well ITN block the vector from entering over time `Blocking_Config`, 
-3. How well ITN repel the vector over time `Repelling_Config`, and 
-4. How long before someone discard the net `Usage_Config`
-
-Following code is an example of event triggered bednet distribution, that from the first day of second year in simulation onwards, a clinical or severe case would receive a bednet 14 days after diagnosis:
-
-```python
-add_ITN(cb, 
-        start=366,
-        triggered_campaign_delay=14,
-        trigger_condition_list=["NewClinicalCase", "NewSevereCase"],
-        duration=365)
-```
-
-Note that default `coverage_by_age` is such that coverage for anyone (receiving ITN) would be 100% regardless of age. `duration=365` means the event-triggered distribution of bed net will be going on till the following year. Setting `duration=-1` will allow the campaign to go on until the end of simulation.
-
-### ITN with seasonal usage pattern
-People's usage of ITN can change depending on the season, e.g., using the net more during rainy season to reduce mosquito bites. `add_ITN_age_season()` allows us to make fine scale usage specification to the simulation. 
-
-You can read the detailed arguments [here](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/524e85d443411ef096511a0bdd4f1ea59f6b5817/dtk/interventions/itn_age_season.py#L8). While they are largely similar to `add_ITN()`, there are several differences. Instead of specifying bednet killing, blocking and efficiency and usage all in `waning`, you specify them in separately in `killing_config`, `blocking_config`, `repelling_config` and `discard_times`. Additionally, you specify age- and season-dependent coverage `age_dependence` and `seasonal_dependence`.
-
-It is easier to see how this is done through the very elaborate example below:
-
-```python
-from dtk.interventions.itn_age_season import add_ITN_age_season
-seasonal_time = [0.0, 20.0, 21.0, 30.0, 31.0, 365.0]
-seasonal_values = [1.0, 1.0, 0.0, 0.0, 1.0, 1.0]
-add_ITN_age_season(cb, 
-                   start=366,
-                   demographic_coverage=0.9,
-                   killing_config={
-                       "Initial_Effect": 0.6,
-                       "Decay_Time_Constant": 1460,
-                       "class": "WaningEffectExponential"},
-                   blocking_config={
-                       "Initial_Effect": 0.9,
-                       "Decay_Time_Constant": 730,
-                       "class": "WaningEffectExponential"},
-                   discard_times={
-                       "Expiration_Period_Distribution": "DUAL_EXPONENTIAL_DISTRIBUTION",
-                       "Expiration_Period_Proportion_1": 0.9,
-                       "Expiration_Period_Mean_1": 365*1.5,
-                       "Expiration_Period_Mean_2": 3650},
-                   age_dependence={'Times': [0, 5, 18],
-                                  'Values': [1, 0.7, 0.2]},
-                   seasonal_dependence={"Times": seasonal_times, "Values": seasonal_values}
-)
-```
-
-In this example, the baseline coverage of ITN is 0.9 specified by `demographic_coverage`. The net is distributed on first day of second year of simulation. Coverage by age starts highest or 0 years old with a scale of 1 (Note actual coverage is 1 times 0.9 = 0.9) and *linearly* decline to 0.7 by age of 5 years, and then continue to decline to 0.2 at age of 18. For seasonal dependent coverage, in this rather contrived example the scale of coverage is 1 throughout the year except in between day 21 and day 30 whereby coverage is 0.
-
-Similar to `add_ITN`, you can specify event triggered distribution in this function via `trigger_condition_list`. The function also provides `birth_triggered` as a boolean argument in case ITN is distributed to newborn baby. 
-
-However, this function *does not* support repetitions. Therefore, to add multiple rounds of ITN distribution in your simulation, you need to call the `add_ITN_age_season()` multiple times. Another difference is this function *will* automatically add three events into the simulation: `Bednet_Discarded`, `Bednet_Got_New_One` and `Bednet_Using`.
-
 ## Change drug adherence
 
 ![figure](/images/04_highlighted.png)
@@ -1618,84 +1777,6 @@ def smc_intervention(cb, day, cycles, coverage_level):
                           receiving_drugs_event_name='Received_SMC')
 ```
 
-## Add IRS campaign
-IRS campaign can be added using the `add_IRS()` function provided in the `interventions` module.
-
-You can read more about the arguments available for the function [here](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/524e85d443411ef096511a0bdd4f1ea59f6b5817/dtk/interventions/irs.py#L32). You can specify the choice of `insecticide` if you have already configure one, otherwise, you can either use the default setting or specify the `killing_config` and `blocking_config` corresponding to the killing and blocking efficiency and waning properties of the insecticide here. The function allows you to specify coverage according to age groups, here is an example:
-
-
-```python
-from dtk.interventions.irs import add_IRS
-add_IRS(cb,
-        start=366, # IRS occurs on first day of second year
-        coverage_by_ages=[ 
-          {"coverage":1,"min": 0, "max": 10},     # 100% for 0-10 years old
-          {"coverage":0.75,"min": 11, "max": 50}, # 75% for 11-50 years old
-          {"coverage":0.6,"min": 51, "max": 125}  # 60% for everyone else
-        ],
-        killing_config={
-            "class": "WaningEffectBoxExponential",
-            "Box_Duration": 60,
-            "Decay_Time_Constant": 120,
-            "Initial_Effect": 0.6
-        }
-)
-```
-
-Note in this case, the effect of IRS follows [a boxed exponential decay](https://docs.idmod.org/projects/emod-generic/en/latest/parameter-campaign-waningeffects.html?highlight=waning#waningeffectboxexponential) with efficacy of first 60 days held constant, before exponential decay kicks in.
-
-The IRS can be set to trigger based on certain event using `trigger_condition_list`.
-
-## Add RTS,S Vaccine
-Malaria vaccine campaign can be added using `add_vaccine()` function in the `dtk-tools-malaria` package. Although the function is more generic than this, we walk through the use of the function in implementing RTS,S vaccine through an EPI campaign here. 
-
-### EPI RTS,S distribution
-The RTS,S vaccine schedule is relatively complex. It is common to assume that the first two doses of RTS,S vaccine conveys no protection at all, thus simplifying the campaign specification in the simulation.
-
-
-```python
-from malaria.interventions.malaria_vaccine import add_vaccine
-from dtk.interventions.property_change import change_individual_property
-
-add_vaccine(cb,
-            vaccine_type='RTSS',
-            start_days=366,
-            coverage=0.8,
-            triggered_delay=270,
-            trigger_condition_list=["RTSS_3rddose_eligible"],
-            birthtriggered=True)
-change_individual_property(cb,
-                           target_property_name='VaccineStatus',
-                           target_property_value='GotVaccine',
-                           ind_property_restrictions=[{'VaccineStatus': 'None'}],
-                           trigger_condition_list=['Received_Vaccine'],
-                           blackout_flag=False)
-```
-
-The example above specify that there is an RTSS vaccine campaign, starting on the first day of second year in the simulation. From this day on, any newborn baby will be marked as `RTSS_3rddose_eligible` on 270 days old. The child may then be given 3rd dose of RTS,S (first two doses don't matter due to the assumptions). The coverage of this RTS,S is specified at 80%. 
-
-Moreover, because only children who receive third dose vaccine would go on to receive booster shot eventually, it is important to use individual property to keep track of them when they become eligible for booster. Thus, `change_individual_property` function is introduced to switch someone with a `VaccineStatus` of `None` to `GotVaccine`, when they `Received_Vaccine`.
-
-For the booster shot:
-
-```python
-add_vaccine(cb,
-            vaccine_type='RTSS',
-            start_days=366,
-            coverage=0.8,
-            triggered_delay=730,
-            trigger_condition_list=["RTSS_booster1_eligible"],
-            ind_property_restrictions=[{'VaccineStatus': 'GotVaccine'}],
-            birthtriggered=True)
-change_individual_property(cb,
-                           target_property_name='VaccineStatus',
-                           target_property_value='GotBooster1',
-                           ind_property_restrictions=[{'VaccineStatus': 'GotVaccine'}],
-                           trigger_condition_list=['Received_Vaccine'],
-                           blackout_flag=False)
-```
-
-For those who have received their 3rd dose vaccine, they are eligible for booster shot at the age of 2 years of 730 days old. `ind_property_restrictions` argument is used to ensure these restrictions are imposed when we use `add_vaccine()` for booster shot. Likewise, `change_individual_property` is used to label a person who received their booster dose, which helps bookkeeping, and is particularly important in the event that they are to receive additional boosters.
 
 ## Add diagnostic surveys
 
@@ -1720,6 +1801,109 @@ def diagnostic_survey(cb, sim_day, thresh=10, dose=1):
                           negative_diagnosis_configs=[{'class': 'BroadcastEvent',
                                                        'Broadcast_Event': 'Day_0_negative'}])
 ```
+
+
+## Add vaccine
+
+![figure](/images/04_highlighted.png)
+
+Malaria vaccines can be added using the [add_vaccine()](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/malaria_vaccine.py#L19) function.
+The function is generic: it can handle pre-erythrocytic vaccines, transmission-blocking vaccines, and RTS,S specifically.
+Initial efficacy and decay parameters for RTS,S are set to the EMOD parameterization in Penny et al. 2016.
+
+In this example, a mass campaign is given at 80% coverage on day 365:
+
+```python
+from malaria.interventions.malaria_vaccine import add_vaccine
+
+add_vaccine(cb,
+            vaccine_type='RTSS',
+            start_days=365,
+            coverage=0.8)
+```
+
+
+### Distributing RTS,S through age-based immunization
+
+The RTS,S vaccine schedule is relatively complex, including a 3-dose primary schedule ending at 9 months of age and one
+or more boosters.
+
+The example below specifies an RTS,S vaccine campaign starting day 365. From this day on, any newborn baby will be
+marked as `RTSS_3rddose_eligible` on 270 days old. The child will be given 3rd dose of RTS,S (first two doses don't
+matter due to the assumption of zero efficacy until dose 3) at 80% probability. Any child who receives a dose of
+vaccine also receives the event `Received_Vaccine`, which is specified in `add_vaccine()`.
+
+Because only children who receive third dose vaccine would go on to receive a booster, we use individual properties to
+keep track of who is eligible for a booster. In other parts of the code, we set up an
+[individual property](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#individual-properties)
+`VaccineStatus` that can have be `None` or `GotVaccine`. We use the
+`change_individual_property` function to switch someone with the individual property `VaccineStatus` of `None` to `GotVaccine`,
+when they `Received_Vaccine`.
+
+
+```python
+from malaria.interventions.malaria_vaccine import add_vaccine
+from dtk.interventions.property_change import change_individual_property
+
+add_vaccine(cb,
+            vaccine_type='RTSS',
+            start_days=365,
+            coverage=0.8,
+            triggered_delay=270,
+            trigger_condition_list=["RTSS_3rddose_eligible"],
+            birthtriggered=True)
+
+change_individual_property(cb,
+                           target_property_name='VaccineStatus',
+                           target_property_value='GotVaccine',
+                           ind_property_restrictions=[{'VaccineStatus': 'None'}],
+                           trigger_condition_list=['Received_Vaccine'],
+                           blackout_flag=False)
+```
+
+Those who have received their 3rd dose of vaccine are eligible for a booster at the age of 2 years (730 days) old. The
+`ind_property_restrictions` argument is used to ensure that only those with `VaccineStatus` of `GotVaccine` receive the booster.
+`change_individual_property` is then used change `VaccineStatus` to `GotBooster1`, which helps bookkeeping and is
+particularly important in the event that they are to receive additional boosters.
+
+
+```python
+add_vaccine(cb,
+            vaccine_type='RTSS',
+            start_days=366,
+            coverage=0.8,
+            triggered_delay=730,
+            trigger_condition_list=["RTSS_booster1_eligible"],
+            ind_property_restrictions=[{'VaccineStatus': 'GotVaccine'}],
+            birthtriggered=True)
+
+change_individual_property(cb,
+                           target_property_name='VaccineStatus',
+                           target_property_value='GotBooster1',
+                           ind_property_restrictions=[{'VaccineStatus': 'GotVaccine'}],
+                           trigger_condition_list=['Received_Vaccine'],
+                           blackout_flag=False)
+```
+
+
+
+## Triggered interventions
+
+![figure](/images/04_highlighted.png)
+
+Following code is an example of event triggered bednet distribution, that from the first day of second year in
+simulation onwards, a clinical or severe case would receive a bednet 14 days after diagnosis:
+
+```python
+add_ITN(cb,
+        start=366,
+        triggered_campaign_delay=14,
+        trigger_condition_list=["NewClinicalCase", "NewSevereCase"],
+        duration=365)
+```
+
+`duration=365` means the event-triggered distribution of bed net will be going on till the following year. Setting
+`duration=-1` will allow the campaign to go on until the end of simulation.
 
 
 ## Using the model builder to set up multi-simulation experiments
@@ -1920,7 +2104,7 @@ would be created.
 ![figure](/images/02_highlighted.png)
 
 To pick up from the end of a saved burn-in simulation, and run for some additional time, you need the name of the state*.dtk 
-file from the burn-in and the path to the state-*.dtk file. If you know the path to the state-*.dtk, you can specify it 
+file from the burn-in and the path to the .dtk file. If you know the path to the .dtk file, you can specify it
 directly:
 
 

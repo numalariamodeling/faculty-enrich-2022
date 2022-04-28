@@ -628,6 +628,7 @@ transitions. Once the desired properties are coded they can be added to the refe
 generated based on the reference file.
 
 Building on the creation of a new demographics file as shown [here](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/#create-a-demographics-file):
+
 ```{python,eval=F}
 from input_file_generation.add_properties_to_demographics import generate_demographics_properties
 
