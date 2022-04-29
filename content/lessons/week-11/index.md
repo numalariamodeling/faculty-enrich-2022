@@ -7,6 +7,10 @@ weight: 12
 
 <!--more-->
 
+### Logistics
+
+- Friday August 12: Journal club
+
 ### Technical track (EMOD)
 
 Topic: Advanced EMOD: HBHI workflow as a complex example
@@ -27,7 +31,8 @@ EMOD research project in-progress presentations.
 
 Presenter: (add presenter name)
 
-Selvaraj P, Wenger EA, Bridenbecker D, Windbichler N, Russell JR, Gerardin J, Bever CA, Nikolov M. [Vector genetics, insecticide resistance and gene drives: An agent-based modeling approach to evaluate malaria transmission and elimination.](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1008121) PLoS computational biology. 2020 Aug 14;16(8):e1008121.
+Ozodiegwu ID, Ambrose M, Galatas B, Runge M, Nandi A, Okuneye K, Dhanoa NP, Maikore I, Uhomoibhi P, Bever C, Noor A, Gerardin J.
+[Application of mathematical modeling to inform national malaria intervention planning in Nigeria.](https://northwestern.box.com/s/1esdm0mwqmdqxrtu6ct1mduxyfef50x7)
 
 ### Proposal writing
 

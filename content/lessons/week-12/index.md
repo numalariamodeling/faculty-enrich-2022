@@ -7,6 +7,10 @@ weight: 13
 
 <!--more-->
 
+### Logistics
+
+- Wednesday August 17, 11am: peer editing hour
+
 ### Technical track (EMOD)
 
 Topic: Advanced EMOD: Spatial modeling in EMOD

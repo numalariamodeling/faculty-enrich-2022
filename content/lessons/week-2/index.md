@@ -7,6 +7,12 @@ weight: 3
 
 <!--more-->
 
+### Logistics
+
+- Tuesday June 7, 10am: AMMnet seminar
+- Wednesday June 8, 11am: peer editing hour
+- Wednesday June 8 1pm: Manuela IGH WIP
+
 ### Technical track (EMOD)
 
 Topic: Basic building blocks of EMOD

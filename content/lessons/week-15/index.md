@@ -9,7 +9,12 @@ weight: 16
 
 ### Logistics
 
-September 6: holiday
+- Manuela out all week
+- Monday Sept 6: holiday
+- Tuesday Sept 7, 10am: AMMnet seminar
+- Tuesday Sept 7, 11am: capacity development conversation with IDM
+- Friday Sept 10: journal club
+- Friday Sept 10: final draft of Aims pages due
 
 ### Technical track (EMOD)
 
@@ -24,7 +29,7 @@ Prepare slide decks for final EMOD research project presentations.
 
 Presenter: (add presenter name)
 
-Gerardin J, Bever CA, Bridenbecker D, Hamainza B, Silumbe K, Miller JM, Eisele TP, Eckhoff PA, Wenger EA. [Effectiveness of reactive case detection for malaria elimination in three archetypical transmission settings: a modelling study.](https://malariajournal.biomedcentral.com/articles/10.1186/s12936-017-1903-z) Malaria journal. 2017 Dec;16(1):1-7.
+Selvaraj P, Wenger EA, Bridenbecker D, Windbichler N, Russell JR, Gerardin J, Bever CA, Nikolov M. [Vector genetics, insecticide resistance and gene drives: An agent-based modeling approach to evaluate malaria transmission and elimination.](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1008121) PLoS computational biology. 2020 Aug 14;16(8):e1008121.
 
 ### Proposal writing
 

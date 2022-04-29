@@ -8,7 +8,10 @@ weight: 2
 
 ### Logistics
 
-May 30: Holiday
+- Monday May 30: Holiday
+- Wednesday June 1, 1pm: Tobias IGH WIP talk
+- Friday June 3, 12pm: Fredros Okumu IGH First Friday talk
+- Friday June 3: Journal club
 
 ### Technical track (EMOD)
 

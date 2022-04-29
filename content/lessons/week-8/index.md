@@ -7,6 +7,11 @@ weight: 9
 
 <!--more-->
 
+### Logistics
+
+- Ghislaine visiting this week!
+- Wednesday July 20, 11am: peer editing hour
+
 ### Technical track (EMOD)
 
 Topic: Individual properties

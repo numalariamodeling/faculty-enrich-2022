@@ -7,6 +7,10 @@ weight: 8
 
 <!--more-->
 
+### Logistics
+
+- Friday July 15: Journal club
+
 ### Technical track (EMOD)
 
 Topic: Sweeping and calibration

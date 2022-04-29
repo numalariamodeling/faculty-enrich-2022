@@ -7,6 +7,10 @@ weight: 6
 
 <!--more-->
 
+### Logistics
+
+- Friday July 1: Journal club
+
 ### Technical track (EMOD)
 
 No technical instruction this week.
@@ -19,8 +23,7 @@ Prepare slide decks for EMOD research project in-progress presentations.
 
 Presenter: (add presenter name)
 
-Ozodiegwu ID, Ambrose M, Galatas B, Runge M, Nandi A, Okuneye K, Dhanoa NP, Maikore I, Uhomoibhi P, Bever C, Noor A, Gerardin J.
-[Application of mathematical modeling to inform national malaria intervention planning in Nigeria.](https://northwestern.box.com/s/1esdm0mwqmdqxrtu6ct1mduxyfef50x7)
+Gerardin J, Bertozzi-Villa A, Eckhoff PA, Wenger EA. [Impact of mass drug administration campaigns depends on interaction with seasonal human movement.](https://academic.oup.com/inthealth/article/10/4/252/4965024?login=true) International health. 2018 Jul 1;10(4):252-7.
 
 ### Proposal writing
 

@@ -7,6 +7,8 @@ weight: 17
 
 <!--more-->
 
+### Logistics
+
 ### Technical track (EMOD)
 
 No technical instruction this week.

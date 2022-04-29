@@ -7,6 +7,11 @@ weight: 14
 
 <!--more-->
 
+### Logistics
+
+- Wednesday August 24, 11am: Prashanth Selvaraj presentation on vector genetics and gene drives
+- Friday August 26: Journal club
+
 ### Technical track (EMOD)
 
 Topic: Advanced EMOD: gene drive and reactive interventions
@@ -21,7 +26,8 @@ Topic: Advanced EMOD: gene drive and reactive interventions
 
 Presenter: (add presenter name)
 
-Gerardin J, Bertozzi-Villa A, Eckhoff PA, Wenger EA. [Impact of mass drug administration campaigns depends on interaction with seasonal human movement.](https://academic.oup.com/inthealth/article/10/4/252/4965024?login=true) International health. 2018 Jul 1;10(4):252-7.
+Gerardin J, Bever CA, Bridenbecker D, Hamainza B, Silumbe K, Miller JM, Eisele TP, Eckhoff PA, Wenger EA. [Effectiveness of reactive case detection for malaria elimination in three archetypical transmission settings: a modelling study.](https://malariajournal.biomedcentral.com/articles/10.1186/s12936-017-1903-z) Malaria journal. 2017 Dec;16(1):1-7.
+
 
 ### Proposal writing
 

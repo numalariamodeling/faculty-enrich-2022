@@ -9,7 +9,11 @@ weight: 7
 
 ### Logistics
 
-July 4: holiday
+- Monday July 4: holiday
+- Tuesday July 5, 10am: AMMnet seminar
+- Tuesday July 5, 11am: capacity development conversation with IDM
+- Wednesday July 6, 11am: peer editing hour
+- Friday July 8: Third draft Aims page due
 
 ### Technical track (EMOD)
 

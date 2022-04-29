@@ -6,6 +6,11 @@ weight: 4
 
 <!--more-->
 
+### Logistics
+
+- Wednesday June 15: Second draft Aims page due
+- Friday June 17: Journal club
+
 ### Technical track (EMOD)
 
 Topic: Interventions in EMOD

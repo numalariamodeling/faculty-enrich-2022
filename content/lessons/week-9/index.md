@@ -7,6 +7,10 @@ weight: 10
 
 <!--more-->
 
+### Logistics
+
+- Friday July 29: Journal club
+
 ### Technical track (EMOD)
 
 Topic: Infusing simulations with real data
