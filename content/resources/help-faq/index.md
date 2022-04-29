@@ -12,9 +12,7 @@ Your question might have been answered in one of the available resources linked 
 - [EMOD How To's](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/)
 - [IDM's EMOD malaria model documentation](https://docs.idmod.org/projects/emod-malaria/en/latest/index.html)
 - [Slack help channel](https://nu-idm-malaria.slack.com/archives/C013UV3NTL7)
-- [SLURM guide](https://slurm.schedmd.com/faq.html) _(for use on NUCLUSTER)_
-- [Quest Quick Start Guide](https://kb.northwestern.edu/page.php?id=70706) _(for use on NUCLUSTER)_
-
+- [EMOD Quest resource page](https://faculty-enrich-2022.netlify.app/resources/emod_quest/)
 
 ##  Troubleshooting
 
@@ -33,5 +31,4 @@ Your question might have been answered in one of the available resources linked 
 - [Notepad ++](https://notepad-plus-plus.org/) for enhanced text file editing especially useful (much also available for pycharm)
    - i.e. json plugin, compare functionality
 - [JSON introduction](https://www.w3schools.com/js/js_json_intro.asp)  at W3Schools (JSON = JavaScript Object Notation)  
-- [MobaXterm](https://mobaxterm.mobatek.net/) or [FastX](https://www.starnet.com/fastx/) for connecting to a cluster (not required for COMPS)
 

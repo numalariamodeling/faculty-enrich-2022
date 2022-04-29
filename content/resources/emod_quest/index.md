@@ -6,10 +6,15 @@ weight: 2
 
 <!--more-->
 
-### Install EMOD, dtk-tools and dtk-tools malaria 
+Northwesterns University's high performance computing (HPC) system is called Quest, you can read more about Quest [here](https://www.it.northwestern.edu/research/user-services/quest/overview.html).
 
-#### Installation steps for `NUCLUSTER`
+Good to know:
+- Connect to Quest using the software [MobaXterm](https://mobaxterm.mobatek.net/) or [FastX](https://www.starnet.com/fastx/) .
+- The  [Quest Quick Start Guide](https://kb.northwestern.edu/page.php?id=70706) provide useful information to get started and find help to common questions and issues when using Quest.
+- On the cluster, the SLURM job scheduling system is used [SLURM guide](https://slurm.schedmd.com/faq.html).
 
+
+### Installation steps for EMOD and dtk on Quest (`NUCLUSTER`)
 
 <details><summary>1. Configuring your bash and python environments</summary>
 <p>
