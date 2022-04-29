@@ -22,15 +22,16 @@ Your question might have been answered in one of the available resources linked 
 
 
 ##  Useful additional software or plugins
-
-- [MobaXterm](https://mobaxterm.mobatek.net/) or [FastX](https://www.starnet.com/fastx/) for connecting to a cluster (not required for COMPS)
-- Useful [Pycharm](https://www.jetbrains.com/pycharm/) plugins _(at least when coming from R background)_: 
+- [Git clients](https://git-scm.com/downloads/guis)
+  - [GitHub Desktop](https://desktop.github.com/)
+  - [Sourcetree](https://www.sourcetreeapp.com/)
+- Useful [Pycharm](https://www.jetbrains.com/pycharm/) plugins _(when coming from R background)_: 
     - [Rainbow brackets](https://plugins.jetbrains.com/plugin/10080-rainbow-brackets)
     - [Indent Rainbow](https://plugins.jetbrains.com/plugin/13308-indent-rainbow)
     - [Kite](https://www.kite.com/integrations/pycharm/) for advanced syntax checking and autocompletion 
     - [R](https://www.jetbrains.com/help/pycharm/r-plugin-support.html) for Pycharm
-- [Notepad ++](https://notepad-plus-plus.org/) for enhanced text file editing (much also available for pycharm)
+- [Notepad ++](https://notepad-plus-plus.org/) for enhanced text file editing especially useful (much also available for pycharm)
    - i.e. json plugin, compare functionality
-- ...  
-
+- [JSON introduction](https://www.w3schools.com/js/js_json_intro.asp)  at W3Schools (JSON = JavaScript Object Notation)  
+- [MobaXterm](https://mobaxterm.mobatek.net/) or [FastX](https://www.starnet.com/fastx/) for connecting to a cluster (not required for COMPS)
 

@@ -1308,7 +1308,7 @@ add_ITN(cb,
           {"coverage":0.6,"min": 50, "max": 125}  # 60% for everyone else
         ],
         repetitions=5, # ITN will be distributed 5 times
-        tsteps_btwn_repetitions: int = 365*3 # three years between ITN distributions
+        tsteps_btwn_repetitions= 365*3 # three years between ITN distributions
 )
 ```
 The default `coverage_by_age` sets coverage to 100% for everyone regardless of age.
@@ -1765,7 +1765,7 @@ from malaria.interventions.malaria_vaccine import add_vaccine
 
 add_vaccine(cb,
             vaccine_type='RTSS',
-            start_days=365,
+            start_days=[365],
             coverage=0.8)
 ```
 
