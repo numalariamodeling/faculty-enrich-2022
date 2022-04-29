@@ -4,8 +4,6 @@ title: Week 3 - June 13
 weight: 4
 ---
 
-<!--more-->
-
 ### Logistics
 
 - Wednesday June 15: Second draft Aims page due
@@ -40,3 +38,24 @@ Tanzania.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.022
 ### Proposal writing
 
 Second draft of Aims page due Wednesday. Feedback sessions on Aims pages.
+
+---
+
+## Interventions in EMOD
+
+Malaria interventions that can be readily added into the simulations are:
+- [Case management](/modules/emod-how-to/emod-how-to/#add-case-management) (Better treatment seeking behaviour can reduce malaria burden and transmission)
+- Insecticide-based intervention
+    + [ITN](/modules/emod-how-to/emod-how-to/#add-itn) (Insecticide-treated bed nets)
+    + [IRS](/modules/emod-how-to/emod-how-to/#add-irs) (Indoor residual spraying)
+- [Larvicides](/modules/emod-how-to/emod-how-to/#add-larvicides)
+- Antimalarial drug campaigns
+- Malaria vaccine
+
+You can add these campaigns to your campaign builder object through either `dtk-tools` or `dtk-tools-malaria` functions. We will go through the each of these examples available in the "How To's" (click the links above to go to the corresponding sections).
+
+For antimalarial drug campaigns, we can use a single function `add_drug_campaign()` ([See here](/modules/emod-how-to/emod-how-to/#add-drug-campaigns)) to cover campaigns such as mass drug administration (MDA), mass screen and test (MSAT), and their variants, as well as seasonal malaria chemotherapy (SMC). Note that intermittent preventive treatment in infancy (IPTi) or in pregnancy (IPTp) is not directly available in the simulation. Since not everyone adhere to taking the full course of drugs, it is important to adjust drug adherence accordingly, which is [easily specified using an additional function](/modules/emod-how-to/emod-how-to/#change-drug-adherence). We have calibrated the parameters for most of the drugs, and you can see them [here](https://github.com/InstituteforDiseaseModeling/dtk-tools-malaria/blob/master/malaria/interventions/malaria_drugs.py).
+
+For malaria vaccine, because vaccine schedule and booster requirement can be elaborate, we will [walk through an example](/modules/emod-how-to/emod-how-to/#add-vaccine) of how to distribute RTSS vaccine via age-based immunization program.
+
+When someone receive an intervention, e.g., treatment from seeking care, getting a bednet etc., an "event" would be generated and broadcasted. These "events" allow us to do bookkeeping, and ensure the intervention is properly specified.
