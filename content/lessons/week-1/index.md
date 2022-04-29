@@ -4,8 +4,6 @@ title: Week 1 - May 31
 weight: 2
 ---
 
-<!--more-->
-
 ### Logistics
 
 - Monday May 30: Holiday
@@ -40,3 +38,15 @@ Malar J 19, 101 (2020).
 ### Evaluation
 
 Baseline participant survey and interviews.
+
+---
+
+## Overview of EMOD
+
+### Installations of softwares for development and for EMOD
+We will have a tutorial session to walk you through the installations of various softwares required for EMOD, as well as for the ease of developing your code.
+
+- [Understanding the basics of Git and cloning repository](/modules/git-intro)
+- [Installing Python, `dtk-tools` and `dtk-tools-malaria`](/modules/install-emod/)
+- Installing [PyCharm Community Edition](https://www.jetbrains.com/pycharm/download/#section=windows) (This is an integrated development environment IDE specializes in Python. Very helpful for coding purpose, but you can choose other IDE, e.g., VS Code or Notepad++ if you want)
+- Cloning of [example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples) for this program
