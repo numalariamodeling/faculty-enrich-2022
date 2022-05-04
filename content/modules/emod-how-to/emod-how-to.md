@@ -2175,3 +2175,347 @@ builder = ModBuilder.from_list([[...,
           for r,row in ser_df.iterrows()   # Run pick-up from each unique burn-in scenario
           ])
 ```
+
+
+## Analyze experiments
+
+![figure](/images/07_highlighted.png)
+
+Most of [EMOD generated output files](https://docs.idmod.org/projects/emod-malaria/en/latest/software-outputs.html?highlight=output) are in json format (with the exception of ReportEventRecorder.csv).
+In `dtk` _Analyzer_ functions facilitate extracting information from these json files to produce results in csv or as figure.
+
+
+__Required modules__
+
+
+```python
+import os
+import datetime
+import pandas as pd
+import numpy as np
+from simtools.Analysis.AnalyzeManager import AnalyzeManager
+from simtools.Analysis.BaseAnalyzers import BaseAnalyzer
+from simtools.SetupParser import SetupParser
+```
+
+
+
+
+__Basic structure of an Analyzer__
+
+The Analyzer Class needs to be defined using a meaningful name, i.e. `InsetChartAnalyzer` for an analyzer that processes   `InsetChart.json` outputs.
+A [class](https://docs.python.org/3/tutorial/classes.html) in Python that allows constructing custom objects with associated attributes and functions.
+
+Each class starts with a definition of custom parameters and objects attributes via  `__init__` and `self`. This requires few edits across simulation experiments but stay relatively unchanged within the same experiment setup.
+
+The `select_simulation_data` then is a custom function applied to extract data from the json file and needs to be modified the most across different EMOD output files.
+
+Finally, the `finalize` checks the extracted data and then saves or plots the data. The checking of the simulation stays mostly the same across simulations while the part of processing the simulation data is highly variable across projects and depends on the desired results.
+
+
+
+```python
+class InsetChartAnalyzer(BaseAnalyzer): ...
+
+    # 1 - Definition of custom parameters and object attributes
+    def __init__(self, ...
+
+    # Optional
+    def filter ...
+
+    # 2 - Extract and select data from the json output files
+    def select_simulation_data ...
+
+    # 3 - Check the extracted data and then save or plot the data
+    def finalize ...
+```
+
+
+### Analyze InsetChart
+The InsetChartAnalyzer is used to explain the structure in detail.
+
+<details><summary><span style="color: blue";">1 Setup analyzer class & define parameters </span></summary>
+<p>
+
+You don't need to understand the python fundamentals in depths, just what each line does and what to modify.
+- The first two line including the `__init__(self,..` and `super` is required in each analyzer class.
+- Note that in the second line `filenames=["output/InsetChart.json"]` defines the EMOD output json file to be analyzed. It is written in a list as sometimes 2 or more json files need to be read into the class.
+
+- The following lines that start with `self.` are required as they attach each parameter value to `self`  which allows easy access to any of them via the `self` object.
+- The parameters `expt_name`, `sweep_variables` , `channels`  , `start_year` , `end_year` are required too in the conventional analyzers but can be extended with additional parameters if needed.
+  - These parameters allow to take in experiment specific values, for instance simulation `start_year` is used to convert timesteps into date-time values.
+  - The `end_year` parameter is needed for some analyzers that have the year written in the filename.
+  - The `channels` is an optional parameter as it takes default values if not specified, if the outcome channels always stay the same for a particular analyzer, it could also be removed from the first line.
+
+
+
+```python
+    def __init__(self, expt_name, sweep_variables=None, channels=None, working_dir=".", start_year=2022, end_year=2023):
+        super(MonthlyInsetChartAnalyzer, self).__init__(working_dir=working_dir, filenames=["output/InsetChart.json"])
+        self.sweep_variables = sweep_variables or ["Run_Number"]
+        self.channels = channels or  ['Statistical Population', 'New Clinical Cases', 'New Severe Cases', 'PfHRP2 Prevalence']
+        self.expt_name = expt_name
+        self.start_year = start_year
+        self.end_year = end_year
+```
+
+</p>
+</details>
+
+
+
+<details><summary><span style="color: blue";">2 Select simulation data</span></summary>
+<p>
+
+The `select_simulation_data` is a custom function that will change the most when adapting an analyzer to different EMOD outputs.
+In most instances `def select_simulation_data(self, data, simulation):` stays unchanged (all custom parameters are stored in `self`.
+The second line is key as it reads in the data from the json file keeping only channels that have been selected as specified per user or defaults.
+
+In the example below using `InsetChart.json`, the data is for the total population with lengths of data values corresponding to the simulation timesteps.
+Hence  `simdata.index` can be written into `simdata['Time']` and used to create additional variables for Day, Month and Year that are easier to work with.
+
+The next step in the code chunk replaces blank values with zeros for `New Clinical Cases` and `New Severe Cases`.
+
+Since `InsetChart.json` reports per timestep while monthly output often is sufficient, the simdata is then aggregated,
+distinguishing between outcomes that are numbers and need to be summed from rate or ratios that are averaged.
+
+Finally, the sweep variable corresponding to the specific simulations of the experiment run needs to be attached and the dataframe is returned and automatically passed on to the next and final step of the analyzer.
+
+
+```python
+    def select_simulation_data(self, data, simulation):
+        simdata = pd.DataFrame({x: data[self.filenames[0]]['Channels'][x]['Data'] for x in self.inset_channels})
+        simdata['Time'] = simdata.index
+        simdata['Day'] = simdata['Time'] % 365
+        simdata['Month'] = simdata['Day'].apply(lambda x: self.monthparser((x + 1) % 365))
+        simdata['Year'] = simdata['Time'].apply(lambda x: int(x / 365) + self.start_year)
+        simdata['date'] = simdata.apply(lambda x: datetime.date(int(x['Year']), int(x['Month']), 1), axis=1)
+
+        sum_channels = ['New Clinical Cases', 'New Severe Cases']
+        for x in [y for y in sum_channels if y not in simdata.columns.values]:
+            simdata[x] = 0
+        mean_channels = ['Statistical Population', 'PfHRP2 Prevalence']
+
+        df = simdata.groupby(['date', 'Month'])[sum_channels].agg(np.sum).reset_index()
+        pdf = simdata.groupby(['date', 'Month'])[mean_channels].agg(np.mean).reset_index()
+        simdata = pd.merge(left=pdf, right=df, on=['date', 'Month'])
+
+        for sweep_var in self.sweep_variables:
+            if sweep_var in simulation.tags.keys():
+                simdata[sweep_var] = simulation.tags[sweep_var]
+        return simdata
+```
+
+
+</p>
+</details>
+
+
+<details><summary><span style="color: blue";">3 Finalize </span></summary>
+<p>
+
+This part checks the simulation data and saves results into the specified working_dir/expt_name subfolder.
+All up to where the dataframe is saved stays the same across analyzers and output files, whereas the saving of the csv and anything else after (i.e. plotting) can be customized.
+
+
+
+
+```python
+    def finalize(self, all_data):
+
+        selected = [data for sim, data in all_data.items()]
+        if len(selected) == 0:
+            print("No data have been returned... Exiting...")
+            return
+
+        if not os.path.exists(os.path.join(self.working_dir, self.expt_name)):
+            os.mkdir(os.path.join(self.working_dir, self.expt_name))
+
+        adf = pd.concat(selected).reset_index(drop=True)
+        adf.to_csv(os.path.join(self.working_dir, self.expt_name, 'All_Age_Monthly_Cases.csv'), index=False)
+```
+
+</p>
+</details>
+
+
+
+
+
+<details><summary><span style="color: blue";">Optional analyzer extensions and helper functions</span></summary>
+<p>
+
+For instance selecting only simulations that successfully ran.
+
+
+```python
+    def filter(self, simulation):
+        if self.filter_exists:
+            file = os.path.join(simulation.get_path(), self.filenames[0])
+            return os.path.exists(file)
+        else:
+            return True
+```
+
+
+Helper function to convert months.
+
+```python
+    @classmethod
+    def monthparser(self, x):
+        if x == 0:
+            return 12
+        else:
+            return datetime.datetime.strptime(str(x), '%j').month
+```
+
+
+
+</p>
+</details>
+
+
+### Analyze MalariaSummaryReport
+
+The summary reports aggregate the monitored simulation outputs into user-specified agebins and monitoring intervals, which needs to be accounted for.
+Compared to the `InsetChartAnalyzer`  it includes additional steps for reading in multiple json files.
+
+
+
+```python
+class MonthlyPfPRAnalyzerU5(BaseAnalyzer):
+
+    def __init__(self, expt_name, sweep_variables=None, working_dir='./', start_year=2020, end_year=2023):
+
+        super(MonthlyPfPRAnalyzerU5, self).__init__(working_dir=working_dir,
+                                                    filenames=[ f"output/MalariaSummaryReport_Monthly_U5_{x}.json"
+                                                                for x in range(start_year, end_year)]
+                                                    )
+```
+
+
+Within each summary report the json channel `DataByTimeAndAgeBins` reports monitored outputs per _time_ and _age_ it therefore needs to be indexed twice, one for selecting time range and one for selecting agebin.
+This line `d = data[fname]['DataByTimeAndAgeBins']['PfPR by Age Bin'][:12]` writes values from the json file (`fname`) for the outcome `'PfPR by Age Bin'` into `d` for the first 12 values that correspond to the months in this case.
+Note if an annual summary report would have been defined with a monitoring interval of 365 written into a single file, the 12 could correspond to 12 years (and the for loop would not be needed).
+The next line `pfpr = [x[1] for x in d]` then selects the second value (python indexing starts at 0!) from the data list `d`. Here the index need to be changed depending on the desired age group and defined age bins.
+In this example the agebins were `[0.25, 5, 120]` and we are not interested in children <0.25 years old but 0.25-5 years old.
+
+The steps are repeated for each outcome channel of interest, here shown for `'Annual Clinical Incidence by Age Bin'`, `'Annual Severe Incidence by Age Bin'`, and `'Average Population by Age Bin'`.
+And all outcomes are combined into a single dataframe.
+
+Attaching the sweep variable for the respective simulation is done the same way across analyzers.
+
+
+```python
+    def select_simulation_data(self, data, simulation):
+
+        adf = pd.DataFrame()
+        for year, fname in zip(range(self.start_year, self.end_year), self.filenames):
+            d = data[fname]['DataByTimeAndAgeBins']['PfPR by Age Bin'][:12]
+            pfpr = [x[1] for x in d]
+            d = data[fname]['DataByTimeAndAgeBins']['Annual Clinical Incidence by Age Bin'][:12]
+            clinical_cases = [x[1] for x in d]
+            d = data[fname]['DataByTimeAndAgeBins']['Annual Severe Incidence by Age Bin'][:12]
+            severe_cases = [x[1] for x in d]
+            d = data[fname]['DataByTimeAndAgeBins']['Average Population by Age Bin'][:12]
+            pop = [x[1] for x in d]
+            simdata = pd.DataFrame({'month': range(1, 13),
+                                    'PfPR U5': pfpr,
+                                    'Cases U5': clinical_cases,
+                                    'Severe cases U5': severe_cases,
+                                    'Pop U5': pop})
+            simdata['year'] = year
+            adf = pd.concat([adf, simdata])
+
+        for sweep_var in self.sweep_variables:
+            if sweep_var in simulation.tags.keys():
+                    adf[sweep_var] = simulation.tags[sweep_var]
+        return adf
+```
+
+
+
+### Analyze ReportEventRecorder
+
+The ReportEventRecorder is in csv format instead of json and includes events for each single individual in the simulation per event that happened.
+Some individuals occur multiple times in the csv file while other might not appear even once, depending on the events specified (i.e. if `Births` are specified every new individual born in the simulation will appear at least once)/
+Note, the name _IndividualEventsAnalyzer_ can be customized and is not fixed.
+
+
+```python
+class IndividualEventsAnalyzer(BaseAnalyzer):
+
+    def __init__(self, expt_name, sweep_variables=None, working_dir='./', start_year=2022, selected_year=None):
+        super(IndividualEventsAnalyzer, self).__init__(working_dir=working_dir,
+                                                       filenames=["output/ReportEventRecorder.csv"]
+                                                       )
+```
+
+
+
+```python
+    def select_simulation_data(self, data, simulation):
+
+        simdata = pd.DataFrame(data[self.filenames[0]])
+        simdata['Day'] = simdata['Time'] % 365
+        simdata['Month'] = simdata['Day'].apply(lambda x: self.monthparser((x + 1) % 365))
+        simdata['Year'] = simdata['Time'].apply(lambda x: int(x / 365) + self.start_year)
+        if self.selected_year is not None:
+            simdata = simdata.loc[(simdata['Year'] == self.selected_year)]
+
+        for sweep_var in self.sweep_variables:
+            if sweep_var in simulation.tags.keys():
+                try:
+                    simdata[sweep_var] = simulation.tags[sweep_var]
+                except:
+                    simdata[sweep_var] = '-'.join([str(x) for x in simulation.tags[sweep_var]])
+        return simdata
+```
+
+
+
+### Analyze ReportEventCounter
+
+In the example below, the `ReportMalariaFiltered.json` is read in addition to  `ReportEventCounter.json` to obtain not only number of individuals who received and intervention but also the total population per timestep in the simulation.
+Note, the name _ReceivedCampaignAnalyzer_ can be customized and is not fixed.
+
+
+```python
+class ReceivedCampaignAnalyzer(BaseAnalyzer):
+
+    def __init__(self, expt_name, channels=None, sweep_variables=None, working_dir='./', start_year=2022):
+        super(ReceivedCampaignAnalyzer, self).__init__(working_dir=working_dir,
+                                                       filenames=["output/ReportEventCounter.json",
+                                                                 "output/ReportMalariaFiltered.json"])
+                                                       )
+```
+
+
+
+```python
+    def select_simulation_data(self, data, simulation):
+
+        simdata = pd.DataFrame({x: data[self.filenames[1]]['Channels'][x]['Data'] for x in self.inset_channels})
+        simdata['Time'] = simdata.index
+
+        if self.channels:
+            d = pd.DataFrame({x: data[self.filenames[0]]['Channels'][x]['Data'] for x in self.channels})
+            # d = pd.DataFrame({x: data[self.filenames[0]]['Channels'][x]['Data'][:len(simdata)] for x in self.channels})
+            d['Time'] = d.index
+            simdata = pd.merge(left=simdata, right=d, on='Time')
+
+        simdata['Day'] = simdata['Time'] % 365
+        simdata['Month'] = simdata['Day'].apply(lambda x: self.monthparser((x + 1) % 365))
+        simdata['Year'] = simdata['Time'].apply(lambda x: int(x / 365) + self.start_year)
+
+        if self.selected_year is not None:
+            simdata = simdata.loc[(simdata['Year'] == self.selected_year)]
+
+        for sweep_var in self.sweep_variables:
+            if sweep_var in simulation.tags.keys():
+                try:
+                    simdata[sweep_var] = simulation.tags[sweep_var]
+                except:
+                    simdata[sweep_var] = '-'.join([str(x) for x in simulation.tags[sweep_var]])
+        return simdata
+```
