@@ -13,6 +13,7 @@ weight: 7
 - Tuesday July 5, 10am: AMMnet seminar
 - Tuesday July 5, 11am: capacity development conversation with IDM
 - Wednesday July 6, 11am: peer editing hour
+- Wednesday July 6, 1pm: Annie IGH WIP
 - Friday July 8: Third draft Aims page due
 
 ### Technical track (EMOD)

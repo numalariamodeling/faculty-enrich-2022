@@ -11,7 +11,6 @@ weight: 5
 
 - Monday June 20: Holiday
 - Wednesday June 22, 11am: peer editing hour
-- Wednesday June 22, 1pm: Annie IGH WIP
 
 ### Technical track (EMOD)
 
