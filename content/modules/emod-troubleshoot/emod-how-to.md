@@ -5,7 +5,8 @@ title: Troubleshooting
 weight: 5
 ---
 
-Here is a series of common problems that we face when getting EMOD to work, and the potential solutions. If your problem is not in here, and you figured it out, please consider documenting them here!
+Here is a series of common problems that we face when getting EMOD to work, and the potential solutions. If your problem is not in here, and you figured it out, please consider documenting them here!  
+For general troubleshooting and additional helpful tools you may also check out ['Troubleshooting & more'](https://faculty-enrich-2022.netlify.app/resources/help-faq/) under resources.
 
 {{< toc >}}
 
