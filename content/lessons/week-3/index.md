@@ -32,9 +32,17 @@ Topic: Interventions in EMOD
 
 Presenter: (add presenter name)
 
+Facilitator: Manuela
+
 Runge M, Snow RW, Molteni F, Thawer S, Mohamed A, Mandike R, Giorgi E, Macharia PM, Smith TA, Lengeler C, Pothin E. 
 [Simulating the council-specific impact of anti-malaria interventions: a tool to support malaria strategic planning in 
 Tanzania.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0228469) PloS one. 2020 Feb 19;15(2):e0228469.
+
+Additional recommended reading:
+
+Maire N, Smith T, Ross A, Owusu-Agyei S, Dietz K, Molineaux L. [A model for natural immunity to asexual blood stages of Plasmodium falciparum malaria in endemic areas.](https://researchonline.lshtm.ac.uk/id/eprint/1319763/) The American journal of tropical medicine and hygiene. 2006;75(2 Supp):19-31.
+
+Smith T, Maire N, Dietz K, Killeen GF, Vounatsou P, Molineaux L, Tanner M. [Relationship between the entomologic inoculation rate and the force of infection for Plasmodium falciparum malaria.](https://core.ac.uk/download/pdf/11306892.pdf) The American journal of tropical medicine and hygiene. 2006 Aug 1;75(2_suppl):11-8.
 
 ### Proposal writing
 

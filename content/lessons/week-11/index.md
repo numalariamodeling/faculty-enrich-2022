@@ -31,8 +31,15 @@ EMOD research project in-progress presentations.
 
 Presenter: (add presenter name)
 
+Facilitator: Ifeoma
+
 Ozodiegwu ID, Ambrose M, Galatas B, Runge M, Nandi A, Okuneye K, Dhanoa NP, Maikore I, Uhomoibhi P, Bever C, Noor A, Gerardin J.
 [Application of mathematical modeling to inform national malaria intervention planning in Nigeria.](https://northwestern.box.com/s/1esdm0mwqmdqxrtu6ct1mduxyfef50x7)
+
+Additional recommended reading:
+
+World Health Organization. [High burden to high impact: a targeted malaria response.](https://apps.who.int/iris/bitstream/handle/10665/275868/WHO-CDS-GMP-2018.25-eng.pdf) World Health Organization; 2018.
+
 
 ### Proposal writing
 
