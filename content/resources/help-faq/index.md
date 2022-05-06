@@ -9,12 +9,13 @@ weight: 3
 ## Getting help 
 Your question might have been answered in one of the available resources linked below:
 
+- [EMOD Troubleshooting](https://faculty-enrich-2022.netlify.app/modules/emod-troubleshoot/emod-how-to/)
 - [EMOD How To's](https://faculty-enrich-2022.netlify.app/modules/emod-how-to/emod-how-to/)
-- [IDM's EMOD malaria model documentation](https://docs.idmod.org/projects/emod-malaria/en/latest/index.html)
 - [Slack help channel](https://nu-idm-malaria.slack.com/archives/C013UV3NTL7)
+- [IDM's EMOD malaria model documentation](https://docs.idmod.org/projects/emod-malaria/en/latest/index.html)
 - [EMOD Quest resource page](https://faculty-enrich-2022.netlify.app/resources/emod_quest/)
 
-##  Troubleshooting
+##  General Troubleshooting
 
 [to do]
 
