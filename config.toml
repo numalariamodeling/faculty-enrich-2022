@@ -50,8 +50,8 @@ meta_twitter_creator = '@nu_modeling'
 meta_twitter_site = '@nu_modeling'
 
 [params.logo]
-mobile = 'favicon.png'
-standard = '/images/numm-logo.svg'
+mobile = '/images/small_logo.svg'
+standard = '/images/small_logo.svg'
 
 [outputFormats]
   [outputFormats.html]
