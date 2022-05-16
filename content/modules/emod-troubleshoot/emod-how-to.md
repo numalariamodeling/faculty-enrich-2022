@@ -14,7 +14,10 @@ For general troubleshooting and additional helpful tools you may also check out 
 
 > After running the experiment script, the software will display the progress of your experiments, e.g., how many simulations are in progress, how many succeeded. Sometimes you see that one or more simulations within your experiment has failed.
 
-There can be a whole lot of reasons why your simulations failed. It could be that your input folder is set up incorrectly or that your system doesn't have enough memory. The first step to troubleshoot is to look out for `StdErr.txt` files for your output. This is located at your experiment output folders (check `simtools.ini` if you don't know where they are). Navigate to the corresponding experiment folder and the simulation subfolder. If you're running multiple simulations within an experiment, look for simulation that you know has failed. `StdErr.txt` is located in the simulation subfolder, and often provide good pointer to what has caused the simulation to fail. Here's an example:
+There can be a whole lot of reasons why your simulations failed. It could be that your input folder is set up incorrectly or that your system doesn't have enough memory. The first step to troubleshoot is to look out for `StdErr.txt` files for your output. This is located at your experiment output folders (check `simtools.ini` if you don't know where they are). Navigate to the corresponding experiment folder and the simulation subfolder. If you're running multiple simulations within an experiment, look for simulation that you know has failed. `StdErr.txt` is located in the simulation subfolder, and often provide good pointer to what has caused the simulation to fail.
+
+### Possible reason 1: Memory not enough
+Here's an example:
 
 ```
 00:00:00 [0] [E] [Eradication] 
@@ -24,6 +27,14 @@ Memory allocation failure: try reducing the memory footprint of your simulation 
 ```
 
 This indicate that other apps and programs are taking up too much memories in your computer that there aren't enough for the `Eradication.exe`. You can try to close some of the background processes and apps, or you may need to reboot your computer.
+
+### Possible reason 2: `msmpi.dll` issue
+
+> There are times when your `StdErr.txt` has no error message, and yet the Simulation(s) failed. Try running the `Eradication.exe` in its folder. Without additional argument, the program should return following message: `For full usage, run: Eradication.exe --help` 
+
+If the program does not produce message like this, this is hinting at the lack of `msmpi.dll` in your operating system. You can [download and install](https://www.microsoft.com/en-us/download/details.aspx?id=100593) the MS-MPI, and run `Eradication.exe` again and see if you get the message mentioned in the quoate.
+
+
 
 ## Analyzers don't return results
 
