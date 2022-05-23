@@ -21,7 +21,7 @@ weight: 7
 <details><summary><span style="color: blue";">Set python interpreter</span></summary>
 <p>
 
-![figure](/gif/set_interpreter.gif)
+![figure](/gif/set_interpreter.gif)  
 _Note: In this example the dtk environment is called venv_
 
 </p>
@@ -33,7 +33,7 @@ _Note: In this example the dtk environment is called venv_
 
 
 
-![figure](/gif/run_from_terminal.gif)
+![figure](/gif/run_from_terminal.gif)   
 _Tip: Use the tab key to autocomplete the name of the file while typing_
 
 </p>
@@ -44,7 +44,7 @@ _Tip: Use the tab key to autocomplete the name of the file while typing_
 
 
 
-![figure](/gif/run_from_pycharm.gif)
+![figure](/gif/run_from_pycharm.gif)  
 
 
 </p>
@@ -56,7 +56,7 @@ _Tip: Use the tab key to autocomplete the name of the file while typing_
 
 
 
-![figure](/gif/run_interactively.gif)
+![figure](/gif/run_interactively.gif)  
 _Note: Use the shortcut SHIFT+ALT+E (windows) to interactively send code to the python console_
 
 
