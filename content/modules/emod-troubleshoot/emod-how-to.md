@@ -34,6 +34,29 @@ This indicate that other apps and programs are taking up too much memories in yo
 
 If the program does not produce message like this, this is hinting at the lack of `msmpi.dll` in your operating system. You can [download and install](https://www.microsoft.com/en-us/download/details.aspx?id=100593) the MS-MPI, and run `Eradication.exe` again and see if you get the message mentioned in the quoate.
 
+### Possible reason 3: something wrong in the simulation input files
+
+
+#### CheckIpKeyInWhitelist 
+<details><summary><span style="color: blue";">1 Setup analyzer class & define parameters </span></summary>
+<p>
+```
+00:00:01 [0] [E] [Eradication] 
+
+GeneralConfigurationException: 
+Exception in utils\BaseProperties.cpp at 631 in Kernel::BaseFactory::CheckIpKeyInWhitelist.
+Invalid IndividualProperties key 'Access' found in demographics file. Use one of: 'Accessibility', 'Age_Bin', 'Geographic', 'HasActiveTB', 'InterventionStatus', 'Place', 'QualityOfCare', 'Risk', 
+```
+
+The custom defined IP 'Access' is not valid (not found in Whitelist) .
+Solution: Disable Whitelist
+
+```
+cb.update_params('Disable_IP_Whitelist' : 1)
+```
+
+</p>
+</details>
 
 
 ## Analyzers don't return results
