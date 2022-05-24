@@ -7,7 +7,6 @@ weight: 4
 ### Logistics
 
 - Wednesday June 15: Second draft Aims page due
-- Wednesday June 15, 1pm: Ousmane IGH WIP
 - Friday June 17: Journal club
 
 ### Technical track (EMOD)
