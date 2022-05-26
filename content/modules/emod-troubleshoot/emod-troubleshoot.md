@@ -37,9 +37,9 @@ If the program does not produce message like this, this is hinting at the lack o
 ### Possible reason 3: something wrong in the simulation input files
 
 
-#### CheckIpKeyInWhitelist 
-<details><summary><span style="color: blue";">1 Setup analyzer class & define parameters </span></summary>
+<details><summary><span style="color: blue";">CheckIpKeyInWhitelist</span></summary>
 <p>
+
 ```
 00:00:01 [0] [E] [Eradication] 
 
