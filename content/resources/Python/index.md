@@ -7,7 +7,7 @@ weight: 7
 
 
 ### Python resources
-- [PyCharm](https://www.jetbrains.com/pycharm/) (IDE for python), + useful [Keyboard shortcuts](https://www.jetbrains.com/help/pycharm/mastering-keyboard-shortcuts.html)
+- [PyCharm](https://www.jetbrains.com/pycharm/) (IDE for python), + useful [Keyboard shortcuts](https://www.jetbrains.com/help/pycharm/mastering-keyboard-shortcuts.html) or [plugins](https://www.jetbrains.com/help/pycharm/managing-plugins.html)
 - [Learn python](https://www.learnpython.org/)
 - [Code academy](https://www.codecademy.com/catalog/language/python) some free intro tutorials/projects
 - [Dataquest access, free through NU on a quarter system](https://www.dataquest.io/) (click on start free)
