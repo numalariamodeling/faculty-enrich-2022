@@ -37,7 +37,11 @@ Research talks by program participants on previous or ongoing projects.
 
 ### Journal club
 
-No journal club this week.
+Presenter: (add presenter name)
+
+Runge, M., Molteni, F., Mandike, R. et al. [Applied mathematical modelling to inform national malaria policies, 
+strategies and operations in Tanzania.](https://malariajournal.biomedcentral.com/articles/10.1186/s12936-020-03173-0) 
+Malar J 19, 101 (2020).
 
 ### Proposal writing
 
