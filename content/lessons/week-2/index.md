@@ -31,6 +31,10 @@ Topic: Basic building blocks of EMOD
     + Implement in own research project
 - [=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-2-basic-building-blocks-of-emod-)
 
+### Presentations
+
+Research talks by program participants on previous or ongoing projects.
+
 ### Journal club
 
 No journal club this week.

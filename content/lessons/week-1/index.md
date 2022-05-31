@@ -24,10 +24,6 @@ Topic: Overview of EMOD
 - Learn basic EMOD simulation workflow and run a barebones `ExampleSim` (Obj 2a, 2c)
 - [=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-1-overview-of-emod-)
 
-### Presentations
-
-Research talks by program participants on previous or ongoing projects.
-
 ### Journal club
 
 Presenter: (add presenter name)
