@@ -9,6 +9,7 @@ weight: 3
 
 ### Logistics
 
+- Monday June 6, 10am: group meeting (participant research talks)
 - Tuesday June 7, 10am: AMMnet seminar
 - Wednesday June 8, 11am: peer editing hour
 - Wednesday June 8 1pm: Manuela IGH WIP
