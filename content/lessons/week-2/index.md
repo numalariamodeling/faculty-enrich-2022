@@ -11,6 +11,7 @@ weight: 3
 
 - Monday June 6, 10am: group meeting (participant research talks)
 - Tuesday June 7, 10am: AMMnet seminar
+- Wednesday June 8, 10am: Journal club
 - Wednesday June 8, 11am: peer editing hour
 - Wednesday June 8 1pm: Manuela IGH WIP
 
@@ -37,7 +38,7 @@ Research talks by program participants on previous or ongoing projects.
 
 ### Journal club
 
-Presenter: (add presenter name)
+Presenter: Jaline
 
 Runge, M., Molteni, F., Mandike, R. et al. [Applied mathematical modelling to inform national malaria policies, 
 strategies and operations in Tanzania.](https://malariajournal.biomedcentral.com/articles/10.1186/s12936-020-03173-0) 

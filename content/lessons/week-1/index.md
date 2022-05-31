@@ -10,7 +10,6 @@ weight: 2
 - Wednesday June 1, 10am: Manuela IGH WIP practice talk
 - Wednesday June 1, 1pm: Tobias IGH WIP talk
 - Friday June 3, 12pm: Fredros Okumu IGH First Friday talk
-- Friday June 3: Journal club
 
 ### Technical track (EMOD)
 
