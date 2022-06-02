@@ -9,9 +9,7 @@ weight: 2
 - Monday May 30: Holiday
 - Wednesday June 1, 10am: Manuela IGH WIP practice talk
 - Wednesday June 1, 1pm: Tobias IGH WIP talk
-- Friday June 3, 10am: Ousmane IGH WIP practice talk
 - Friday June 3, 12pm: Fredros Okumu IGH First Friday talk
-- Friday June 3: Journal club
 
 ### Technical track (EMOD)
 
@@ -25,17 +23,9 @@ Topic: Overview of EMOD
 - Learn basic EMOD simulation workflow and run a barebones `ExampleSim` (Obj 2a, 2c)
 - [=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-1-overview-of-emod-)
 
-### Presentations
-
-Research talks by program participants on previous or ongoing projects.
-
 ### Journal club
 
-Presenter: (add presenter name)
-
-Runge, M., Molteni, F., Mandike, R. et al. [Applied mathematical modelling to inform national malaria policies, 
-strategies and operations in Tanzania.](https://malariajournal.biomedcentral.com/articles/10.1186/s12936-020-03173-0) 
-Malar J 19, 101 (2020).
+No journal club this week.
 
 ### Evaluation
 
