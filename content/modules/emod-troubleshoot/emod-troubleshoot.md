@@ -32,7 +32,7 @@ This indicate that other apps and programs are taking up too much memories in yo
 
 > There are times when your `StdErr.txt` has no error message, and yet the Simulation(s) failed. Try running the `Eradication.exe` in its folder. Without additional argument, the program should return following message: `For full usage, run: Eradication.exe --help` 
 
-If the program does not produce message like this, this is hinting at the lack of `msmpi.dll` in your operating system. You can [download and install](https://www.microsoft.com/en-us/download/details.aspx?id=100593) the MS-MPI, and run `Eradication.exe` again and see if you get the message mentioned in the quoate.
+If the program does not produce message like this, this is hinting at the lack of `msmpi.dll` in your operating system. You can [download and install](https://www.microsoft.com/en-us/download/details.aspx?id=57467) the MS-MPI, and run `Eradication.exe` again and see if you get the message mentioned in the quoate.
 
 ### Possible reason 3: something wrong in the simulation input files
 
