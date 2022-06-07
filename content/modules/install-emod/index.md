@@ -34,7 +34,8 @@ EMOD is easiest to install (and use) in Windows.
 6. Activate the virtual environment of your choice.
     + Command: `dtk\Scripts\activate`
     + You *should* notice now your prompt is preceded by `(dtk)` (or name of your environment)
-    + Note if you see the error message 'activate.ps1 cannot be loaded because running scripts is disabled on this system' you need to use a different terminal than powershell ([about_Execution_Policies](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies?view=powershell-7.2)).
+    + Note if you see the error message 'activate.ps1 cannot be loaded because running scripts is disabled on this system' you can either set the execution policies to allow you to run Powershell script, or use a different terminal than powershell ([about_Execution_Policies](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies?view=powershell-7.2)). 
+    + To set the execution policies, run Powershell as an administrator. Type "powershell" in your search bar, when the "Windows powershell" app pops up, right click on it, and "Run as administrator". Then type `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned`. This step lets your Powershell to execute scripts that are at least remotely signed. Then you can go back to your original terminal to activate the virtual environment.
 7. Now it's time to install `dtk-tools` and its associated packages. Clone the git repository to wherever you want it to be. Navigate over.
     + Say `C:\Users\(username)\work`. 
     + Navigate to the cloned repository, say `C:\Users\(username)\work\dtk-tools`
@@ -59,3 +60,4 @@ EMOD is easiest to install (and use) in Windows.
 3. In your terminal, run the `run_exampleSim.py` script in the `examples` subfolder.
     + Command: `python run_exampleSim.py`
 4. If the simulation runs successfully, both `dtk-tools` and `dtk-tools-malaria` are successfully installed in your machine.
+5. If it failed, you can cross-check with the [troubleshooting sections](/modules/emod-troubleshoot/).
