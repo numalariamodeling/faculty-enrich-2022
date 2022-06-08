@@ -10,6 +10,7 @@ weight: 8
 ### Logistics
 
 - Friday July 15: Journal club
+- Annie out all week
 
 ### Technical track (EMOD)
 

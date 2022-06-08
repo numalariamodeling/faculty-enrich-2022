@@ -12,6 +12,7 @@ weight: 5
 - Monday June 20: Holiday
 - Wednesday June 22, 11am: peer editing hour
 - Ben out Tuesday
+- Annie out Tues - Thurs
 
 ### Technical track (EMOD)
 
