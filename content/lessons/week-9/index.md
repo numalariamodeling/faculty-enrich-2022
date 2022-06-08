@@ -10,6 +10,7 @@ weight: 10
 ### Logistics
 
 - Friday July 29: Journal club
+- Jaline out
 
 ### Technical track (EMOD)
 

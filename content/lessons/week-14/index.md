@@ -10,7 +10,6 @@ weight: 15
 ### Logistics
 
 - Manuela out on Friday
-- Wednesday August 31, 11am: peer editing hour
 
 ### Technical track (EMOD)
 

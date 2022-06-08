@@ -8,6 +8,7 @@ weight: 4
 
 - Wednesday June 15: Second draft Aims page due
 - Friday June 17: Journal club
+- Ben out Wed - Fri
 
 ### Technical track (EMOD)
 
@@ -29,7 +30,7 @@ Topic: Interventions in EMOD
 
 ### Journal club
 
-Presenter: (add presenter name)
+Presenter: Ethel
 
 Facilitator: Manuela
 

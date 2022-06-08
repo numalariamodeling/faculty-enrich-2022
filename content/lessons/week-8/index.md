@@ -9,7 +9,7 @@ weight: 9
 
 ### Logistics
 
-- Ghislaine visiting this week!
+- Ghislaine and Edgard visiting this week!
 - Wednesday July 20, 11am: peer editing hour
 - Wednesday July 20, 1pm: Ousmane IGH WIP
 

@@ -12,7 +12,6 @@ weight: 3
 - Monday June 6, 10am: group meeting (participant research talks)
 - Tuesday June 7, 10am: AMMnet seminar
 - Wednesday June 8, 10am: Journal club
-- Wednesday June 8, 11am: peer editing hour
 - Wednesday June 8 1pm: Manuela IGH WIP
 
 ### Technical track (EMOD)

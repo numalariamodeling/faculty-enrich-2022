@@ -10,7 +10,6 @@ weight: 11
 ### Logistics
 
 - Tuesday August 2, 10am: AMMnet seminar
-- Wednesday August 3, 11am: peer editing hour
 - Friday August 5: Fourth draft Aims page due
 
 ### Technical track (EMOD)
