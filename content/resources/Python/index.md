@@ -36,6 +36,12 @@ _Note: In this example the dtk environment is called venv_
 ![figure](/gif/run_from_terminal.gif)   
 _Tip: Use the tab key to autocomplete the name of the file while typing_
 
+The program used in the terminal is often per default cmd.exe.
+If this needs to be changed (i.e. to powershell or vice versa) this can be achieved in File -> Settings -> Tools -> Terminal  
+
+![figure](/images/pycharm_terminal_settings.png)     
+
+
 </p>
 </details>
 
@@ -63,3 +69,4 @@ _Note: Use the shortcut SHIFT+ALT+E (windows) to interactively send code to the 
 _Tip: Running in interactive mode is helpful for debugging code, add print or error capturing statements to facilitate checking each step (as shown in running from pycharm)_
 </p>
 </details>
+

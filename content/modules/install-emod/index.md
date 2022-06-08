@@ -23,8 +23,8 @@ EMOD is easiest to install (and use) in Windows.
     + In the "System variables" section, look out for the "Path" entry, double click on it.
     + Here you will need to fill in the path to your `python.exe` **and** `pip.exe`
     + This is typically in `C:\Users\(username)\AppData\Local\Programs\Python\Python36` and `C:\Users\(username)\AppData\Local\Programs\Python\Python36\Scripts`. Both are required to be added.
-3. Now launch your powershell. And navigate to your "work folder" (e.g., mine is `C:\Users\(username)\`)
-    + Easiest way is to type "powershell" in your search bar.
+3. Now launch your powershell (or other terminal such as CMD, or PyCharm terminal). And navigate to your "work folder" (e.g., mine is `C:\Users\(username)\`)
+    + Easiest way is to type "powershell" in your search bar  (or "echo %homepath%" in cmd/ pycharm terminal").
     + If not, you can go to "Start" menu and look for it.
 4. Install `virtualenv` using `pip`
     + Command: `pip install virtualenv`
@@ -34,14 +34,18 @@ EMOD is easiest to install (and use) in Windows.
 6. Activate the virtual environment of your choice.
     + Command: `dtk\Scripts\activate`
     + You *should* notice now your prompt is preceded by `(dtk)` (or name of your environment)
+    + Note if you see the error message 'activate.ps1 cannot be loaded because running scripts is disabled on this system' you can either set the execution policies to allow you to run Powershell script, or use a different terminal than powershell ([about_Execution_Policies](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies?view=powershell-7.2)). 
+    + To set the execution policies, run Powershell as an administrator. Type "powershell" in your search bar, when the "Windows powershell" app pops up, right click on it, and "Run as administrator". Then type `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned`. This step lets your Powershell to execute scripts that are at least remotely signed. Then you can go back to your original terminal to activate the virtual environment.
 7. Now it's time to install `dtk-tools` and its associated packages. Clone the git repository to wherever you want it to be. Navigate over.
     + Say `C:\Users\(username)\work`. 
     + Navigate to the cloned repository, say `C:\Users\(username)\work\dtk-tools`
 8. Install the tool using `setup_manual.py` script
     + Command: `python setup_manual.py`
     + Yes, there is a `setup.py` script but we typically have better success using the separate script
-9. If you don't see any noticeable error messages, use `dtk version` command to verify if you successfully installed the `dtk-tools`
+9. If you don't see any noticeable error messages, use `dtk version` command to verify if you successfully installed the `dtk-tools`, if successful you will see the image below:
 
+![figure](/images/dtk_version.png)  
+</br>
 ### Steps to install `dtk-tools-malaria`
 1. Clone the git repository to wherever you want it to be. Navigate over.
 2. Activate the virtual environment of your choice, if you haven't already.
@@ -53,6 +57,7 @@ EMOD is easiest to install (and use) in Windows.
 ### Verify that you are all set!
 1. Navigate to the `dtk-tools-malaria` folder and go to the `examples` subfolder.
 2. Edit the `simtools.ini` (using PyCharm or Notepad++) to make sure that they are pointing to the right path. I.e., change all the `path\to` to correspond to the location of your `dtk-tools-malaria` folder.
-3. In powershell, run the `run_exampleSim.py` script in the `examples` subfolder.
+3. In your terminal, run the `run_exampleSim.py` script in the `examples` subfolder.
     + Command: `python run_exampleSim.py`
 4. If the simulation runs successfully, both `dtk-tools` and `dtk-tools-malaria` are successfully installed in your machine.
+5. If it failed, you can cross-check with the [troubleshooting sections](/modules/emod-troubleshoot/).
