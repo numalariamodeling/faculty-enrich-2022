@@ -2393,7 +2393,7 @@ Attaching the sweep variable for the respective simulation is done the same way 
 
         for sweep_var in self.sweep_variables:
             if sweep_var in simulation.tags.keys():
-                    adf[sweep_var] = simulation.tags[sweep_var]
+                 adf[sweep_var] = simulation.tags[sweep_var]
         return adf
 
 ```
@@ -2401,8 +2401,12 @@ Attaching the sweep variable for the respective simulation is done the same way 
 
 ### Analyze ReportEventCounter
 
-In the example below, the `ReportMalariaFiltered.json` is read in addition to  `ReportEventCounter.json` to obtain not only number of individuals who received and intervention but also the total population per timestep in the simulation.
-Note, the name _ReceivedCampaignAnalyzer_ can be customized and is not fixed.
+The ReportEventCounter, InsetChart, and ReportMalariaFiltered json outputs all have very similar structure, so an analyzer
+written for one of these output types can usually be easily adapted for another.
+
+In the example below, the `InsetChart.json` is read in addition to  `ReportEventCounter.json` to obtain not
+only number of individuals who received and intervention but also the total population per timestep in the simulation.
+Data from both output files are combined into the same dataframe.
 
 ```{python, eval=F}
 
@@ -2411,42 +2415,26 @@ class ReceivedCampaignAnalyzer(BaseAnalyzer):
     def __init__(self, expt_name, channels=None, sweep_variables=None, working_dir='./', start_year=2022):
         super(ReceivedCampaignAnalyzer, self).__init__(working_dir=working_dir,
                                                        filenames=["output/ReportEventCounter.json",
-                                                                 "output/ReportMalariaFiltered.json"])
-                                                       )
-
-```
-
-
-```{python, eval=F}
+                                                                  "output/InsetChart.json"])
+        self.sweep_variables = sweep_variables or ["Run_Number"]
+        self.channels = channels or ['Received_Treatment']
+        self.start_year = start_year
+        self.expt_name = expt_name
 
     def select_simulation_data(self, data, simulation):
 
-        simdata = pd.DataFrame({x: data[self.filenames[1]]['Channels'][x]['Data'] for x in self.inset_channels})
+        simdata = pd.DataFrame({x: data[self.filenames[0]]['Channels'][x]['Data'] for x in self.channels})
+        simdata['Population'] = data[self.filenames[1]]['Channels']['Statistical Population']['Data']
         simdata['Time'] = simdata.index
-
-        if self.channels:
-            d = pd.DataFrame({x: data[self.filenames[0]]['Channels'][x]['Data'] for x in self.channels})
-            # d = pd.DataFrame({x: data[self.filenames[0]]['Channels'][x]['Data'][:len(simdata)] for x in self.channels})
-            d['Time'] = d.index
-            simdata = pd.merge(left=simdata, right=d, on='Time')
-
         simdata['Day'] = simdata['Time'] % 365
         simdata['Month'] = simdata['Day'].apply(lambda x: self.monthparser((x + 1) % 365))
         simdata['Year'] = simdata['Time'].apply(lambda x: int(x / 365) + self.start_year)
 
-        if self.selected_year is not None:
-            simdata = simdata.loc[(simdata['Year'] == self.selected_year)]
-
         for sweep_var in self.sweep_variables:
             if sweep_var in simulation.tags.keys():
-                try:
-                    simdata[sweep_var] = simulation.tags[sweep_var]
-                except:
-                    simdata[sweep_var] = '-'.join([str(x) for x in simulation.tags[sweep_var]])
+                 simdata[sweep_var] = simulation.tags[sweep_var]
         return simdata
-
 ```
-
 
 
 
