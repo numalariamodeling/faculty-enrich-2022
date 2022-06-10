@@ -2335,32 +2335,33 @@ Helper function to convert months.
 
 ### Analyze MalariaSummaryReport
 
-The summary reports aggregate the monitored simulation outputs into user-specified agebins and monitoring intervals, which needs to be accounted for.
-Compared to the `InsetChartAnalyzer`  it includes additional steps for reading in multiple json files.
+The summary report aggregates the monitored simulation outputs into user-specified agebins, monitoring intervals,
+and/or parasitemia bins. Outputs such as prevalence by age, incidence by age, and parasite density by age can be
+obtained through the summary report. Multiple summary reports can be requested in the simulation run script, and analyzers
+can be built to handle working with multiple summary reports.
 
 
 ```{python, eval=F}
 
-class MonthlyPfPRAnalyzerU5(BaseAnalyzer):
+class AnnualAgebinPfPRAnalyzer(BaseAnalyzer):
 
-    def __init__(self, expt_name, sweep_variables=None, working_dir='./', start_year=2020, end_year=2023):
+    def __init__(self, expt_name, sweep_variables=None, working_dir='./', start_year=2022,
+                 end_year=2025, burnin=None):
 
-        super(MonthlyPfPRAnalyzerU5, self).__init__(working_dir=working_dir,
-                                                    filenames=[ f"output/MalariaSummaryReport_Monthly_U5_{x}.json"
-                                                                for x in range(start_year, end_year)]
-                                                    )
-
+        super(AnnualAgebinPfPRAnalyzer, self).__init__(working_dir=working_dir,
+                                                       filenames=["output/MalariaSummaryReport_Annual_Agebin.json"])
 ```
 
 
-Within each summary report the json channel `DataByTimeAndAgeBins` reports monitored outputs per _time_ and _age_ it therefore needs to be indexed twice, one for selecting time range and one for selecting agebin.
-This line `d = data[fname]['DataByTimeAndAgeBins']['PfPR by Age Bin'][:12]` writes values from the json file (`fname`) for the outcome `'PfPR by Age Bin'` into `d` for the first 12 values that correspond to the months in this case.
-Note if an annual summary report would have been defined with a monitoring interval of 365 written into a single file, the 12 could correspond to 12 years (and the for loop would not be needed).
-The next line `pfpr = [x[1] for x in d]` then selects the second value (python indexing starts at 0!) from the data list `d`. Here the index need to be changed depending on the desired age group and defined age bins.
-In this example the agebins were `[0.25, 5, 120]` and we are not interested in children <0.25 years old but 0.25-5 years old.
+Documentation on the summary report is [here](https://docs.idmod.org/projects/emod-malaria/en/latest/software-report-malaria-summary.html).
+If you are writing a new summary report analyzer, you will need to know which part of the summary report contains the data you need.
 
-The steps are repeated for each outcome channel of interest, here shown for `'Annual Clinical Incidence by Age Bin'`, `'Annual Severe Incidence by Age Bin'`, and `'Average Population by Age Bin'`.
-And all outcomes are combined into a single dataframe.
+Within each summary report the channel `DataByTimeAndAgeBins` reports monitored outputs per _time_ and _age_ it therefore
+needs to be indexed twice, one for selecting time range and one for selecting agebin. The outer list is time and the inner list is age.
+
+In this example, the data of interest is in `DataByTimeAndAgeBins`: we extract, for each age group, annually-aggregated
+PfPR, clinical incidence, severe incidence, and population. All outcomes are combined into a dataframe for each age group, then
+the age-specific dataframes are concatenated into a single dataframe.
 
 Attaching the sweep variable for the respective simulation is done the same way across analyzers.
 
@@ -2369,21 +2370,25 @@ Attaching the sweep variable for the respective simulation is done the same way 
     def select_simulation_data(self, data, simulation):
 
         adf = pd.DataFrame()
-        for year, fname in zip(range(self.start_year, self.end_year), self.filenames):
-            d = data[fname]['DataByTimeAndAgeBins']['PfPR by Age Bin'][:12]
-            pfpr = [x[1] for x in d]
-            d = data[fname]['DataByTimeAndAgeBins']['Annual Clinical Incidence by Age Bin'][:12]
-            clinical_cases = [x[1] for x in d]
-            d = data[fname]['DataByTimeAndAgeBins']['Annual Severe Incidence by Age Bin'][:12]
-            severe_cases = [x[1] for x in d]
-            d = data[fname]['DataByTimeAndAgeBins']['Average Population by Age Bin'][:12]
-            pop = [x[1] for x in d]
-            simdata = pd.DataFrame({'month': range(1, 13),
-                                    'PfPR U5': pfpr,
-                                    'Cases U5': clinical_cases,
-                                    'Severe cases U5': severe_cases,
-                                    'Pop U5': pop})
-            simdata['year'] = year
+
+        nyears = (self.end_year - self.start_year)
+        age_bins = data[self.filenames[0]]['Metadata']['Age Bins']
+        d = data[self.filenames[0]]['DataByTimeAndAgeBins']
+
+        for age in range(len(age_bins)):
+
+            pfpr = [x[age] for x in d['PfPR by Age Bin'][:nyears]]
+            clinical_cases = [x[age] for x in d['Annual Clinical Incidence by Age Bin'][:nyears]]
+            severe_cases = [x[age] for x in d['Annual Severe Incidence by Age Bin'][:nyears]]
+            pop = [x[age] for x in d['Average Population by Age Bin'][:nyears]]
+
+            simdata = pd.DataFrame({'year': range(self.start_year, self.end_year),
+                                    'PfPR': pfpr,
+                                    'Cases': clinical_cases,
+                                    'Severe cases': severe_cases,
+                                    'Pop': pop})
+
+            simdata['agebin'] = age_bins[age]
             adf = pd.concat([adf, simdata])
 
         for sweep_var in self.sweep_variables:
@@ -2392,48 +2397,6 @@ Attaching the sweep variable for the respective simulation is done the same way 
         return adf
 
 ```
-
-
-
-### Analyze ReportEventRecorder
-
-The ReportEventRecorder is in csv format instead of json and includes events for each single individual in the simulation per event that happened.
-Some individuals occur multiple times in the csv file while other might not appear even once, depending on the events specified (i.e. if `Births` are specified every new individual born in the simulation will appear at least once)/
-Note, the name _IndividualEventsAnalyzer_ can be customized and is not fixed.
-
-```{python, eval=F}
-
-class IndividualEventsAnalyzer(BaseAnalyzer):
-
-    def __init__(self, expt_name, sweep_variables=None, working_dir='./', start_year=2022, selected_year=None):
-        super(IndividualEventsAnalyzer, self).__init__(working_dir=working_dir,
-                                                       filenames=["output/ReportEventRecorder.csv"]
-                                                       )
-
-```
-
-
-```{python, eval=F}
-
-    def select_simulation_data(self, data, simulation):
-
-        simdata = pd.DataFrame(data[self.filenames[0]])
-        simdata['Day'] = simdata['Time'] % 365
-        simdata['Month'] = simdata['Day'].apply(lambda x: self.monthparser((x + 1) % 365))
-        simdata['Year'] = simdata['Time'].apply(lambda x: int(x / 365) + self.start_year)
-        if self.selected_year is not None:
-            simdata = simdata.loc[(simdata['Year'] == self.selected_year)]
-
-        for sweep_var in self.sweep_variables:
-            if sweep_var in simulation.tags.keys():
-                try:
-                    simdata[sweep_var] = simulation.tags[sweep_var]
-                except:
-                    simdata[sweep_var] = '-'.join([str(x) for x in simulation.tags[sweep_var]])
-        return simdata
-
-```
-
 
 
 ### Analyze ReportEventCounter
@@ -2483,3 +2446,46 @@ class ReceivedCampaignAnalyzer(BaseAnalyzer):
         return simdata
 
 ```
+
+
+
+
+### Analyze ReportEventRecorder
+
+The ReportEventRecorder is in csv format instead of json and includes events for each single individual in the simulation per event that happened.
+Some individuals occur multiple times in the csv file while other might not appear even once, depending on the events specified (i.e. if `Births` are specified every new individual born in the simulation will appear at least once)/
+Note, the name _IndividualEventsAnalyzer_ can be customized and is not fixed.
+
+```{python, eval=F}
+
+class IndividualEventsAnalyzer(BaseAnalyzer):
+
+    def __init__(self, expt_name, sweep_variables=None, working_dir='./', start_year=2022, selected_year=None):
+        super(IndividualEventsAnalyzer, self).__init__(working_dir=working_dir,
+                                                       filenames=["output/ReportEventRecorder.csv"]
+                                                       )
+
+```
+
+
+```{python, eval=F}
+
+    def select_simulation_data(self, data, simulation):
+
+        simdata = pd.DataFrame(data[self.filenames[0]])
+        simdata['Day'] = simdata['Time'] % 365
+        simdata['Month'] = simdata['Day'].apply(lambda x: self.monthparser((x + 1) % 365))
+        simdata['Year'] = simdata['Time'].apply(lambda x: int(x / 365) + self.start_year)
+        if self.selected_year is not None:
+            simdata = simdata.loc[(simdata['Year'] == self.selected_year)]
+
+        for sweep_var in self.sweep_variables:
+            if sweep_var in simulation.tags.keys():
+                try:
+                    simdata[sweep_var] = simulation.tags[sweep_var]
+                except:
+                    simdata[sweep_var] = '-'.join([str(x) for x in simulation.tags[sweep_var]])
+        return simdata
+
+```
+
