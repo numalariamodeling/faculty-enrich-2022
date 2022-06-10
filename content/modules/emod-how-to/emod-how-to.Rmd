@@ -2441,39 +2441,65 @@ class ReceivedCampaignAnalyzer(BaseAnalyzer):
 ### Analyze ReportEventRecorder
 
 The ReportEventRecorder is in csv format instead of json and includes events for each single individual in the simulation per event that happened.
-Some individuals occur multiple times in the csv file while other might not appear even once, depending on the events specified (i.e. if `Births` are specified every new individual born in the simulation will appear at least once)/
-Note, the name _IndividualEventsAnalyzer_ can be customized and is not fixed.
+Some individuals occur multiple times in the csv file while other might not appear even once, depending on the events specified (i.e. if `Births` are specified every new individual born in the simulation will appear once).
+
+In this example, we look for the event `Received_Severe_Treatment` and count the number of events by age group. We also account
+for the case where none of these events occurred during the simulation.
 
 ```{python, eval=F}
 
 class IndividualEventsAnalyzer(BaseAnalyzer):
 
-    def __init__(self, expt_name, sweep_variables=None, working_dir='./', start_year=2022, selected_year=None):
+    def __init__(self, expt_name, agebins=None,
+                 sweep_variables=None, working_dir=".", start_year=2010, end_year=2020):
         super(IndividualEventsAnalyzer, self).__init__(working_dir=working_dir,
                                                        filenames=["output/ReportEventRecorder.csv"]
                                                        )
-
-```
-
-
-```{python, eval=F}
+        self.sweep_variables = sweep_variables or ["Run_Number"]
+        self.event_name = 'Received_Severe_Treatment'
+        self.agebins = agebins or [1, 5, 200]
+        self.expt_name = expt_name
+        self.start_year = start_year
+        self.end_year = end_year
 
     def select_simulation_data(self, data, simulation):
 
-        simdata = pd.DataFrame(data[self.filenames[0]])
-        simdata['Day'] = simdata['Time'] % 365
-        simdata['Month'] = simdata['Day'].apply(lambda x: self.monthparser((x + 1) % 365))
-        simdata['Year'] = simdata['Time'].apply(lambda x: int(x / 365) + self.start_year)
-        if self.selected_year is not None:
-            simdata = simdata.loc[(simdata['Year'] == self.selected_year)]
+        output_data = data[self.filenames[0]]
+        output_data = output_data[output_data['Event_Name'] == self.event_name]
 
-        for sweep_var in self.sweep_variables:
-            if sweep_var in simulation.tags.keys():
-                try:
+        simdata = pd.DataFrame()
+        if len(output_data) > 0:  # there are events of this type
+            output_data['Day'] = output_data['Time'] % 365
+            output_data['month'] = output_data['Day'].apply(lambda x: self.monthparser((x + 1) % 365))
+            output_data['year'] = output_data['Time'].apply(lambda x: int(x / 365) + self.start_year)
+            output_data['age in years'] = output_data['Age'] / 365
+
+            for agemax in self.agebins:
+                if agemax < 200:
+                    agelabel = 'U%d' % agemax
+                else:
+                    agelabel = 'all_ages'
+                if agemax == 5:
+                   agemin = 0.25
+                else:
+                    agemin = 0
+                d = output_data[(output_data['age in years'] < agemax) & (output_data['age in years'] > agemin)]
+                g = d.groupby(['year', 'month'])['Event_Name'].agg(len).reset_index()
+                g = g.rename(columns={'Event_Name': 'Num_%s_Received_Severe_Treatment' % agelabel})
+                if simdata.empty:
+                    simdata = g
+                else:
+                    if not g.empty :
+                        simdata = pd.merge(left=simdata, right=g, on=['year', 'month'], how='outer')
+                        simdata = simdata.fillna(0)
+
+            for sweep_var in self.sweep_variables:
+                if sweep_var in simulation.tags.keys():
                     simdata[sweep_var] = simulation.tags[sweep_var]
-                except:
-                    simdata[sweep_var] = '-'.join([str(x) for x in simulation.tags[sweep_var]])
+        else:
+            simdata = pd.DataFrame(columns=['year', 'month', 'Num_U5_Received_Severe_Treatment',
+                                            'Num_U1_Received_Severe_Treatment',
+                                            'Num_all_ages_Received_Severe_Treatment'] + self.sweep_variables)
         return simdata
-
 ```
 
