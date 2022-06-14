@@ -1453,7 +1453,7 @@ with efficacy of first 60 days held constant, before exponential decay kicks in.
 ![figure](/images/04_highlighted.png)
 
 Functions for adding attractive targeted sugar baits, topical repellents, outdoor residual spray, eave tubes, and 
-larvicides are found [here](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/vector/species.py#L375).
+larvicides are found [here](https://github.com/InstituteforDiseaseModeling/dtk-tools/blob/master/dtk/interventions/novel_vector_control.py).
 
 To add larvicides: 
 
