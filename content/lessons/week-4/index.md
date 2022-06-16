@@ -11,6 +11,7 @@ weight: 5
 
 - Monday June 20: Holiday
 - Wednesday June 22, 11am: peer editing hour
+- Friday June 24: Evanston field trip with MEHPI-J
 - Ben out Tuesday
 - Annie out Tues - Thurs
 

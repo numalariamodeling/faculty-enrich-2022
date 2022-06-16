@@ -8,6 +8,7 @@ weight: 4
 
 - Wednesday June 15: Second draft Aims page due
 - Friday June 17: Journal club
+- Friday June 17, 12pm: Eniola WIP practice talk
 - Ben out Wed - Fri
 
 ### Technical track (EMOD)

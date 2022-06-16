@@ -9,7 +9,9 @@ weight: 6
 
 ### Logistics
 
-- Friday July 1: Journal club
+- Wednesday June 29, 10am: Annie WIP practice
+- Friday July 1, 10am: Journal club
+- Friday July 1, 11am (tentative): Irene practice talk
 
 ### Technical track (EMOD)
 
