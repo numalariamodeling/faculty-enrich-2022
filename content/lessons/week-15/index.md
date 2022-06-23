@@ -27,9 +27,9 @@ Prepare slide decks for final EMOD research project presentations.
 
 ### Journal club
 
-Presenter: (add presenter name)
+Presenter: Ethel
 
-Facilitator: (add name)
+Facilitator: Jaline
 
 Selvaraj P, Wenger EA, Bridenbecker D, Windbichler N, Russell JR, Gerardin J, Bever CA, Nikolov M. [Vector genetics, insecticide resistance and gene drives: An agent-based modeling approach to evaluate malaria transmission and elimination.](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1008121) PLoS computational biology. 2020 Aug 14;16(8):e1008121.
 

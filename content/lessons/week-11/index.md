@@ -29,7 +29,7 @@ EMOD research project in-progress presentations.
 
 ### Journal club
 
-Presenter: (add presenter name)
+Presenter: Steady
 
 Facilitator: Ifeoma
 

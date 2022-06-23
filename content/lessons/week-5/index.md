@@ -23,9 +23,9 @@ Prepare slide decks for EMOD research project in-progress presentations.
 
 ### Journal club
 
-Presenter: (add presenter name)
+Presenter: Steady
 
-Facilitator: (add name)
+Facilitator: Edgard
 
 Gerardin J, Bertozzi-Villa A, Eckhoff PA, Wenger EA. [Impact of mass drug administration campaigns depends on interaction with seasonal human movement.](https://academic.oup.com/inthealth/article/10/4/252/4965024?login=true) International health. 2018 Jul 1;10(4):252-7.
 

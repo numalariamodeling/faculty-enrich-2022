@@ -12,7 +12,10 @@ weight: 7
 - Monday July 4: holiday
 - Tuesday July 5, 10am: AMMnet seminar
 - Tuesday July 5, 11am: capacity development conversation with IDM
+- Tuesday July 5, 1pm: research in progress talks
+- Wednesday July 6, 11am: Ousmane WIP practice
 - Wednesday July 6, 1pm: Annie IGH WIP
+- Friday July 8, 12pm: IGH First Friday seminar "Digital Innovations for Global Health"
 - Friday July 8: Third draft Aims page due
 
 ### Technical track (EMOD)

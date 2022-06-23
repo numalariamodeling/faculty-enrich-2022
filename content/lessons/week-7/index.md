@@ -24,7 +24,7 @@ Topic: Sweeping and calibration
 
 ### Journal club
 
-Presenter: (add presenter name)
+Presenter: Isaiah
 
 Facilitator: Ben Toh
 

@@ -24,9 +24,9 @@ Topic: Advanced EMOD: gene drive and reactive interventions
 
 ### Journal club
 
-Presenter: (add presenter name)
+Presenter: Isaiah
 
-Facilitator: (add name)
+Facilitator: Jaline
 
 Gerardin J, Bever CA, Bridenbecker D, Hamainza B, Silumbe K, Miller JM, Eisele TP, Eckhoff PA, Wenger EA. [Effectiveness of reactive case detection for malaria elimination in three archetypical transmission settings: a modelling study.](https://malariajournal.biomedcentral.com/articles/10.1186/s12936-017-1903-z) Malaria journal. 2017 Dec;16(1):1-7.
 

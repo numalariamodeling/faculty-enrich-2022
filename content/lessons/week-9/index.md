@@ -26,7 +26,7 @@ Topic: Infusing simulations with real data
 
 ### Journal club
 
-Presenter: (add presenter name)
+Presenter: Ethel
 
 Facilitator: Annie
 
