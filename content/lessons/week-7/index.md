@@ -9,7 +9,8 @@ weight: 8
 
 ### Logistics
 
-- Friday July 15: Journal club
+- Wednesday July 13, 10am: Ousmane WIP practice
+- Friday July 15, 1pm: Sebastian thesis defense practice
 - Annie out all week
 
 ### Technical track (EMOD)
@@ -24,14 +25,7 @@ Topic: Sweeping and calibration
 
 ### Journal club
 
-Presenter: Isaiah
-
-Facilitator: Ben Toh
-
-Walker PG, Griffin JT, Ferguson NM, Ghani AC. [Estimating the most efficient allocation of interventions to achieve reductions in Plasmodium falciparum malaria burden and transmission in Africa: a modelling study.](https://www.sciencedirect.com/science/article/pii/S2214109X16300730) The Lancet Global Health. 2016 Jul 1;4(7):e474-84.
-
-Additional recommended reading:
-[Public health impact and cost-effectiveness of the RTS,S/AS01 malaria vaccine: a systematic comparison of predictions from four mathematical models](https://www.sciencedirect.com/science/article/pii/S0140673615007254)
+No journal club this week.
 
 ### Proposal writing
 
