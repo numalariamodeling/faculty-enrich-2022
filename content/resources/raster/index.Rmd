@@ -1,0 +1,105 @@
+---
+title: "Working with Raster"
+author: ""
+date: "2022-07-12T15:49:00-05:00"
+output: 
+  blogdown::html_page
+---
+
+## Introductions
+
+In this page, we demonstrate how to extract values from maps using R. Often we have maps showing values for each pixels, for example, [ITN access and usage map with 5km x 5km resolutions](https://malariaatlas.org/research-project/metrics-of-insecticide-treated-nets-distribution/) or [Population counts with 1km x 1km resolutions](https://hub.worldpop.org/geodata/summary?id=39516). To convert these maps to useful estimates for our model, we need to extract the values underlying each pixel in the map, within the geographical area of interest. For example, if the map covers the entire Sub-Saharan Africa, and all we need is values from Burkina Faso, we will need to only extract the pixels within the country's boundary. Then we would need to aggregate the values of the pixels, to obtain some form of country-wide estimate. Similar analogy is applicable to region, district and province.
+
+We use the `sp` and `raster` packages in R to achieve this. For the first example, we will walk through extracting ITN usage estimate for a Burkina Faso district of Kampti.
+
+## Example 1: ITN usage of Kampti District
+
+To achieve this, it is important to look at the "ingredients" needed:
+- Shape file for Burkina Faso and its district (xxx)
+- 2016 ITN usage map (xxx; note that this is originally covering the entire of SSA, but is cropped to reduce filesize)
+- 2016 estimated population distrbution map of Burkina Faso (xxx)
+
+Shape file serves as a "cookie cutter" such that we can ensure to extract values within the boundary of a district or area of interest. We will discuss about the use of population distribution map later.
+
+Here are the code walkthrough. First we import the libraries, and load the input using `raster()` and `shapefile()` functions.
+```{r init}
+library(sp)
+library(raster)
+
+shp <- shapefile("data/burkina_70DS.shp")
+shp
+
+itn_raster <- raster("data/ITN2016.tif")
+itn_raster
+
+pop_raster <- raster("data/bfa_ppp_2016_1km_Aggregated_UNadj.tif")
+pop_raster
+```
+
+The summaries for each of the object suggests that `shp` has a different CRS (Coordinate Reference System) than others. The CRS of all objects must align for our work here, and it's easier to convert CRS in `shp` to that of other raster objects.
+
+```{r crs-transform}
+shp <- spTransform(shp, crs(itn_raster))
+```
+
+Now we can plot and see the raster and shapes. Here's ITN raster.
+```{r itn-raster}
+plot(itn_raster)
+plot(shp, add=T)
+```
+
+And here's population raster. There are a little misalignment in the north for this raster, but for our purpose, this problem is not too big.
+```{r pop-raster}
+plot(pop_raster)
+plot(shp, add=T)
+```
+
+### Naïve Extraction
+The most naïve way of extracting values for each district here is to directly use the `extract()` function. When supplied with a set of polygons (shapes), the function pull the values underlying all the pixels within the shapes, and aggregate them, say by taking means. The function can be supplied by a set of points too.
+
+```{r naive-extract}
+df <- shp@data # Pull data out of shapefiles (District names etc.)
+
+# Extract and aggregate using mean function
+df$itn_cov <- extract(itn_raster, shp, fun=mean)
+
+# Look at values for Bittou district
+df[df$NOMDEP=='BITTOU', c('NOMDEP', 'NOMREGION', 'itn_cov')]
+```
+
+### Population-weighted extraction
+Sometimes averaging each pixel without weights doesn't feel quite "right": Pixels inside uninhabited forests aren't the same as pixels inside a crowded town when we care about ITN coverage. Therefore, we may elect to use population map to weight the pixels and obtain a population-weighted estimate for each district.
+
+```{r pop-weigh-extract}
+# First try to stack the ITN and Population map
+## To do so, need to ensure two maps cover same area
+## Crop ITN raster according to Population raster
+itn_raster_cr <- crop(itn_raster, pop_raster)
+## Lower resolution of Population raster to the level of ITN raster
+pop_raster_res <- resample(pop_raster, itn_raster_cr, )
+
+## Stacking the raster
+itn_pop_stack <- stack(itn_raster_cr, pop_raster_res)
+
+# Extract the raster stack according to the shapes, no aggregation
+out <- extract(itn_pop_stack, shp)
+
+# Define functions to calculate weighted average from output matrix
+weighted_avg <- function (x, w) sum(x * w) / sum(w)
+estim_from_matrix <- function (mat) {
+  mat <- na.omit(mat)
+  return(weighted_avg(mat[,1], mat[,2]))
+}
+
+```
+
+Without specifying the aggregating function for `extract()`, the function pull every single pixel out of the raster stack. Result is a list of matrices, first column is ITN coverage, second column is population count. So we define a function `estim_from_matrix()` that would calculate weighted average of first column according to second column. `sapply()` applies the function to each element (matrix) of the list, and combine the output nicely into a vector.
+
+```{r}
+df2 <- shp@data
+df2$itn_cov <- sapply(out, estim_from_matrix)
+
+df2[df2$NOMDEP=='BITTOU', c('NOMDEP', 'NOMREGION', 'itn_cov')]
+```
+
+The ITN coverage estimates from population-weighted method is almost the same as the naive method. This is potentially due to the ITN estimates within the district being relatively homogeneous.
