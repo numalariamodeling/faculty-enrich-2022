@@ -21,7 +21,6 @@ Topic: Advanced EMOD: HBHI workflow as a complex example
     + Identify familiar components from previous weeks
     + Identify new components: managing shared functions, reading intervention data from csv's, multi-analyzers
 - Continue to refine own research projects
-- [=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-11-advanced-emod-hbhi-workflow-as-a-complex-example-)
 
 ### Presentations
 

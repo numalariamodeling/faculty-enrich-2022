@@ -18,7 +18,6 @@ Topic: HPC
 - Using Quest
 - Roundtable: Technical difficulties and challenges to run EMOD experiments from home institution
     + How can NUMM help before or after return?
-- [=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-14-hpc-)
 
 ### Journal club
 

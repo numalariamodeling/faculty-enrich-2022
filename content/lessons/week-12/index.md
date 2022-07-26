@@ -19,7 +19,6 @@ Topic: Advanced EMOD: Spatial modeling in EMOD
 - How to set up human and/or vector movement between nodes
 - Custom reports useful for multi-node simulations
 - Continue to refine own research projects
-- [=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-12-advanced-emod-spatial-modeling-in-emod-)
 
 ### Journal club
 

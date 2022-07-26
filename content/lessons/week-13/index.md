@@ -20,7 +20,6 @@ Topic: Advanced EMOD: gene drive and reactive interventions
 - Guest lecture: vector genetics and modeling gene drives in EMOD
 - Roundtable: Current limitations and future of EMOD and agent-based modeling of malaria
 - Continue to refine own research projects
-- [example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-13-advanced-emod-gene-drive-and-reactive-interventions-)
 
 ### Journal club
 

@@ -21,7 +21,6 @@ Topic: Infusing simulations with real data
     + DHS overview
     + Pulling DHS data through API
 - Continue to refine own research projects
-- [=> example exercises](https://github.com/numalariamodeling/faculty-enrich-2022-examples#week-9-infusing-simulations-with-real-data-)
 
 ### Journal club
 
