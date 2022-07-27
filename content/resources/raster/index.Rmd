@@ -15,9 +15,9 @@ We use the `sp` and `raster` packages in R to achieve this. For the first exampl
 ## Example 1: ITN usage of Kampti District
 
 To achieve this, it is important to look at the "ingredients" needed:
-- Shape file for Burkina Faso and its district (xxx)
-- 2016 ITN usage map (xxx; note that this is originally covering the entire of SSA, but is cropped to reduce filesize)
-- 2016 estimated population distrbution map of Burkina Faso (xxx)
+- [Shape file for Burkina Faso and its district](data/burkina_70DS.zip) (You need to unzip this)
+- [2016 ITN usage map](data/ITN2016.tif) (note that this is originally covering the entire of SSA, but is cropped to reduce filesize)
+- [2016 estimated population distrbution map of Burkina Faso](data/bfa_ppp_2016_1km_Aggregated_UNadj.tif)
 
 Shape file serves as a "cookie cutter" such that we can ensure to extract values within the boundary of a district or area of interest. We will discuss about the use of population distribution map later.
 
