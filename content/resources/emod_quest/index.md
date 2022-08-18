@@ -11,8 +11,9 @@ Northwesterns University's high performance computing (HPC) system is called Que
 Good to know:
 - Connect to Quest using the software [MobaXterm](https://mobaxterm.mobatek.net/) or [FastX](https://www.starnet.com/fastx/) .
 - The  [Quest Quick Start Guide](https://kb.northwestern.edu/page.php?id=70706) provide useful information to get started and find help to common questions and issues when using Quest.
+  - and youtube video [Navigating Quest via Shell](https://www.youtube.com/watch?v=cLn_1BzRxCM)  from Northwestern Research Computing Team (they have many more resources!)
 - On the cluster, the SLURM job scheduling system is used [SLURM guide](https://slurm.schedmd.com/faq.html).
-
+- FE example exercise on Quest: [nucluster_example](https://github.com/numalariamodeling/faculty-enrich-2022-examples/tree/main/nucluster_example)
 
 ### Installation steps for EMOD and dtk on Quest (`NUCLUSTER`)
 
